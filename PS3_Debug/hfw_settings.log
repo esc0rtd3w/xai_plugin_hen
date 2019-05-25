@@ -1,0 +1,56 @@
+2016-01-08 13:38:07 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-08 13:38:07 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-08 13:38:07 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-08 13:38:07 [xai_plugin] : ACT0 : xai_plugin_action(hard_reboot_action)
+2016-01-08 13:48:37 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-08 13:48:37 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-08 13:48:37 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-08 13:48:37 [xai_plugin] : ACT0 : xai_plugin_action(service_mode)
+Looking for lv1 offset
+Found lv1 code @0xfebc0
+Product Mode Enabled
+2016-01-08 14:01:24 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-08 14:01:24 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-08 14:01:24 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-08 14:01:24 [xai_plugin] : ACT0 : xai_plugin_action(hard_reboot_action)
+2016-01-08 14:03:01 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-08 14:03:01 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-08 14:03:01 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-08 14:03:01 [xai_plugin] : ACT0 : xai_plugin_action(service_mode)
+Looking for lv1 offset
+Found lv1 code @0xfebc0
+Product Mode Enabled
+2016-01-10 01:22:22 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-10 01:22:22 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-10 01:22:22 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-10 01:22:22 [xai_plugin] : ACT0 : xai_plugin_action(toggle_dlna)
+loadRegistryDlnaFlag(): 0
+saveRegistryDlnaFlag(): 0
+DLNA enabled.
+2016-01-10 01:22:34 [xai_plugin] : ACT0 : xai_plugin_action(toggle_dlna)
+loadRegistryDlnaFlag(): 1
+saveRegistryDlnaFlag(): 0
+DLNA disabled.
+2016-01-10 01:22:50 [xai_plugin] : ACT0 : xai_plugin_action(toggle_dlna)
+loadRegistryDlnaFlag(): 0
+saveRegistryDlnaFlag(): 0
+DLNA enabled.
+2016-01-10 01:23:20 [xai_plugin] : 1 : xai_plugin_stop()
+2016-01-10 01:23:20 [xai_plugin] : 1 : xai_plugin_exit()
+2016-01-10 01:23:20 [xai_plugin] :  : _xai_plugin_prx_stop()
+2016-01-11 13:08:09 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-11 13:08:09 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-11 13:08:09 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-11 13:08:09 [xai_plugin] : ACT0 : xai_plugin_action(rebug_mode)
+2016-01-11 13:08:09 [xai_plugin] : ACT0 : cellFsUtilMount(/dev_rebug) = 0
+2016-01-11 13:08:09 [xai_plugin] : ACT0 : cellFsUtilUnMount(/dev_rebug) = 0
+2016-01-30 21:49:41 [xai_plugin] :  : _xai_plugin_prx_entry()
+2016-01-30 21:49:41 [xai_plugin] : 1 : xai_plugin_init()
+2016-01-30 21:49:41 [xai_plugin] : 1 : xai_plugin_start()
+2016-01-30 21:49:41 [xai_plugin] : ACT0 : xai_plugin_action(control_led12)
+Control LED : 1
+LED Action  : 2
+sys_sm_control_led() = 0
+2016-01-30 21:49:54 [xai_plugin] : 1 : xai_plugin_stop()
+2016-01-30 21:49:54 [xai_plugin] : 1 : xai_plugin_exit()
+2016-01-30 21:49:54 [xai_plugin] :  : _xai_plugin_prx_stop()
