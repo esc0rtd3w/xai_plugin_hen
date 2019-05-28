@@ -19,7 +19,6 @@
 #include "x3.h"
 #include "xRegistry.h"
 #include "download_plugin.h"
-#include "rebug.h"
 
 
 
@@ -239,7 +238,7 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if(strcmp(action,"clean_log")==0)
 	{		
 		clean_log();
-	}		
+	}
 	else if(strcmp(action,"log_klic")==0)
 	{
 		log_klic();
@@ -251,56 +250,32 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if(strcmp(action,"enable_screenshot")==0)
 	{		
 		enable_screenshot();
-	}	
+	}
+	/*
 	else if(strcmp(action,"enable_recording")==0)
 	{
 		enable_recording();
 	}
+	*/
 	else if(strcmp(action,"override_sfo")==0)
 	{		
 		override_sfo();
-	}		
-	else if(strcmp(action,"remarry_bd")==0)
-	{		
-		remarry_bd();
-	}		
-	else if(strncmp(action,"ledmod",6)==0)
-	{		
-		control_led(action);
-	}		
-	else if(strcmp(action,"rsod_fix")==0)
-	{		
-		if( rsod_fix() == true)
-			xmb_reboot(SYS_HARD_REBOOT);
-	}		
-	else if(strcmp(action,"enable_hvdbg")==0)
-	{
-		if( enable_hvdbg() == true)
-			xmb_reboot(SYS_HARD_REBOOT);
 	}
 	else if(strcmp(action,"backup_registry")==0)
 	{
 		backup_registry();
 	}
-	else if(strcmp(action,"usb_firm_loader")==0)
-	{
-		usb_firm_loader();
-	}
 	else if(strcmp(action,"dump_disc_key")==0)
 	{
 		dump_disc_key();
-	}		
+	}
 	else if(strcmp(action,"dump_idps")==0)
 	{
 		dump_idps();
-	}		
+	}
 	else if(strcmp(action,"applicable_version")==0)
 	{
 		applicable_version();
-	}
-	else if(strcmp(action,"toggle_dlna")==0)
-	{
-		toggle_dlna();
 	}
 	else if(strcmp(action,"rebuild_db")==0)
 	{
@@ -317,37 +292,13 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		recovery_mode();
 		xmb_reboot(SYS_HARD_REBOOT);
-	}	
+	}
 	else if(strcmp(action,"service_mode")==0)
 	{
 		if(service_mode() == true)
 			xmb_reboot(SYS_HARD_REBOOT);
 	}
 
-
-	
-	else if(strcmp(action,"cobra_mode")==0)
-	{
-		if(cobra_mode() == CELL_OK)
-			xmb_reboot(SYS_HARD_REBOOT);
-	}
-	else if(strcmp(action,"rebug_mode")==0)
-	{
-		if(rebug_mode() == CELL_OK)
-			xmb_reboot(SYS_SOFT_REBOOT);
-	}
-	else if(strcmp(action,"debugsettings_mode")==0)
-	{
-		debugsettings_mode();
-	}
-	else if(strcmp(action,"download_toolbox")==0)
-	{
-		download_toolbox();
-	}
-	else if(strcmp(action,"install_toolbox")==0)
-	{
-		install_toolbox();
-	}
 }
 
 

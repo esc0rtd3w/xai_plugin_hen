@@ -60,7 +60,6 @@
     <ClCompile Include="gccpch.h" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="prx.cpp" />
-    <ClCompile Include="rebug.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hfw_settings.h" />
@@ -68,7 +67,6 @@
     <ClInclude Include="download_plugin.h" />
     <ClInclude Include="explore_plugin.h" />
     <ClInclude Include="game_ext_plugin.h" />
-    <ClInclude Include="rebug.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="ps3_savedata_plugin.h" />
     <ClInclude Include="videorec.h" />

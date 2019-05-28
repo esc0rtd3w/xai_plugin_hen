@@ -17,9 +17,6 @@
     <ClCompile Include="log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rebug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gccpch.h">
       <Filter>Header Files</Filter>
     </ClCompile>
@@ -41,9 +38,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ps3_savedata_plugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xRegistry.h">
