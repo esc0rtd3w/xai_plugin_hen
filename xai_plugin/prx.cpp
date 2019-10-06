@@ -269,9 +269,13 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		dump_disc_key();
 	}
-	else if(strcmp(action,"dump_idps")==0)
+	else if (strcmp(action, "dump_idps") == 0)
 	{
 		dump_idps();
+	}
+	else if (strcmp(action, "dump_psid") == 0)
+	{
+		dump_psid();
 	}
 	else if(strcmp(action,"applicable_version")==0)
 	{

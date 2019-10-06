@@ -24,6 +24,7 @@ void backup_registry();
 void usb_firm_loader();
 void dump_disc_key();
 void dump_idps();
+void dump_psid();
 void applicable_version();
 void toggle_dlna();
 void rebuild_db();

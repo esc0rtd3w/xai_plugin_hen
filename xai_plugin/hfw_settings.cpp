@@ -1067,25 +1067,45 @@ void control_led(const char * action)
 }
 
 int sys_ss_get_console_id(void * idps)
-{ 	
+{
 	system_call_1(870, (uint64_t)idps);
+	return_to_user_prog(int);
+}
+
+int sys_ss_get_open_psid(void * psid)
+{
+	system_call_1(872, (uint64_t)psid);
 	return_to_user_prog(int);
 }
 
 void dump_idps()
 {
 	uint8_t idps[0x10];
-	memset(idps,0,0x10);
+	memset(idps, 0, 0x10);
 	int ret = sys_ss_get_console_id(idps);
-	if(ret == EPERM)
+	if (ret == EPERM)
 		ret = cellSsAimGetDeviceId(idps);
-	if(ret != CELL_OK)
+	if (ret != CELL_OK)
 	{
-		notify("IDPS Dump failed: %x\n",ret);
+		notify("IDPS Dump failed: %x\n", ret);
 		return;
 	}
-	log_key("IDPS",idps);
+	log_key("IDPS", idps);
 	notify("IDPS Dumped!");
+}
+
+void dump_psid()
+{
+	uint8_t psid[0x10];
+	memset(psid, 0, 0x10);
+	int ret = sys_ss_get_open_psid(psid);
+	if (ret != CELL_OK)
+	{
+		notify("PSID Dump failed: %x\n", ret);
+		return;
+	}
+	log_key("PSID", psid);
+	notify("PSID Dumped!");
 }
 
 
