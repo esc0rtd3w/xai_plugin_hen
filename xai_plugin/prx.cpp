@@ -219,7 +219,9 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 {	
 	log_function("xai_plugin",__VIEW__,__FUNCTION__,"(%s)\n",action);	
 
+	// HFW Tools XML
 
+	// Restart PS3
 	if(strcmp(action,"soft_reboot_action")==0)
 	{
 		xmb_reboot(SYS_SOFT_REBOOT);
@@ -233,41 +235,28 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		xmb_reboot(SYS_POWER_OFF);
 	}
 
-
-
-	else if(strcmp(action,"clean_log")==0)
-	{		
-		clean_log();
-	}
-	else if(strcmp(action,"log_klic")==0)
+	// In-Game Settings
+	else if (strcmp(action, "override_sfo") == 0)
 	{
-		log_klic();
+		override_sfo();
 	}
-	else if(strcmp(action,"log_secureid")==0)
+	/*
+	else if (strcmp(action, "enable_screenshot") == 0)
 	{
-		log_secureid();
-	}
-	else if(strcmp(action,"enable_screenshot")==0)
-	{		
 		enable_screenshot();
 	}
+	*/
 	/*
 	else if(strcmp(action,"enable_recording")==0)
 	{
-		enable_recording();
+	enable_recording();
 	}
 	*/
-	else if(strcmp(action,"override_sfo")==0)
+
+	// Dump Tools
+	else if(strcmp(action,"clean_log")==0)
 	{		
-		override_sfo();
-	}
-	else if(strcmp(action,"backup_registry")==0)
-	{
-		backup_registry();
-	}
-	else if(strcmp(action,"dump_disc_key")==0)
-	{
-		dump_disc_key();
+		clean_log();
 	}
 	else if (strcmp(action, "dump_idps") == 0)
 	{
@@ -277,32 +266,51 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		dump_psid();
 	}
-	else if(strcmp(action,"applicable_version")==0)
+	else if(strcmp(action,"log_klic")==0)
+	{
+		log_klic();
+	}
+	else if(strcmp(action,"log_secureid")==0)
+	{
+		log_secureid();
+	}
+	else if (strcmp(action, "dump_disc_key") == 0)
+	{
+		dump_disc_key();
+	}
+	else if (strcmp(action, "backup_registry") == 0)
+	{
+		backup_registry();
+	}
+
+	// Service Tools
+	else if (strcmp(action, "applicable_version") == 0)
 	{
 		applicable_version();
 	}
-	else if(strcmp(action,"rebuild_db")==0)
-	{
-		rebuild_db();
-		xmb_reboot(SYS_SOFT_REBOOT);
-	}
-	else if(strcmp(action,"fs_check")==0)
+	else if (strcmp(action, "fs_check") == 0)
 	{
 		//if(fs_check() == CELL_OK)
 		//	xmb_reboot(SYS_SOFT_REBOOT);
 		sys_sm_shutdown(SYS_SOFT_REBOOT); // no need to unlink files.
 	}
-	else if(strcmp(action,"recovery_mode")==0)
+	else if (strcmp(action, "rebuild_db") == 0)
+	{
+		rebuild_db();
+		xmb_reboot(SYS_SOFT_REBOOT);
+	}
+	else if (strcmp(action, "recovery_mode") == 0)
 	{
 		recovery_mode();
 		xmb_reboot(SYS_HARD_REBOOT);
 	}
+	/*
 	else if(strcmp(action,"service_mode")==0)
 	{
 		if(service_mode() == true)
 			xmb_reboot(SYS_HARD_REBOOT);
 	}
-
+	*/
 }
 
 
