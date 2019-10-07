@@ -1091,7 +1091,7 @@ void dump_idps()
 		return;
 	}
 	log_key("IDPS", idps);
-	notify("IDPS Dumped!");
+	notify("IDPS Dumped!\n%08X%08X\n%08X%08X", *(int*)idps, *((int*)idps + 1), *((int*)idps + 2), *((int*)idps + 3), false);
 }
 
 void dump_psid()
@@ -1105,7 +1105,7 @@ void dump_psid()
 		return;
 	}
 	log_key("PSID", psid);
-	notify("PSID Dumped!");
+	notify("PSID Dumped!\n%08X%08X\n%08X%08X", *(int*)psid, *((int*)psid + 1), *((int*)psid + 2), *((int*)psid + 3), false);
 }
 
 

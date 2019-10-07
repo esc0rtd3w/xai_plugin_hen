@@ -331,19 +331,19 @@ int GetItemFromMetaList_hook_Mini(int metalist,int item, char * objectfield, int
 		{
 			if(strcmp(objectfield,"Game:Game.ps3SystemVer") == 0)
 			{
-				//log("Game:Game.ps3SystemVer: %s\n",(char*)out[2]);
-				//((char*)(out[2]))[0] = 0;
+				log("Game:Game.ps3SystemVer: %s\n",(char*)out[2]);
+				((char*)(out[2]))[0] = 0;
 			}
 			if(strcmp(objectfield,"Game:Game.attribute") == 0)
 			{
 				log("Game:Game.attribute: %x\n",*(int*)out[2]);
 				*(int*)out[2] = *(int*)out[2] | 0xA5;
 			}
-			//log("ObjectField: "); 
-			//log(objectfield);
-			//log(" -> ");
-			//log((char*)out[2]);
-			//log("\n");
+			log("ObjectField: "); 
+			log(objectfield);
+			log(" -> ");
+			log((char*)out[2]);
+			log("\n");
 		}
 	}
 	return ret;
@@ -488,8 +488,15 @@ void notify(char * param)
 void notify(const char * format, int param1)
 {
 	char tmp[0x100];
-	vsh_sprintf(tmp,format, param1);
-	log(tmp); log("\n");	
+	vsh_sprintf(tmp, format, param1);
+	log(tmp); log("\n");
+	vshtask_A02D46E7(0, tmp);
+}
+void notify(const char * format, int param1, int param2, int param3, int param4, bool logging)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2, param3, param4);
+	if (logging == true){ log(tmp); log("\n"); }
 	vshtask_A02D46E7(0, tmp);
 }
 
