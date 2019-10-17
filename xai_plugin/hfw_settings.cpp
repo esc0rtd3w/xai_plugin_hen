@@ -55,6 +55,33 @@ uint32_t GetApplicableVersion(void * data)
 {
 	system_call_8(863, 0x6011, 1,(uint64_t)data,0,0,0,0,0);
 	return_to_user_prog(uint32_t);
+
+}
+
+//extern process_t vsh_process; 
+process_t vsh_process;
+int get_vsh_proc()
+{
+	uint32_t tmp_pid_list[16];
+	uint64_t *proc_list = *(uint64_t **)MKA(TOC + process_rtoc_entry_1);
+	proc_list = *(uint64_t **)proc_list;
+	proc_list = *(uint64_t **)proc_list;
+	for (int i = 0; i < 16; i++)
+	{
+		process_t process = (process_t)proc_list[1];
+		proc_list += 2;
+		if ((((uint64_t)process) & 0xFFFFFFFF00000000ULL) != MKA(0)) { tmp_pid_list[i] = 0; continue; }
+		char *proc_name = get_process_name(process);
+		if (0 < strlen(proc_name))
+		{
+			if (strstr(proc_name, "vsh"))
+			{
+				vsh_process = process;
+				break;
+			}
+		}
+	}
+	return 0;
 }
 
 int (*Authenticate_BD_Drive)(int cmd) = 0;
