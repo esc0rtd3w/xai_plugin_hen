@@ -83,6 +83,28 @@ int get_vsh_proc()
 	}
 	return 0;
 }
+//TODO: load vsh process to patch
+void psn_patch(uint32_t paddr, uint32_t pbytes)
+{
+	//peekq(paddr);
+	//DPRINTF("peekq %08X: Old Bytes %08X\n", peekq(kaddr));
+
+	//pokeq(kaddr, peekq(kaddr));
+
+	//peekq(paddr);
+	//DPRINTF("peekq %08X: New Bytes %08X\n", peekq(kaddr));
+}
+
+void kpatch(uint64_t kaddr, uint64_t kbytes)
+{
+	//peekq(paddr);
+	DPRINTF("peekq %08X: Old Bytes %08X\n", peekq(kaddr));
+
+	pokeq(kaddr, peekq(kaddr));
+
+	//peekq(paddr);
+	DPRINTF("peekq %08X: New Bytes %08X\n", peekq(kaddr));
+}
 
 int (*Authenticate_BD_Drive)(int cmd) = 0;
 int (*vsh_E44F29F4)(const char * device_name, const char * device_fs, const char * device_path, int r6, int write_prot, int r8, int * r9) = 0;

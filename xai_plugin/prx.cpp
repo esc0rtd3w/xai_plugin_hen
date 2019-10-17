@@ -311,6 +311,37 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 			xmb_reboot(SYS_HARD_REBOOT);
 	}
 	*/
+
+	// NoPSN Patches
+	else if (strcmp(action, "nopsn_amazon") == 0)
+	{
+		psn_patch(0x242458, 0x38600001);// Amazon vshnet_sceLoginServiceGetNpStatus
+		psn_patch(0x24245C, 0x4E800020);// Amazon vshnet_sceLoginServiceGetNpStatus
+		notify("NoPSN Patch Applied For Amazon", 0, 0, 0, 0, false);
+	}
+	else if (strcmp(action, "nopsn_youtube") == 0)
+	{
+		psn_patch(0x1B60A4, 0x2F800001);// Youtube vshnet_sceNpGetStatus
+		notify("NoPSN Patch Applied For Youtube", 0, 0, 0, 0, false);
+	}
+
+	// Kernel Patches
+	else if (strcmp(action, "kernel_setfw_version_482") == 0)
+	{
+		kpatch(0x80000000002FCB68ULL, 0x323031372F30382FULL);
+	}
+	else if (strcmp(action, "kernel_setfw_version_484") == 0)
+	{
+		kpatch(0x80000000002FCB68ULL, 0x323031392F30312FULL);
+	}
+	else if (strcmp(action, "kernel_setfw_version_485") == 0)
+	{
+		kpatch(0x80000000002FCB68ULL, 0x323031392F30372FULL);
+	}
+
+	//
+
+	
 }
 
 

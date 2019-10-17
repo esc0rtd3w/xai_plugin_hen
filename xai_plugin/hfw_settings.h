@@ -9,6 +9,13 @@
 #define TOC 0x34FBB0// CEX 4.82/4.84/4.85
 #define process_rtoc_entry_1 -0x7800
 
+#define printf(...)
+//#define DPRINTF(...)
+#define DPRINTF		printf
+
+void kpatch(uint64_t kaddr, uint64_t kbytes);
+void psn_patch(uint32_t paddr, uint32_t pbytes);
+
 uint64_t lv1_peek(uint64_t addr);
 void lv1_poke( uint64_t addr, uint64_t val);
 
