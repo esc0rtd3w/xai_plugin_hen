@@ -58,52 +58,45 @@ uint32_t GetApplicableVersion(void * data)
 
 }
 
-//extern process_t vsh_process; 
-process_t vsh_process;
-int get_vsh_proc()
+process_id_t vsh_pid = 0;
+
+static int poke_vsh(uint64_t address, char *buf, int size)
 {
-	uint32_t tmp_pid_list[16];
-	uint64_t *proc_list = *(uint64_t **)MKA(TOC + process_rtoc_entry_1);
-	proc_list = *(uint64_t **)proc_list;
-	proc_list = *(uint64_t **)proc_list;
-	for (int i = 0; i < 16; i++)
+	if (!vsh_pid)
 	{
-		process_t process = (process_t)proc_list[1];
-		proc_list += 2;
-		if ((((uint64_t)process) & 0xFFFFFFFF00000000ULL) != MKA(0)) { tmp_pid_list[i] = 0; continue; }
-		char *proc_name = get_process_name(process);
-		if (0 < strlen(proc_name))
+		uint32_t tmp_pid_list[MAX_PROCESS];
+		char name[25];
+		int i;
+		system_call_3(8, SYSCALL8_OPCODE_PS3MAPI, PS3MAPI_OPCODE_GET_ALL_PROC_PID, (uint64_t)(uint32_t)tmp_pid_list);
+		for (i = 0; i<MAX_PROCESS; i++)
 		{
-			if (strstr(proc_name, "vsh"))
+			system_call_4(8, SYSCALL8_OPCODE_PS3MAPI, PS3MAPI_OPCODE_GET_PROC_NAME_BY_PID, tmp_pid_list[i], (uint64_t)(uint32_t)name);
+			if (strstr(name, "vsh"))
 			{
-				vsh_process = process;
+				vsh_pid = tmp_pid_list[i];
 				break;
 			}
 		}
+		if (!vsh_pid)
+			return -1;
 	}
-	return 0;
+	system_call_6(8, SYSCALL8_OPCODE_PS3MAPI, PS3MAPI_OPCODE_SET_PROC_MEM, vsh_pid, address, (uint64_t)(uint32_t)buf, size);
 }
 //TODO: load vsh process to patch
 void psn_patch(uint32_t paddr, uint32_t pbytes)
 {
-	//peekq(paddr);
-	//DPRINTF("peekq %08X: Old Bytes %08X\n", peekq(kaddr));
 
-	//pokeq(kaddr, peekq(kaddr));
-
-	//peekq(paddr);
-	//DPRINTF("peekq %08X: New Bytes %08X\n", peekq(kaddr));
 }
 
 void kpatch(uint64_t kaddr, uint64_t kbytes)
 {
 	//peekq(paddr);
-	DPRINTF("peekq %08X: Old Bytes %08X\n", peekq(kaddr));
+	notify("peekq %08X: Old Bytes %08X\n", kaddr, peekq(kaddr), 0, 0, false);
 
-	pokeq(kaddr, peekq(kaddr));
+	pokeq(kaddr, kbytes);
 
 	//peekq(paddr);
-	DPRINTF("peekq %08X: New Bytes %08X\n", peekq(kaddr));
+	notify("peekq %08X: New Bytes %08X\n", kaddr, peekq(kaddr), 0, 0, false);
 }
 
 int (*Authenticate_BD_Drive)(int cmd) = 0;

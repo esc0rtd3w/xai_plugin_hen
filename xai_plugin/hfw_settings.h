@@ -1,17 +1,28 @@
 
 #define PRODUCT_MODE_FLAG_OFFSET 0x48C07
 #define RECOVERY_MODE_FLAG_OFFSET 0x48C61
-#define VSH_PROCESS_NAME	"_main_vsh.self"
-#define INLINE inline __attribute__((always_inline))
-#define MAKE_KERNEL_ADDRESS(addr) (0x8000000000000000ULL | ((uint32_t)addr))
-#define MKA MAKE_KERNEL_ADDRESS
 
-#define TOC 0x34FBB0// CEX 4.82/4.84/4.85
-#define process_rtoc_entry_1 -0x7800
+#define VSH_PROCESS_NAME	"_main_vsh.self"
+//#define INLINE inline __attribute__((always_inline))
+//#define MAKE_KERNEL_ADDRESS(addr) (0x8000000000000000ULL | ((uint32_t)addr))
+//#define MKA MAKE_KERNEL_ADDRESS
+
+//#define TOC 0x34FBB0// CEX 4.82/4.84/4.85
+//#define process_rtoc_entry_1 -0x7800
+
+#define process_id_t uint32_t
+#define SYSCALL8_OPCODE_PS3MAPI			 		0x7777
+#define PS3MAPI_OPCODE_GET_ALL_PROC_PID			0x0021
+#define PS3MAPI_OPCODE_GET_PROC_NAME_BY_PID		0x0022
+#define PS3MAPI_OPCODE_GET_PROC_MEM				0x0031
+#define PS3MAPI_OPCODE_SET_PROC_MEM				0x0032
+#define MAX_PROCESS 16
 
 #define printf(...)
 //#define DPRINTF(...)
 #define DPRINTF		printf
+
+static int poke_vsh(uint64_t address, char *buf, int size);
 
 void kpatch(uint64_t kaddr, uint64_t kbytes);
 void psn_patch(uint32_t paddr, uint32_t pbytes);
@@ -197,14 +208,3 @@ typedef struct _process_t
 	// 0x26C -> sdk version 32bits
 } __attribute__((packed)) *process_t;
 
-process_t get_current_process(void);
-
-static INLINE char *get_process_name(process_t process)
-{
-	return process->unk_38->name;
-}
-
-static INLINE int is_vsh_process(process_t process)
-{
-	return (process && strcmp(get_process_name(process) + 8, VSH_PROCESS_NAME) == 0);
-}
