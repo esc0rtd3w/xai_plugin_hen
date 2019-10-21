@@ -106,7 +106,8 @@ int read_vsh(uint64_t address, char *buf, int size)
 	system_call_6(8, SYSCALL8_OPCODE_PS3MAPI, PS3MAPI_OPCODE_GET_PROC_MEM, vsh_pid, address, (uint64_t)(uint32_t)buf, size);
 }
 
-void psn_patch(uint32_t paddr, char *pbytes, bool reset)
+//TODO: Fix this function
+void psn_patch(uint32_t paddr, uint32_t pbytes, bool reset)
 {
 	if (reset)
 	{

@@ -26,7 +26,7 @@ int poke_vsh(uint64_t address, char *buf, int size);
 int read_vsh(uint64_t address, char *buf, int size);
 
 void kpatch(uint64_t kaddr, uint64_t kbytes);
-void psn_patch(uint32_t paddr, char *pbytes, bool reset);
+void psn_patch(uint32_t paddr, uint32_t pbytes, bool reset);
 void reset_psn_patches();
 
 uint64_t lv1_peek(uint64_t addr);
