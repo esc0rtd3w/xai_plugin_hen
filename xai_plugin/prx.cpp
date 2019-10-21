@@ -315,14 +315,22 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	// NoPSN Patches
 	else if (strcmp(action, "nopsn_amazon") == 0)
 	{
-		psn_patch(0x242458, 0x38600001);// Amazon vshnet_sceLoginServiceGetNpStatus
-		psn_patch(0x24245C, 0x4E800020);// Amazon vshnet_sceLoginServiceGetNpStatus
+		uint64_t patch = 0x38600001;
+		psn_patch(0x242458, (char*)&patch, true);// Amazon vshnet_sceLoginServiceGetNpStatus
+		patch = 0x4E800020;
+		psn_patch(0x24245C, (char*)&patch, true);// Amazon vshnet_sceLoginServiceGetNpStatus
 		notify("NoPSN Patch Applied For Amazon", 0, 0, 0, 0, false);
 	}
 	else if (strcmp(action, "nopsn_youtube") == 0)
 	{
-		psn_patch(0x1B60A4, 0x2F800001);// Youtube vshnet_sceNpGetStatus
+		uint32_t patch = 0x2F800001;
+		psn_patch(0x1B60A4, (char*)&patch, true);// Youtube vshnet_sceNpGetStatus
 		notify("NoPSN Patch Applied For Youtube", 0, 0, 0, 0, false);
+	}
+	else if (strcmp(action, "reset_psn_patches") == 0)
+	{
+		reset_psn_patches();
+		notify("NoPSN Patches Reset", 0, 0, 0, 0, false);
 	}
 
 	// Kernel Patches

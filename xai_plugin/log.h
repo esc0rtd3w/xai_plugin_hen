@@ -20,5 +20,6 @@ void log_function(char * pluginname,char * view, const char * function, char * f
 void notify(char * param);
 void notify(const char * format, int param1);
 void notify(const char * format, int param1, int param2, int param3, int param4, bool logging);
+void notify(const char * format, int param1, char * param2, int param3, int param4, bool logging);
 
 void dump_file(const char * path, void * buffer, int size);
