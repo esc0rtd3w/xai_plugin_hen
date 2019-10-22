@@ -329,6 +329,17 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		poke_vsh(0x1B60A4, (char*)&patch, 4);
 		notify("NoPSN Patch Applied For Youtube", 0, 0, 0, 0, false);
 	}
+	else if (strcmp(action, "nopsn_test") == 0)
+	{
+		// TEST ONLY
+		uint32_t patch1 = 0x38600001;
+		uint32_t patch2 = 0x4E800020;
+		uint32_t addr1 = 0xEE0A0;
+		uint32_t addr2 = 0xEE0A4;
+		poke_vsh(addr1, (char*)&patch1, 4);
+		poke_vsh(addr2, (char*)&patch2, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\nPatch 1: 0x%08X / %08X\nPatch 2: 0x%08X / %08X", addr1, patch1, addr2, patch2, false);
+	}
 	else if (strcmp(action, "reset_psn_patches") == 0)
 	{
 		reset_psn_patches();
