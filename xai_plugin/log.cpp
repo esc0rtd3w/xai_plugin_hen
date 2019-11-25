@@ -161,6 +161,15 @@ void notify(const char * format, int param1, int param2, int param3, int param4,
 	vshtask_A02D46E7(0, tmp);
 }
 
+void notify(const char * format, int param1, int param2, int param3, int param4, int param5, int param6, bool logging)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2, param3, param4);
+	if (logging == true){ log(tmp); log("\n"); }
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
+	vshtask_A02D46E7(0, tmp);
+}
+
 void notify(const char * format, int param1, char * param2, int param3, int param4, bool logging)
 {
 	char tmp[0x100];
