@@ -327,8 +327,8 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		// Hulu
 		uint32_t patch1 = 0x38600001;
 		uint32_t patch2 = 0x4E800020;
-		poke_vsh(0x2455C0, (char*)&patch1, 4);
-		poke_vsh(0x2455C4, (char*)&patch2, 4);
+		poke_vsh(0x24557C, (char*)&patch1, 4);
+		poke_vsh(0x245580, (char*)&patch2, 4);
 		notify("NoPSN Patch Applied For Hulu", 0, 0, 0, 0, false);
 	}
 	else if (strcmp(action, "nopsn_youtube") == 0)
