@@ -209,4 +209,3 @@ typedef struct _process_t
 	// ...?
 	// 0x26C -> sdk version 32bits
 } __attribute__((packed)) *process_t;
-

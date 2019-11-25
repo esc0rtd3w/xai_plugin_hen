@@ -322,6 +322,15 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		poke_vsh(0x24245C, (char*)&patch2, 4);
 		notify("NoPSN Patch Applied For Amazon", 0, 0, 0, 0, false);
 	}
+	else if (strcmp(action, "nopsn_hulu") == 0)
+	{
+		// Hulu
+		uint32_t patch1 = 0x38600001;
+		uint32_t patch2 = 0x4E800020;
+		poke_vsh(0x2455C0, (char*)&patch1, 4);
+		poke_vsh(0x2455C4, (char*)&patch2, 4);
+		notify("NoPSN Patch Applied For Hulu", 0, 0, 0, 0, false);
+	}
 	else if (strcmp(action, "nopsn_youtube") == 0)
 	{
 		// Youtube vshnet_sceNpGetStatus
@@ -332,13 +341,16 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "nopsn_test") == 0)
 	{
 		// TEST ONLY
-		uint32_t patch1 = 0x38600001;
-		uint32_t patch2 = 0x4E800020;
-		uint32_t addr1 = 0x2D6F44;
-		uint32_t addr2 = 0x2D6F48;
+		uint32_t patch1 = 0x2B9D0000;
+		uint32_t patch2 = 0x2B9D0000;
+		uint32_t patch3 = 0x2B9D0000;
+		uint32_t addr1 = 0x2455C0;
+		uint32_t addr2 = 0x2455C0;
+		uint32_t addr3 = 0x2455C0;
 		poke_vsh(addr1, (char*)&patch1, 4);
 		poke_vsh(addr2, (char*)&patch2, 4);
-		notify("NoPSN Patch Applied For TEST ONLY\nPatch 1: 0x%08X / %08X\nPatch 2: 0x%08X / %08X", addr1, patch1, addr2, patch2, false);
+		poke_vsh(addr3, (char*)&patch3, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\nPatch 1: 0x%08X / %08X\nPatch 2: 0x%08X / %08X\nPatch 3: 0x%08X / %08X\n", addr1, patch1, addr2, patch2, addr3, patch3, false);
 	}
 	else if (strcmp(action, "reset_psn_patches") == 0)
 	{
