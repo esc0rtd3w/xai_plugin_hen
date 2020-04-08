@@ -124,13 +124,13 @@ void reset_psn_patches()
 {
 	uint32_t amazon1= 0x3D200072;
 	uint32_t amazon2 = 0x7C0802A6;
-	uint32_t hulu1 = 0x2B9D0001;
-	uint32_t hulu2 = 0x3C608002;
+	//uint32_t hulu1 = 0x2B9D0001;
+	//uint32_t hulu2 = 0x3C608002;
 	uint32_t youtube = 0x2F800000;
 	poke_vsh(0x242458, (char*)&amazon1, 4);
 	poke_vsh(0x24245C, (char*)&amazon2, 4);
-	poke_vsh(0x2455C0, (char*)&hulu1, 4);
-	poke_vsh(0x2455C4, (char*)&hulu2, 4);
+	//poke_vsh(0x2455C0, (char*)&hulu1, 4);
+	//poke_vsh(0x2455C4, (char*)&hulu2, 4);
 	poke_vsh(0x1B60A4, (char*)&youtube, 4);
 }
 

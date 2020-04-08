@@ -325,10 +325,11 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "nopsn_hulu") == 0)
 	{
 		// Hulu
-		uint32_t patch1 = 0x38600001;
-		uint32_t patch2 = 0x4E800020;
-		poke_vsh(0x24557C, (char*)&patch1, 4);
-		poke_vsh(0x245580, (char*)&patch2, 4);
+		// 0x24557C
+		uint32_t patch1 = 0x2F800001;
+		//uint32_t patch2 = 0x4E800020;
+		poke_vsh(0x242C10, (char*)&patch1, 4);
+		//poke_vsh(0x245580, (char*)&patch2, 4);
 		notify("NoPSN Patch Applied For Hulu", 0, 0, 0, 0, false);
 	}
 	else if (strcmp(action, "nopsn_youtube") == 0)
@@ -341,16 +342,147 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "nopsn_test") == 0)
 	{
 		// TEST ONLY
-		uint32_t patch1 = 0x2B9D0000;
-		uint32_t patch2 = 0x2B9D0000;
-		uint32_t patch3 = 0x2B9D0000;
-		uint32_t addr1 = 0x2455C0;
-		uint32_t addr2 = 0x2455C0;
-		uint32_t addr3 = 0x2455C0;
+
+		// 001B6080 _Export_vshnet_sceNpGetStatus
+		// Allows YouTube to work
+		uint32_t patch1 = 0x38600001;
+		uint32_t patch2 = 0x4E800020;
+		uint32_t addr1 = 0x1B6080;
+		uint32_t addr2 = 0x1B6084;
 		poke_vsh(addr1, (char*)&patch1, 4);
 		poke_vsh(addr2, (char*)&patch2, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceNpGetStatus: 0x%08X / %08X\n_Export_vshnet_sceNpGetStatus: 0x%08X / %08X\n", addr1, patch1, addr2, patch2, false);
+
+		/*
+		// 000F54E8 UNK_MANAGER_SIGNOUT
+		uint32_t patch3 = 0x38600000;
+		uint32_t patch4 = 0x4E800020;
+		uint32_t addr3 = 0xF54E8;
+		uint32_t addr4 = 0xF54EC;
 		poke_vsh(addr3, (char*)&patch3, 4);
-		notify("NoPSN Patch Applied For TEST ONLY\nPatch 1: 0x%08X / %08X\nPatch 2: 0x%08X / %08X\nPatch 3: 0x%08X / %08X\n", addr1, patch1, addr2, patch2, addr3, patch3, false);
+		poke_vsh(addr4, (char*)&patch4, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\nUNK_MANAGER_SIGNOUT: 0x%08X / %08X\nUNK_MANAGER_SIGNOUT: 0x%08X / %08X\n", addr3, patch3, addr4, patch4, false);
+		*/
+
+		/*
+		// Loop
+		// 002774D8                 bne       cr7, UNK_NP_GET_STATUS
+		uint32_t patch5 = 0x60000000;
+		uint32_t addr5 = 0x2774D8;
+		poke_vsh(addr5, (char*)&patch5, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\nbne       cr7, UNK_NP_GET_STATUS: 0x%08X / %08X\n", addr5, patch5, false);
+		*/
+
+		/*
+		// 001B7C18 _Export_vshnet_sceNpGetNpId
+		uint32_t patch6 = 0x38600001;
+		uint32_t patch7 = 0x4E800020;
+		uint32_t addr6 = 0x1B7C18;
+		uint32_t addr7 = 0x1B7C1C;
+		poke_vsh(addr6, (char*)&patch6, 4);
+		poke_vsh(addr7, (char*)&patch7, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceNpGetNpId: 0x%08X / %08X\n_Export_vshnet_sceNpGetNpId: 0x%08X / %08X\n", addr6, patch6, addr7, patch7, false);
+		*/
+
+		/*
+		// 002439BC _Export_vshnet_sceLoginServiceInit
+		uint32_t patch8 = 0x38600001;
+		uint32_t patch9 = 0x4E800020;
+		uint32_t addr8 = 0x2439BC;
+		uint32_t addr9 = 0x2439C0;
+		poke_vsh(addr8, (char*)&patch8, 4);
+		poke_vsh(addr9, (char*)&patch9, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceInit: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceInit: 0x%08X / %08X\n", addr8, patch8, addr9, patch9, false);
+		*/
+
+		/*
+		// 002438CC _Export_vshnet_sceLoginServiceLocalLogin
+		uint32_t patch10 = 0x38600000;
+		uint32_t patch11 = 0x4E800020;
+		uint32_t addr10 = 0x2438CC;
+		uint32_t addr11 = 0x2438D0;
+		poke_vsh(addr10, (char*)&patch10, 4);
+		poke_vsh(addr11, (char*)&patch11, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceLocalLogin: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceLocalLogin: 0x%08X / %08X\n", addr10, patch10, addr11, patch11, false);
+		*/
+
+		/*
+		// 00242F1C _Export_vshnet_sceLoginServiceLocalLogout
+		uint32_t patch12 = 0x38600000;
+		uint32_t patch13 = 0x4E800020;
+		uint32_t addr12 = 0x242F1C;
+		uint32_t addr13 = 0x242F20;
+		poke_vsh(addr12, (char*)&patch12, 4);
+		poke_vsh(addr13, (char*)&patch13, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceLocalLogout: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceLocalLogout: 0x%08X / %08X\n", addr12, patch12, addr13, patch13, false);
+		*/
+
+		/*
+		// 00242CC0 _Export_vshnet_sceLoginServiceNetworkLogin
+		uint32_t patch14 = 0x38600001;// 0 prevents signin / 1 gives error 0x00000001, some apps load, ie Amazon
+		uint32_t patch15 = 0x4E800020;
+		uint32_t addr14 = 0x242CC0;
+		uint32_t addr15 = 0x242CC4;
+		poke_vsh(addr14, (char*)&patch14, 4);
+		poke_vsh(addr15, (char*)&patch15, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceNetworkLogin: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceNetworkLogin: 0x%08X / %08X\n", addr14, patch14, addr15, patch15, false);
+		*/
+
+		/*
+		// 00242BF0 _Export_vshnet_sceLoginServiceNetworkLogout
+		uint32_t patch16 = 0x38600000;
+		uint32_t patch17 = 0x4E800020;
+		uint32_t addr16 = 0x242BF0;
+		uint32_t addr17 = 0x242BF4;
+		poke_vsh(addr16, (char*)&patch16, 4);
+		poke_vsh(addr17, (char*)&patch17, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceNetworkLogout: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceNetworkLogout: 0x%08X / %08X\n", addr16, patch16, addr17, patch17, false);
+		*/
+
+		/*
+		// 002438D4 _Export_vshnet_sceLoginServiceTerm
+		uint32_t patch18 = 0x38600001;
+		uint32_t patch19 = 0x4E800020;
+		uint32_t addr18 = 0x2438D4;
+		uint32_t addr19 = 0x2438D8;
+		poke_vsh(addr18, (char*)&patch18, 4);
+		poke_vsh(addr19, (char*)&patch19, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceLoginServiceTerm: 0x%08X / %08X\n_Export_vshnet_sceLoginServiceTerm: 0x%08X / %08X\n", addr18, patch18, addr19, patch19, false);
+		*/
+
+		/*
+		// 001B34DC _Export_vshnet_sceNpLogin
+		uint32_t patch20 = 0x38600001;
+		uint32_t patch21 = 0x4E800020;
+		uint32_t addr20 = 0x1B34DC;
+		uint32_t addr21 = 0x1B34E0;
+		poke_vsh(addr20, (char*)&patch20, 4);
+		poke_vsh(addr21, (char*)&patch21, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n", addr20, patch20, addr21, patch21, false);
+		*/
+
+		/*
+		// 001B44B8 _Export_vshnet_sceNpLogin2
+		uint32_t patch22 = 0x38600001;
+		uint32_t patch23 = 0x4E800020;
+		uint32_t addr22 = 0x1B44B8;
+		uint32_t addr23 = 0x1B44BC;
+		poke_vsh(addr22, (char*)&patch22, 4);
+		poke_vsh(addr23, (char*)&patch23, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n", addr22, patch22, addr23, patch23, false);
+		*/
+
+		/*
+		// 001B43BC _Export_vshnet_sceNpLogout
+		uint32_t patch24 = 0x38600000;
+		uint32_t patch25 = 0x4E800020;
+		uint32_t addr24 = 0x1B43BC;
+		uint32_t addr25 = 0x1B43C0;
+		poke_vsh(addr24, (char*)&patch24, 4);
+		poke_vsh(addr25, (char*)&patch25, 4);
+		notify("NoPSN Patch Applied For TEST ONLY\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n_Export_vshnet_sceNpLogin: 0x%08X / %08X\n", addr24, patch24, addr25, patch25, false);
+		*/
+		
 	}
 	else if (strcmp(action, "reset_psn_patches") == 0)
 	{
@@ -370,6 +502,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "kernel_setfw_version_485") == 0)
 	{
 		kpatch(0x80000000002FCB68ULL, 0x323031392F30372FULL);
+	}
+	else if (strcmp(action, "kernel_setfw_version_486") == 0)
+	{
+		kpatch(0x80000000002FCB68ULL, 0x323032302F30312FULL);
 	}
 
 	//
