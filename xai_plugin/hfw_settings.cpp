@@ -1437,3 +1437,23 @@ void downloadPKG(wchar_t * url)
 	url_path = url;
 	LoadPlugin("download_plugin",(void*)download_thread);			
 }
+
+void toggle_auto_update()
+{
+	//TODO
+	int chk;
+	int off;
+	CellFsStat upd;
+	chk = cellFsStat("/dev_hdd0/hen_updater.off", &upd);
+	if (chk != CELL_OK)
+	{
+		cellFsOpen("/dev_hdd0/hen_updater.off", CELL_FS_O_CREAT | CELL_FS_O_RDWR, &off, 0, 0);
+		cellFsClose(off);
+		notify("HEN Auto Update OFF");
+	}
+	else
+	{
+		cellFsUnlink("/dev_hdd0/hen_updater.off");
+		notify("HEN Auto Update ON");
+	}
+}

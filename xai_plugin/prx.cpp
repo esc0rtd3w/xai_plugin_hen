@@ -312,6 +312,14 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 	*/
 
+	// Update Tools
+
+	// PS3HEN Automatic Update Toggle
+	else if (strcmp(action, "toggle_auto_update") == 0)
+	{
+		toggle_auto_update();
+	}
+
 	/*
 	// NoPSN Patches
 	else if (strcmp(action, "nopsn_amazon") == 0)

@@ -59,6 +59,7 @@ void rebuild_db();
 int fs_check();
 void recovery_mode();
 bool service_mode();
+void toggle_auto_update();
 
 void installPKG(char * path);
 int download_status();
