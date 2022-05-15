@@ -36,6 +36,7 @@ void hook_func(void * original,void * backup, void * hook_function);
 void load_cfw_functions();
 
 int sys_ss_get_console_id(void * idps);
+int sys_ss_get_open_psid(void * psid);
 int cellSsAimGetDeviceId(void * idps);
 void clean_log();
 void log_klic();
