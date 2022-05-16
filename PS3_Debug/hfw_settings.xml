@@ -39,19 +39,18 @@
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ In-Game Settings</String></Pair>
 			</Table>
-			<Table key="hen_patches">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_ingame.png</String></Pair>
-				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
-				<Pair key="title"><String>★ HEN Patches</String></Pair>
-				<Pair key="info"><String>NoPSN, Kernel, and Other Patches</String></Pair>
-			</Table>
             <Table key="ps3hen_theme">
 				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_theme_select.png</String></Pair>
                 <Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
                 <Pair key="title"><String>★ Theme Selector</String></Pair>
-                <Pair key="info"><String>Enable HEN before switching theme</String></Pair>
+                <Pair key="info"><String>Themes must be first installed from Updater</String></Pair>
 				<Pair key="child"><String>segment</String></Pair>
             </Table>
+			<Table key="ps3hen_maintenance">
+				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_maintenance.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>★ PS3HEN Maintenance</String></Pair>
+			</Table>
 			<Table key="ps3hen_updater">
 				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_download.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
@@ -64,8 +63,8 @@
 			<Query class="type:x-xmb/folder-pixmap" key="ingame_settings"	attr="ingame_settings"	src="#seg_ingame_settings"/> 
 			<Query class="type:x-xmb/folder-pixmap" key="dump_tools"		attr="dump_tools"		src="#seg_dump_tools"/>
 			<Query class="type:x-xmb/folder-pixmap" key="recovery_menu"		attr="recovery_menu"	src="#seg_recovery_menu"/>
-            <Query class="type:x-xmb/folder-pixmap" key="hen_patches"		attr="hen_patches"		src="#seg_hen_patches"/>	
-            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_theme"		attr="ps3hen_theme"		src="#seg_ps3hen_theme"/>			
+            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_theme"		attr="ps3hen_theme"		src="#seg_ps3hen_theme"/>
+            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_maintenance"		attr="ps3hen_maintenance"		src="#seg_ps3hen_maintenance"/>			
 			<Query class="type:x-xmb/folder-pixmap" key="ps3hen_update"		attr="ps3hen_updater"	src="xmb://localhost/dev_flash/hen/xml/ps3hen_updater.xml#seg_ps3hen_updater"/>
 		</Items>
 	</View>
@@ -107,12 +106,6 @@
 			<Item class="type:x-xmb/module-action" key="soft_reboot_action"		attr="soft_reboot_action"/>
 			<Item class="type:x-xmb/module-action" key="hard_reboot_action"		attr="hard_reboot_action"/>
 			<Item class="type:x-xmb/module-action" key="power_off_action"		attr="power_off_action"/>
-		</Items>
-	</View>	
-
-	<View id="seg_ps3hen_theme">
-		<Items>		  
-			<Query class="type:x-xmb/xmlpackagefolder" key="theme_switch" src="host://localhost/q?path=/dev_hdd0/hen/themes&suffix=.pkg&subclass=x-host/package"/>	  
 		</Items>
 	</View>	
 	
@@ -182,7 +175,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="dump_psid">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_idps.png</String></Pair>
+				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_psid.png</String></Pair>
 				<Pair key="title"><String>Dump PSID</String></Pair>
 				<Pair key="info"><String>Saves PSID to log file</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -290,143 +283,28 @@
 		</Items>
 	</View>
 
-	<View id="seg_hen_patches">
+	<View id="seg_ps3hen_theme">
+		<Items>		  
+			<Query class="type:x-xmb/xmlpackagefolder" key="theme_switch" src="host://localhost/q?path=/dev_hdd0/hen/themes&suffix=.pkg&subclass=x-host/package"/>	  
+		</Items>
+	</View>	
+	
+	<View id="seg_ps3hen_maintenance">
 		<Attributes>
-			<Table key="nopsn_patches">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_idps.png</String></Pair>
-				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
-				<Pair key="title"><String>★ NoPSN Patches</String></Pair>
+			<Table key="toggle_auto_update">
+				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/auto_update.png</String></Pair>
+				<Pair key="title"><String>Toggle Automatic Update</String></Pair>
+				<Pair key="info"><String>This will toggle on/off the automatic update of HEN on launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_auto_update</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
-			<Table key="kernel_patches">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_idps.png</String></Pair>
-				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
-				<Pair key="title"><String>★ Kernel Patches</String></Pair>
-			</Table>	
-			<Table key="other_patches">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_idps.png</String></Pair>
-				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
-				<Pair key="title"><String>★ Other Patches</String></Pair>
-			</Table>	
 		</Attributes>
 		<Items>
-			<Query class="type:x-xmb/folder-pixmap" key="nopsn_patches"		attr="nopsn_patches"		src="#seg_nopsn_patches"/>
-			<Query class="type:x-xmb/folder-pixmap" key="kernel_patches"	attr="kernel_patches"		src="#seg_kernel_patches"/>
-			<Query class="type:x-xmb/folder-pixmap" key="other_patches"		attr="other_patches"		src="#seg_other_patches"/>
+			<Item class="type:x-xmb/module-action" key="toggle_auto_update"	attr="toggle_auto_update"/>
 		</Items>
 	</View>
-
-	<View id="seg_nopsn_patches">
-		<Attributes>
-			<Table key="nopsn_reset_patches">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>Reset All NoPSN Patches</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>reset_psn_patches</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="nopsn_amazon">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>NoPSN Patch: Amazon Prime Video</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>nopsn_amazon</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="nopsn_youtube">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>NoPSN Patch: Youtube</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>nopsn_youtube</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="nopsn_test">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>NoPSN Patch: DEV TEST ONLY</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>nopsn_test</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-		</Attributes>
-		<Items>		  
-			<Item class="type:x-xmb/module-action"  key="nopsn_reset_patches"	attr="nopsn_reset_patches"/> 
-			<Item class="type:x-xmb/module-action"  key="nopsn_amazon"	attr="nopsn_amazon"/> 
-			<Item class="type:x-xmb/module-action"  key="nopsn_youtube"	attr="nopsn_youtube"/> 
-			<Item class="type:x-xmb/module-action"  key="nopsn_test"	attr="nopsn_test"/> 
-		</Items>
-	</View>	
-
-	<View id="seg_kernel_patches">
-		<Attributes>
-			<Table key="kernel_setfw_version_482">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>Set Kernel FW Version To 4.82</String></Pair>
-				<Pair key="info"><String>Sets Build Date For HEN Detection</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>kernel_setfw_version_482</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="kernel_setfw_version_484">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>Set Kernel FW Version To 4.84</String></Pair>
-				<Pair key="info"><String>Sets Build Date For HEN Detection</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>kernel_setfw_version_484</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="kernel_setfw_version_485">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>Set Kernel FW Version To 4.85</String></Pair>
-				<Pair key="info"><String>Sets Build Date For HEN Detection</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>kernel_setfw_version_485</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-			<Table key="kernel_setfw_version_486">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>Set Kernel FW Version To 4.86</String></Pair>
-				<Pair key="info"><String>Sets Build Date For HEN Detection</String></Pair>
-				<Pair key="module_name"><String>xai_plugin</String></Pair>
-				<Pair key="module_action"><String>kernel_setfw_version_486</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-		</Attributes>
-		<Items>		  
-			<Item class="type:x-xmb/module-action"  key="kernel_setfw_version_482"	attr="kernel_setfw_version_482"/> 
-			<Item class="type:x-xmb/module-action"  key="kernel_setfw_version_484"	attr="kernel_setfw_version_484"/> 
-			<Item class="type:x-xmb/module-action"  key="kernel_setfw_version_485"	attr="kernel_setfw_version_485"/> 
-			<Item class="type:x-xmb/module-action"  key="kernel_setfw_version_486"	attr="kernel_setfw_version_486"/> 
-		</Items>
-	</View>	
-
-	<View id="seg_other_patches">
-		<Attributes>
-			<Table key="other_patches_dummy">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
-				<Pair key="title"><String>PLACEHOLDER ONLY</String></Pair>
-				<Pair key="info"><String>null</String></Pair>
-				<Pair key="ingame"><String>disable</String></Pair>
-				<Pair key="bar_action"><String>none</String></Pair>
-				<Pair key="lbl_half"><String>1</String></Pair>
-			</Table>
-		</Attributes>
-		<Items>		  
-			<Item class="type:x-xmb/module-action"  key="other_patches_dummy"	attr="other_patches_dummy"/> 
-		</Items>
-	</View>	
 
 </XMBML>
