@@ -320,6 +320,18 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		toggle_auto_update();
 	}
 
+	// PS3HEN Repair Installation Files Toggle
+	else if (strcmp(action, "toggle_hen_repair") == 0)
+	{
+		toggle_hen_repair();
+	}
+
+	// Uninstall PS3HEN
+	else if (strcmp(action, "uninstall_hen") == 0)
+	{
+		uninstall_hen();
+	}
+
 	/*
 	// NoPSN Patches
 	else if (strcmp(action, "nopsn_amazon") == 0)

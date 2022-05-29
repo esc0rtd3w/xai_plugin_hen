@@ -1438,22 +1438,40 @@ void downloadPKG(wchar_t * url)
 	LoadPlugin("download_plugin",(void*)download_thread);			
 }
 
-void toggle_auto_update()
+void toggle_generic(char* path_to_file, char* name)
 {
-	//TODO
-	int chk;
-	int off;
-	CellFsStat upd;
-	chk = cellFsStat("/dev_hdd0/hen_updater.off", &upd);
-	if (chk != CELL_OK)
+	int ret = 0;
+	int fd = 0;
+	char txt[256];
+	CellFsStat stat;
+	ret = cellFsStat(path_to_file, &stat);
+	if (ret != CELL_OK)
 	{
-		cellFsOpen("/dev_hdd0/hen_updater.off", CELL_FS_O_CREAT | CELL_FS_O_RDWR, &off, 0, 0);
-		cellFsClose(off);
-		notify("HEN Auto Update OFF");
+		cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
+		cellFsClose(fd);
+		notify("%s Disabled", name);
 	}
 	else
 	{
-		cellFsUnlink("/dev_hdd0/hen_updater.off");
-		notify("HEN Auto Update ON");
+		cellFsUnlink(path_to_file);
+		notify("%s Enabled", name);
 	}
+}
+
+void toggle_auto_update()
+{
+	toggle_generic("/dev_hdd0/hen_updater.off", "HEN Auto Update");// Legacy Path
+}
+
+void toggle_hen_repair()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/hen_repair.off", "HEN Repair");
+}
+
+void uninstall_hen()
+{
+	//TODO
+	//cellFsUnlink("/dev_rewrite/hen/PS3HEN.BIN");
+	//notify("PS3HEN Has Been Removed From Your System. Please Reboot The Console!");
+	notify("This Feature Is Not Yet Implemented!");
 }

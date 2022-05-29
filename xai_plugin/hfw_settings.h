@@ -58,8 +58,11 @@ void toggle_dlna();
 void rebuild_db();
 int fs_check();
 void recovery_mode();
-bool service_mode();
+bool service_mode(); 
+void toggle_generic(char* path_to_file, char* name);
 void toggle_auto_update();
+void toggle_hen_repair();
+void uninstall_hen();
 
 void installPKG(char * path);
 int download_status();

@@ -18,6 +18,7 @@ void log_function(char * pluginname,char * view, const char * function, char * f
 void log_function(char * pluginname,char * view, const char * function, char * format, const char* param1);
 
 void notify(char * param);
+void notify(char * format, char * param1);
 void notify(const char * format, int param1);
 void notify(const char * format, int param1, int param2, bool logging);
 void notify(const char * format, int param1, int param2, int param3, int param4, bool logging);
