@@ -1747,6 +1747,15 @@ void uninstall_hen()
 		"/dev_hdd0/hen",
 		"/dev_rewrite/hen" };
 
+	if(cellFsStat("/dev_rewrite", &stat) != CELL_OK)
+	{
+		if(cellFsUtilMount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_rewrite", 0, 0, 0, 0) != CELL_OK)
+		{
+			notify("Unable to mount \"/dev_rewrite\"");
+			return;
+		}
+	}
+
 	for (int file = 0; file < 84; file++)
 	{
 		//cellFsUnlink(remove_hen_files[file]);
@@ -1783,6 +1792,8 @@ void uninstall_hen()
 
 	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
 	//notify("This Feature Is Not Yet Implemented!");
+
+	cellFsUtilUnMount("/dev_rewrite", 0);
 }
 
 int switch_hen_mode(int mode)
