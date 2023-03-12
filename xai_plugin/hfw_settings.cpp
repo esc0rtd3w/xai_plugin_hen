@@ -2325,8 +2325,6 @@ void uninstall_hen()
 
 	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
 	//notify("This Feature Is Not Yet Implemented!");
-
-	cellFsUtilUnMount("/dev_rewrite", 0);
 }
 
 int switch_hen_mode(int mode)
