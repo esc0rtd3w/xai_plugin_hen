@@ -93,7 +93,8 @@ static int (*xBDVDGetInstance)();
 
 static int (*vsh_2B58A92C)(void*);
 static int (*vsh_E20104BE)();
-
+static void *(*allocator_759E0635)(size_t);
+static void (*allocator_77A602DD)(void *);
 
 int cellFsUtilMount(const char * device_name, const char * device_fs, const char * device_path, int r6, int write_prot, int r8, int * r9);
 int cellFsUtilUnMount(const char * device_path, int r4);
