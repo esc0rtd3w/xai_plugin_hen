@@ -320,10 +320,66 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		toggle_auto_update();
 	}
 
+	// PS3HEN libaudio Patch Toggle
+	else if (strcmp(action, "toggle_patch_libaudio") == 0)
+	{
+		toggle_patch_libaudio();
+	}
+
+	// Clear Web Cache: History
+	else if (strcmp(action, "toggle_clear_web_history") == 0)
+	{
+		toggle_clear_web_history();
+	}
+
+	// Clear Web Cache: Auth Cache
+	else if (strcmp(action, "toggle_clear_web_auth_cache") == 0)
+	{
+		toggle_clear_web_auth_cache();
+	}
+
+	// Clear Web Cache: Cookie
+	else if (strcmp(action, "toggle_clear_web_cookie") == 0)
+	{
+		toggle_clear_web_cookie();
+	}
+
+	// Switch HEN Mode Release
+	else if (strcmp(action, "hen_mode_release") == 0)
+	{
+		switch_hen_mode(0);
+	}
+
+	// Switch HEN Mode Debug
+	else if (strcmp(action, "hen_mode_debug") == 0)
+	{
+		switch_hen_mode(1);
+	}
+
+	// Switch HEN Mode USB Release
+	else if (strcmp(action, "hen_mode_usb_release") == 0)
+	{
+		switch_hen_mode(2);
+	}
+
+	// Switch HEN Mode USB Debug
+	else if (strcmp(action, "hen_mode_usb_debug") == 0)
+	{
+		switch_hen_mode(3);
+	}
+
+	/*
 	// PS3HEN Repair Installation Files Toggle
 	else if (strcmp(action, "toggle_hen_repair") == 0)
 	{
 		toggle_hen_repair();
+	}
+	*/
+
+	// Toggle Developer Build Type
+	else if (strcmp(action, "toggle_hen_dev_build") == 0)
+	{
+		toggle_hen_dev_build();
 	}
 
 	// Uninstall PS3HEN

@@ -1438,7 +1438,7 @@ void downloadPKG(wchar_t * url)
 	LoadPlugin("download_plugin",(void*)download_thread);			
 }
 
-void toggle_generic(char* path_to_file, char* name)
+void toggle_generic(char* path_to_file, char* name, int reverse_toggle)
 {
 	int ret = 0;
 	int fd = 0;
@@ -1447,31 +1447,417 @@ void toggle_generic(char* path_to_file, char* name)
 	ret = cellFsStat(path_to_file, &stat);
 	if (ret != CELL_OK)
 	{
-		cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
-		cellFsClose(fd);
-		notify("%s Disabled", name);
+		//cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
+		//cellFsClose(fd);
+		if (reverse_toggle==0)
+		{
+			cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
+			cellFsClose(fd);
+			notify("%s Disabled", name);
+		}
+		else
+		{
+			cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
+			cellFsClose(fd);
+			notify("%s Enabled", name);
+		}
 	}
 	else
 	{
-		cellFsUnlink(path_to_file);
-		notify("%s Enabled", name);
+		if (reverse_toggle == 0)
+		{
+			cellFsUnlink(path_to_file);
+			notify("%s Enabled", name);
+		}
+		else
+		{
+			cellFsUnlink(path_to_file);
+			notify("%s Disabled", name);
+		}
 	}
 }
 
 void toggle_auto_update()
 {
-	toggle_generic("/dev_hdd0/hen_updater.off", "HEN Auto Update");// Legacy Path
+	toggle_generic("/dev_hdd0/hen_updater.off", "HEN Auto Update", 0);// Legacy Path 3.1.1 and lower
+	//toggle_generic("/dev_hdd0/hen/toggles/hen_updater.off", "HEN Auto Update", 0);// New Path 3.2.0+
 }
 
 void toggle_hen_repair()
 {
-	toggle_generic("/dev_hdd0/hen/toggles/hen_repair.off", "HEN Repair");
+	toggle_generic("/dev_hdd0/hen/toggles/hen_repair.off", "HEN Repair", 0);
 }
+
+void toggle_patch_libaudio()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/patch_libaudio.on", "libaudio Patch", 1);
+}
+
+// Clear Web Cache Functions (History, Auth Cache, Cookie)
+void toggle_clear_web_history()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_history.on", "Clear Web Cache: History", 1);
+}
+
+void toggle_clear_web_auth_cache()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_auth_cache.on", "Clear Web Cache: Auth Cache", 1);
+}
+
+void toggle_clear_web_cookie()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_cookie.on", "Clear Web Cache: Cookie", 1);
+}
+
+void toggle_hen_dev_build()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/dev_build_type.on", "Development Build Type", 1);
+}
+
+
+void read_write_generic(const char* src, const char* dest)
+{
+	int ret;
+	int fda;
+	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0);
+	if (ret != CELL_OK)
+	{
+		notify("%s Open Error: %x", src, ret);
+	}
+	else
+	{
+		int fdb;
+		ret = cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fdb, 0, 0);
+
+		//char src_dest[0x100];
+		//sprintf(src_dest, "Src: %s ::: Dest: %s", src, dest);
+		//notify("%s", src_dest);
+
+		log("src: %s\n", (char*)src);
+		log("dest: %s\n", (char*)dest);
+
+		uint8_t buf[0x1000];
+		uint64_t nr;
+		uint64_t nrw;
+
+		while ((ret = cellFsRead(fda, buf, 0x1000, &nr)) == CELL_FS_SUCCEEDED)
+		{
+			log("In While Loop: nr -> %08x\n", (int)nr);
+			if ((int)nr > 0)
+			{
+				ret = cellFsWrite(fdb, buf, nr, &nrw);
+				if (ret == CELL_FS_SUCCEEDED)
+				{
+					cellFsChmod(dest, 0666);
+					log("cellFsChmod success\n");
+				}
+				memset(buf, 0, 0x1000);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		cellFsClose(fda);
+		cellFsClose(fdb);
+
+		notify("%s created!", (char*)dest);
+	}
+}
+
+/*
+void read_write_generic(const char* src, const char* dest)
+{
+	CellFsStat stat;
+	int fda, fdb;
+	uint8_t buf[0xF100];
+	uint64_t nr, nrw;
+
+	if (cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0) != CELL_FS_SUCCEEDED)
+	{
+		log("cellFsOpen fda CELL_FS_O_RDONLY error");
+		return;
+	}
+
+	if (cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fdb, 0, 0) != CELL_FS_SUCCEEDED)
+	{
+		cellFsClose(fda);
+		log("cellFsOpen fdb CELL_FS_O_CREAT error");
+		return;
+	}
+
+	//malloc(sizeof(buf));
+	if (cellFsRead(fda, buf, 0xF100, &nr) == CELL_FS_SUCCEEDED)
+	{
+		if (cellFsWrite(fdb, buf, 0xF100, &nrw) == CELL_FS_SUCCEEDED)
+		{
+			cellFsChmod(dest, 0666);
+			log("cellFsChmod success");
+		}
+		else
+		{
+			log("cellFsWrite error");
+		}
+	}
+	else
+	{
+		log("cellFsRead error");
+	}
+	//free((void*)buf);
+
+	cellFsClose(fda);
+	cellFsClose(fdb);
+}
+*/
+
+void remove_directory(char* src)
+{
+	int fd;
+	int ret;
+	char* list;
+	ret = cellFsOpendir(src, &fd);
+	log("cellFsOpendir(src, &fd) = %x\n", ret);
+
+
+	CellFsDirent dirent;
+	for (int i = 0; i < 64; i++)
+	{
+		wait(1);
+		uint64_t n;
+		ret = cellFsReaddir(fd, &dirent, &n);
+		log("cellFsReaddir(fd, &dirent, &n) = %x -> ", ret);
+		log(dirent.d_name); log("\n");
+		if (CELL_FS_TYPE_DIRECTORY != dirent.d_type)
+		{
+			strcpy(list, src);
+			strcat(list, dirent.d_name);
+			log("Fileout: %s\n", list);
+			break;
+		}
+	}
+
+	ret = cellFsClosedir(fd);
+	log("cellFsClosedir(fd) = %x\n", ret);
+}
+
+/*
+void remove_directory(const char* src)
+{
+	CellFsDirent dent;
+	int ret, dir;
+	uint64_t sw, pos, sr, rd;
+
+	cellFsOpendir(src, &dir);
+
+	while (1) {
+		cellFsReaddir(dir, &dent, &rd);
+		if (rd != 0) {
+			printf("Source: \n", src);
+			printf("cellFsReaddir: nread = %llu\n", rd);
+			printf("cellFsReaddir: err   = %d\n", err);
+			printf("dent.d_type          = %d\n", dent.d_type);
+			printf("dent.d_name          = %s\n", dent.d_name);
+		}
+		else {
+			printf("cellFsReaddir: out\n");
+			break;
+		}
+	}
+	cellFsRmdir(src);
+
+}
+*/
 
 void uninstall_hen()
 {
-	//TODO
-	//cellFsUnlink("/dev_rewrite/hen/PS3HEN.BIN");
-	//notify("PS3HEN Has Been Removed From Your System. Please Reboot The Console!");
-	notify("This Feature Is Not Yet Implemented!");
+	CellFsStat stat;
+
+	const char* remove_hen_files[84] = {
+		// Remove Icons
+		"/dev_hdd0/hen/icon/auto_update.png",
+		"/dev_hdd0/hen/icon/blind.png",
+		"/dev_hdd0/hen/icon/bubble_download.png",
+		"/dev_hdd0/hen/icon/clear_web_cache.png",
+		"/dev_hdd0/hen/icon/disc.png",
+		"/dev_hdd0/hen/icon/dump.png",
+		"/dev_hdd0/hen/icon/dump_backup_xregistry.png",
+		"/dev_hdd0/hen/icon/dump_clean_log.png",
+		"/dev_hdd0/hen/icon/dump_disc_hashkey.png",
+		"/dev_hdd0/hen/icon/dump_file.png",
+		"/dev_hdd0/hen/icon/dump_idps.png",
+		"/dev_hdd0/hen/icon/dump_log_klicense.png",
+		"/dev_hdd0/hen/icon/dump_log_secure_fileid.png",
+		"/dev_hdd0/hen/icon/dump_psid.png",
+		"/dev_hdd0/hen/icon/dump_view_log.png",
+		"/dev_hdd0/hen/icon/flash.png",
+		"/dev_hdd0/hen/icon/folder_base.png",
+		"/dev_hdd0/hen/icon/folder_development.png",
+		"/dev_hdd0/hen/icon/folder_download.png",
+		"/dev_hdd0/hen/icon/folder_dump.png",
+		"/dev_hdd0/hen/icon/folder_game.png",
+		"/dev_hdd0/hen/icon/folder_hft.png",
+		"/dev_hdd0/hen/icon/folder_info.png",
+		"/dev_hdd0/hen/icon/folder_ingame.png",
+		"/dev_hdd0/hen/icon/folder_list.png",
+		"/dev_hdd0/hen/icon/folder_log.png",
+		"/dev_hdd0/hen/icon/folder_maintenance.png",
+		"/dev_hdd0/hen/icon/folder_plain.png",
+		"/dev_hdd0/hen/icon/folder_play.png",
+		"/dev_hdd0/hen/icon/folder_plugin.png",
+		"/dev_hdd0/hen/icon/folder_ps2.png",
+		"/dev_hdd0/hen/icon/folder_ps3.png",
+		"/dev_hdd0/hen/icon/folder_psp.png",
+		"/dev_hdd0/hen/icon/folder_psx.png",
+		"/dev_hdd0/hen/icon/folder_reboot.png",
+		"/dev_hdd0/hen/icon/folder_retro.png",
+		"/dev_hdd0/hen/icon/folder_service.png",
+		"/dev_hdd0/hen/icon/folder_theme.png",
+		"/dev_hdd0/hen/icon/folder_theme_select.png",
+		"/dev_hdd0/hen/icon/folder_theme_sub.png",
+		"/dev_hdd0/hen/icon/folder_video.png",
+		"/dev_hdd0/hen/icon/folder_warn.png",
+		"/dev_hdd0/hen/icon/folder_xmbm.png",
+		"/dev_hdd0/hen/icon/hdd.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_boot.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_enable.png",
+		"/dev_hdd0/hen/icon/hen_mode_debug.png",
+		"/dev_hdd0/hen/icon/hen_mode_release.png",
+		"/dev_hdd0/hen/icon/hen_mode_usb_debug.png",
+		"/dev_hdd0/hen/icon/hen_mode_usb_release.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_repair.png",
+		"/dev_hdd0/hen/icon/hen_update_info.png",
+		"/dev_hdd0/hen/icon/hen_update_info_note.png",
+		"/dev_hdd0/hen/icon/hen_update_main.png",
+		"/dev_hdd0/hen/icon/hen_update_theme.png",
+		"/dev_hdd0/hen/icon/ingame_enable_ss.png",
+		"/dev_hdd0/hen/icon/ingame_override_sfo.png",
+		"/dev_hdd0/hen/icon/music.png",
+		"/dev_hdd0/hen/icon/photo.png",
+		"/dev_hdd0/hen/icon/playstation_network_content.png",
+		"/dev_hdd0/hen/icon/power_full.png",
+		"/dev_hdd0/hen/icon/power_off.png",
+		"/dev_hdd0/hen/icon/power_soft.png",
+		"/dev_hdd0/hen/icon/ps3xploit_www.png",
+		"/dev_hdd0/hen/icon/recovery_check_file_system.png",
+		"/dev_hdd0/hen/icon/recovery_display_minver.png",
+		"/dev_hdd0/hen/icon/recovery_rebuild_db.png",
+		"/dev_hdd0/hen/icon/recovery_toggle.png",
+		"/dev_hdd0/hen/icon/settings.png",
+		"/dev_hdd0/hen/icon/switch_hen_mode.png",
+		"/dev_hdd0/hen/icon/toggle_clear_web_history.png",
+		"/dev_hdd0/hen/icon/toggle_clear_web_auth_cache.png",
+		"/dev_hdd0/hen/icon/toggle_clear_web_cookie.png",
+		"/dev_hdd0/hen/icon/toggle_patch_libaudio.png",
+		"/dev_hdd0/hen/icon/uninstall_hen.png",
+		"/dev_hdd0/hen/icon/video.png",
+		"/dev_hdd0/hen/icon/video2.png",
+
+		// Remove SPRX
+		"/dev_rewrite/vsh/module/videodownloader_plugin.sprx",
+		"/dev_rewrite/vsh/module/videorec.sprx",
+		"/dev_rewrite/vsh/module/xai_plugin.sprx",
+
+		// Remove RCO
+		"/dev_rewrite/vsh/resource/videodownloader_plugin.rco",
+		"/dev_rewrite/vsh/resource/videorec.rco",
+		"/dev_rewrite/vsh/resource/xai_plugin.rco" };
+
+	// Replace files with originals
+	const char* replace_rco_src[2] = {
+		"/dev_hdd0/hen/restore/explore_plugin_full.rco",
+		"/dev_hdd0/hen/restore/software_update_plugin.rco" };
+
+	const char* replace_rco_dest[2] = {
+		"/dev_rewrite/vsh/resource/explore_plugin_full.rco",
+		"/dev_rewrite/vsh/resource/software_update_plugin.rco" };
+
+	const char* replace_raf_src[1] = {
+		"/dev_hdd0/hen/restore/coldboot.raf" };
+
+	const char* replace_raf_dest[1] = {
+		"/dev_rewrite/vsh/resource/coldboot.raf" };
+
+	const char* replace_xml_src[4] = {
+		"/dev_hdd0/hen/restore/category_game.xml",
+		"/dev_hdd0/hen/restore/category_network.xml",
+		"/dev_hdd0/hen/restore/category_video.xml",
+		"/dev_hdd0/hen/restore/download_list.xml" };
+
+	const char* replace_xml_dest[4] = {
+		"/dev_rewrite/vsh/resource/explore/xmb/category_game.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/download_list.xml" };
+
+	// Remove directories last
+	const char* remove_hen_dirs[2] = {
+		"/dev_hdd0/hen",
+		"/dev_rewrite/hen" };
+
+	for (int file = 0; file < 84; file++)
+	{
+		//cellFsUnlink(remove_hen_files[file]);
+		log("[REMOVE] loop 1 path %i: %s\n\n", file, remove_hen_files[file]);
+		//cellFsStat(remove_hen_files[file], &stat);// Testing
+	}
+
+	for (int file = 0; file < 1; file++)
+	{
+		// Copy src to dest here
+		//read_write_generic(replace_raf_src[file], replace_raf_dest[file]);
+		log("[REPLACE] loop 2 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_raf_src[file], replace_raf_dest[file]);
+	}
+
+	for (int file = 0; file < 2; file++)
+	{
+		// Copy src to dest here
+		//read_write_generic((char*)replace_rco_src[file], (char*)replace_rco_dest[file]);
+		log("[REPLACE] loop 3 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_rco_src[file], replace_rco_dest[file]);
+		//cellFsStat(replace_src[c], &stat);// Testing
+	}
+
+	for (int file = 0; file < 4; file++)
+	{
+		// Copy src to dest here
+		//read_write_generic((char*)replace_xml_src[file], (char*)replace_xml_dest[file]);
+		log("[REPLACE] loop 4 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_xml_src[file], replace_xml_dest[file]);
+		//cellFsStat(replace_src[c], &stat);// Testing
+	}
+
+	//remove_directory((char*)remove_hen_dirs[0]);// /dev_hdd0/hen
+	//remove_directory((char*)remove_hen_dirs[1]);// /dev_rewrite/hen
+	read_write_generic("/dev_hdd0/boot_plugins.txt", "/dev_hdd0/boot_plugins_copy.txt");
+
+	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
+	//notify("This Feature Is Not Yet Implemented!");
+}
+
+int switch_hen_mode(int mode)
+{
+	/*
+	0 = Release
+	1 = Debug
+	2 = USB (Release)
+	3 = USB (Debug)
+	*/
+
+	switch (mode)
+	{
+		case 0:
+			notify("TEST: Release Mode");
+			break;
+		case 1:
+			notify("TEST: Debug Mode");
+			break;
+		case 2:
+			notify("TEST: USB Release Mode");
+			break;
+		case 3:
+			notify("TEST: USB Debug Mode");
+			break;
+		default:
+			break;
+	}
 }

@@ -62,7 +62,16 @@ bool service_mode();
 void toggle_generic(char* path_to_file, char* name);
 void toggle_auto_update();
 void toggle_hen_repair();
+void toggle_patch_libaudio();
+void toggle_hen_dev_build();
 void uninstall_hen();
+int switch_hen_mode(int mode);// Used for switching from release to debug
+void read_write_generic(const char* src, const char* dest);
+
+// Clear Web Cache Functions (History, Auth Cache, Cookie)
+void toggle_clear_web_history();
+void toggle_clear_web_auth_cache();
+void toggle_clear_web_cookie();
 
 void installPKG(char * path);
 int download_status();
