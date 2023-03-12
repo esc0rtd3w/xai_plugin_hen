@@ -10,6 +10,20 @@
 //#define TOC 0x34FBB0// CEX 4.82/4.84/4.85
 //#define process_rtoc_entry_1 -0x7800
 
+#define LV2						0
+#define LV1						1
+#define RAM						2
+
+#define LV2_DUMP				"LV2-FW%X.%X%X.bin"
+#define LV1_DUMP				"LV1-FW%X.%X%X.bin"
+#define RAM_DUMP				"RAM-FW%X.%X%X.bin"
+#define TMP_FOLDER				"/dev_hdd0/tmp"
+
+#define SINGLE_BEEP 			0x6
+#define DOUBLE_BEEP 			0x36
+#define TRIPLE_BEEP 			0x1B6
+#define CONTINUOUS_BEEP			0xFFFF
+
 #define HPTE_V_BOLTED			0x0000000000000010ULL
 #define HPTE_V_VALID			0x0000000000000001ULL
 #define HPTE_R_PROT_MASK		0x0000000000000003ULL
@@ -163,6 +177,7 @@ void enable_screenshot();
 bool rsod_fix();
 void remarry_bd();
 void check_temperature();
+int dump_lv(int lv);
 void control_led(const char * action);
 void override_sfo();
 bool enable_hvdbg();

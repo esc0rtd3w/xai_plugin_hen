@@ -150,6 +150,11 @@ int mm_map_lpar_memory_region(uint64_t lpar_start_addr, uint64_t ea_start_addr, 
 	return 0;
 }
 
+void buzzer(uint8_t mode)
+{	
+	system_call_3(392, 0x1007, 0xA, mode);
+}
+
 int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag)
 {
 	system_call_1(874, (uint64_t) flag);
@@ -273,62 +278,6 @@ uint32_t celsius_to_fahrenheit(uint32_t *temp)
 	uint32_t f_temp = 0;
 	f_temp = ((uint32_t)(*temp * 9 / 5) + 32);
 	return f_temp;
-}
-
-int receive_eid_idps(uint8_t output[0x10]) 
-{
-	uint32_t readlen = 0;
-	int dev_id;
-	
-	uint64_t disc_size = 0;		
-	device_info_t disc_info;
-
-	uint64_t start_flash_sector = 0;
-	uint64_t device = FLASH_DEVICE_NOR;
-	uint16_t offset = 0;
-
-	offset = 0x1D0;
-	start_flash_sector = 0x181;		
-
-	if(!check_flash_type())
-	{
-		start_flash_sector = 0x20D;
-		device = FLASH_DEVICE_NAND;
-	}
-
-	if(!offset || !start_flash_sector || !device)
-		return 1;
-
-	if(sys_storage_open(device, &dev_id))
-		return 1;
-
-	if(sys_storage_get_device_info2(device, &disc_info))
-		return 1;
-
-	disc_size = disc_info.sector_size * disc_info.total_sectors;
-	uint32_t buf_size = disc_info.sector_size*1;
-	uint8_t* rb = (unsigned char *) allocator_6137D196(128, buf_size);
-	memset(rb, 0, buf_size);	
-
-	if(disc_size)
-	{
-		if(sys_storage_read2(dev_id, start_flash_sector, 1, rb, &readlen, FLASH_FLAGS))
-		{
-			sys_storage_close(dev_id);
-			allocator_77A602DD(rb);
-			return 1;
-		}		
-		
-		memcpy(output, (void*)&rb[offset], 0x10);	
-
-		if(output[0] != 0x00 && output[1] != 0x00 && output[2] != 0x00 && output[3] != 0x01 && output[4] != 0x00 && output[6] != 0x00)
-			return 1;
-	}
-	
-	sys_storage_close(dev_id);
-	allocator_77A602DD(rb);
-
-	return 0;
 }
 
 process_id_t vsh_pid = 0;
@@ -498,6 +447,189 @@ void load_cfw_functions()
 	(void*&)(allocator_6137D196) = (void*)((int)getNIDfunc("allocator",0x6137D196));
 
 	(void*&)(cellCryptoPuSha1Hmac) = (void*)((int)getNIDfunc("sdk",0x74A2A1FE));
+
+	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc",0x273B9711));
+}
+
+
+int receive_eid_idps(uint8_t output[0x10]) 
+{
+	uint32_t readlen = 0;
+	int dev_id;
+	
+	uint64_t disc_size = 0;		
+	device_info_t disc_info;
+
+	uint64_t start_flash_sector = 0;
+	uint64_t device = FLASH_DEVICE_NOR;
+	uint16_t offset = 0;
+
+	offset = 0x1D0;
+	start_flash_sector = 0x181;		
+
+	if(!check_flash_type())
+	{
+		start_flash_sector = 0x20D;
+		device = FLASH_DEVICE_NAND;
+	}
+
+	if(!offset || !start_flash_sector || !device)
+		return 1;
+
+	if(sys_storage_open(device, &dev_id))
+		return 1;
+
+	if(sys_storage_get_device_info2(device, &disc_info))
+		return 1;
+
+	disc_size = disc_info.sector_size * disc_info.total_sectors;
+	uint32_t buf_size = disc_info.sector_size*1;
+	uint8_t* rb = (unsigned char *) allocator_6137D196(128, buf_size);
+	memset(rb, 0, buf_size);	
+
+	if(disc_size)
+	{
+		if(sys_storage_read2(dev_id, start_flash_sector, 1, rb, &readlen, FLASH_FLAGS))
+		{
+			sys_storage_close(dev_id);
+			allocator_77A602DD(rb);
+			return 1;
+		}		
+		
+		memcpy(output, (void*)&rb[offset], 0x10);	
+
+		if(output[0] != 0x00 && output[1] != 0x00 && output[2] != 0x00 && output[3] != 0x01 && output[4] != 0x00 && output[6] != 0x00)
+			return 1;
+	}
+	
+	sys_storage_close(dev_id);
+	allocator_77A602DD(rb);
+
+	return 0;
+}
+
+int dump_lv(int lv)
+{
+	int final_offset;
+	int mem = 0, max_offset = 0x40000;
+	int fd, fseek_offset = 0, start_offset = 0;
+
+	char usb[120], dump_file_path[120], lv_file[120];
+	char *dumping, *lv_dump, *lv_dumped, *lv_error;
+
+	uint8_t platform_info[0x18];
+	uint64_t nrw, seek, offset_dumped;
+	CellFsStat st;	
+
+	// Check if CFW Syscalls are disabled
+	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+	{
+		notify("Syscalls are disabled");
+		return 1;
+	}
+	
+    system_call_1(387, (uint64_t)platform_info);
+
+	if(lv == LV2)
+	{
+		final_offset = 0x800000ULL;
+		dumping = "Dumping LV2, please wait...";	
+		lv_dumped = "LV2 dumped in\n%s";
+		lv_error = "An error occurred while dumping LV2";
+		lv_dump = LV2_DUMP;
+	}
+	else if(lv == LV1)
+	{
+		final_offset = 0x1000000ULL;
+		dumping = "Dumping LV1, please wait...";	
+		lv_dumped = "LV1 dumped in\n%s";
+		lv_error = "An error occurred while dumping LV1";
+		lv_dump = LV1_DUMP;
+	}
+	else if(lv == RAM)
+	{
+		final_offset = 0x10000000ULL;
+		dumping = "Dumping RAM, it can take 5 minutes, please wait...";	
+		lv_dumped = "RAM dumped in\n%s";
+		lv_error = "An error occurred while dumping RAM";
+		lv_dump = RAM_DUMP;
+	}
+	else
+		return 0;	
+
+	vsh_sprintf(lv_file, lv_dump, platform_info[0], platform_info[1], platform_info[2] >> 4);	
+	vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
+
+	for(int i = 0; i < 127; i++)
+	{				
+		vsh_sprintf(usb, "/dev_usb%03d", i, NULL);
+
+		if(!cellFsStat(usb, &st))
+		{
+			vsh_sprintf(dump_file_path, "%s/%s", (int)usb, (int)lv_file);
+			break;
+		}
+	}
+
+	if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
+	{
+		notify(lv_error);
+		return 1;
+	}
+
+	cellFsChmod(dump_file_path, 0666);
+
+	notify(dumping);
+
+	// Quickest method to dump LV2 and LV1 through xai_plugin
+	// Default method will take at least two minutes to dump LV2, and even more for LV1
+	uint8_t *dump = (uint8_t *)allocator_759E0635(0x40000);
+	memset(dump, 0, 0x40000);			
+
+	for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
+	{
+		if(lv == LV2)
+			offset_dumped = peekq(0x8000000000000000ULL + offset);
+		else
+			offset_dumped = lv1_peek(0x8000000000000000ULL + offset);
+
+		memcpy(dump + mem, &offset_dumped, 8);
+
+		mem += 8;
+
+		if(offset == max_offset - 8)
+		{
+			//cellFsLseek(fd, fseek_offset, SEEK_SET, &seek);
+			if(cellFsWrite(fd, dump, 0x40000, &nrw) != SUCCEEDED)
+			{
+				allocator_77A602DD(dump);				
+				cellFsClose(fd);
+				cellFsUnlink(dump_file_path);
+				notify(lv_error);		
+
+				return 1;
+			}
+
+			// Done dumping
+			if(max_offset == final_offset)
+				break;
+
+			fseek_offset += 0x40000;
+			memset(dump, 0, 0x40000);
+			mem = 0;
+
+			start_offset = start_offset + 0x40000;
+			max_offset = max_offset + 0x40000;
+		}
+	}
+
+	allocator_77A602DD(dump);
+	cellFsClose(fd);
+
+	notify(lv_dumped, dump_file_path);
+	buzzer(SINGLE_BEEP);
+
+	return 0;
 }
 
 

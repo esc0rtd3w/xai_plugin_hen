@@ -274,6 +274,18 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}	
 
 	// Dump Tools
+	else if(strcmp(action, "dump_lv2") == 0)	
+	{
+		dump_lv(LV2);		
+	}
+	else if(strcmp(action, "dump_lv1") == 0)	
+	{
+		dump_lv(LV1);
+	}
+	else if(strcmp(action, "dump_ram") == 0)	
+	{
+		dump_lv(RAM);
+	}
 	else if(strcmp(action,"clean_log")==0)
 	{		
 		clean_log();
