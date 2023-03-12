@@ -259,6 +259,20 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		check_temperature();
 	}
 
+	// QA Tools
+	else if(strcmp(action, "check_qa") == 0)
+	{
+		read_qa_flag();
+	}
+	else if(strcmp(action, "enable_qa") == 0)
+	{
+		set_qa_flag(1);
+	}
+	else if(strcmp(action, "disable_qa") == 0)
+	{
+		set_qa_flag(0);
+	}	
+
 	// Dump Tools
 	else if(strcmp(action,"clean_log")==0)
 	{		
