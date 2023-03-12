@@ -1517,167 +1517,50 @@ void toggle_hen_dev_build()
 	toggle_generic("/dev_hdd0/hen/toggles/dev_build_type.on", "Development Build Type", 1);
 }
 
-
-// TEST //
 void read_write_generic(const char* src, const char* dest)
 {
-	CellFsStat stat;
-	int ret;
-	int fd_src, fd_dest;
-	uint64_t read, write;		
-	
-	// Check if source file exists
-	ret = cellFsStat(src, &stat);
-	if(ret != CELL_OK)
-	{
-		notify("%s Open Error (Not exist): %x", src, ret);
-		return;
-	}
-
-	uint8_t *buffer = (uint8_t *)allocator_759E0635(stat.st_size);
-	if(!buffer)
-	{
-		notify("%s malloc Error", (int)src);
-		goto error;
-	}
-
-	// Open source file
-	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fd_src, 0, 0);
-	if(ret != CELL_OK)
-	{
-		notify("%s Open Error: %x", src, ret);
-		goto error;
-	}
-
-	// Read source file
-	ret = cellFsRead(fd_src, buffer, stat.st_size, &read);
-	if(ret != CELL_OK)
-	{
-		notify("%s Read Error: %x", src, ret);
-		goto error;
-	}
-
-	// Open destination file
-	ret = cellFsOpen(dest, CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &fd_dest, 0, 0);
-	if(ret != CELL_OK)
-	{
-		notify("%s Open Error: %x", dest, ret);
-		goto error;
-	}
-
-	// Write source to destination file
-	ret = cellFsWrite(fd_dest, buffer, stat.st_size, &write);
-	if(ret != CELL_OK)
-	{
-		notify("%s Write Error: %x", dest, ret);
-		goto error;
-	}
-
-	cellFsChmod(dest, 0666);
-
-error:
-	allocator_77A602DD(buffer);
-	cellFsClose(fd_src);
-	cellFsClose(fd_dest);
-}
-// TEST //
-
-// ORIGINAL
-/*void read_write_generic(const char* src, const char* dest)
-{
-	int ret;
-	int fda;
+	int ret, fda;
 	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0);
+
 	if (ret != CELL_OK)
-	{
 		notify("%s Open Error: %x", src, ret);
-	}
 	else
 	{
 		int fdb;
 		ret = cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fdb, 0, 0);
 
-		//char src_dest[0x100];
-		//sprintf(src_dest, "Src: %s ::: Dest: %s", src, dest);
-		//notify("%s", src_dest);
-
 		log("src: %s\n", (char*)src);
 		log("dest: %s\n", (char*)dest);
 
 		uint8_t buf[0x1000];
-		uint64_t nr;
-		uint64_t nrw;
+		uint64_t nr, nrw;
 
 		while ((ret = cellFsRead(fda, buf, 0x1000, &nr)) == CELL_FS_SUCCEEDED)
 		{
-			log("In While Loop: nr -> %08x\n", (int)nr);
 			if ((int)nr > 0)
 			{
 				ret = cellFsWrite(fdb, buf, nr, &nrw);
-				if (ret == CELL_FS_SUCCEEDED)
+
+				if (ret != CELL_FS_SUCCEEDED)
 				{
-					cellFsChmod(dest, 0666);
-					log("cellFsChmod success\n");
+					notify("%s Copy Error: %x", src, ret);
+					return;
 				}
+
 				memset(buf, 0, 0x1000);
 			}
 			else
-			{
 				break;
-			}
 		}
+
+		cellFsChmod(dest, 0666);
 
 		cellFsClose(fda);
 		cellFsClose(fdb);
 
 		notify("%s created!", (char*)dest);
 	}
-}*/
-
-/*
-void read_write_generic(const char* src, const char* dest)
-{
-	CellFsStat stat;
-	int fda, fdb;
-	uint8_t buf[0xF100];
-	uint64_t nr, nrw;
-
-	if (cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0) != CELL_FS_SUCCEEDED)
-	{
-		log("cellFsOpen fda CELL_FS_O_RDONLY error");
-		return;
-	}
-
-	if (cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fdb, 0, 0) != CELL_FS_SUCCEEDED)
-	{
-		cellFsClose(fda);
-		log("cellFsOpen fdb CELL_FS_O_CREAT error");
-		return;
-	}
-
-	//malloc(sizeof(buf));
-	if (cellFsRead(fda, buf, 0xF100, &nr) == CELL_FS_SUCCEEDED)
-	{
-		if (cellFsWrite(fdb, buf, 0xF100, &nrw) == CELL_FS_SUCCEEDED)
-		{
-			cellFsChmod(dest, 0666);
-			log("cellFsChmod success");
-		}
-		else
-		{
-			log("cellFsWrite error");
-		}
-	}
-	else
-	{
-		log("cellFsRead error");
-	}
-	//free((void*)buf);
-
-	cellFsClose(fda);
-	cellFsClose(fdb);
 }
-*/
 
 void remove_directory(char* src)
 {
@@ -1874,14 +1757,14 @@ void uninstall_hen()
 	for (int file = 0; file < 1; file++)
 	{
 		// Copy src to dest here
-		//read_write_generic(replace_raf_src[file], replace_raf_dest[file]);
+		read_write_generic(replace_raf_src[file], replace_raf_dest[file]);
 		log("[REPLACE] loop 2 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_raf_src[file], replace_raf_dest[file]);
 	}
 
 	for (int file = 0; file < 2; file++)
 	{
 		// Copy src to dest here
-		//read_write_generic((char*)replace_rco_src[file], (char*)replace_rco_dest[file]);
+		read_write_generic((char*)replace_rco_src[file], (char*)replace_rco_dest[file]);
 		log("[REPLACE] loop 3 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_rco_src[file], replace_rco_dest[file]);
 		//cellFsStat(replace_src[c], &stat);// Testing
 	}
@@ -1889,7 +1772,7 @@ void uninstall_hen()
 	for (int file = 0; file < 4; file++)
 	{
 		// Copy src to dest here
-		//read_write_generic((char*)replace_xml_src[file], (char*)replace_xml_dest[file]);
+		read_write_generic((char*)replace_xml_src[file], (char*)replace_xml_dest[file]);
 		log("[REPLACE] loop 4 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_xml_src[file], replace_xml_dest[file]);
 		//cellFsStat(replace_src[c], &stat);// Testing
 	}

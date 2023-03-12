@@ -1,0 +1,10 @@
+﻿Compilación iniciada a las 12/03/2023 11:11:14.
+     1>Proyecto "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\videorec\videorec.vcxproj" en el nodo 2 (Build destinos).
+     1>Link:
+         videorec.vcxproj -> C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\videorec.prx
+         Cannot find the expected PRX Stub Library file: cellPrx_videorec_stub.a
+     1>Compilación del proyecto terminada "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\videorec\videorec.vcxproj" (Build destinos).
+
+Compilación correcta.
+
+Tiempo transcurrido 00:00:00.02

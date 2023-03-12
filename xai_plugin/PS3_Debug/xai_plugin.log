@@ -1,0 +1,45 @@
+﻿Compilación iniciada a las 12/03/2023 11:36:38.
+     1>Proyecto "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\xai_plugin.vcxproj" en el nodo 2 (Build destinos).
+     1>ClCompile:
+         hfw_settings.cpp
+         ppu-lv2-gcc.exe -o PS3_Debug\hfw_settings.o -c -iquote. -fpch-deps -MD -MV -IF:/usr/local/cell\target\ppu\include -IF:/usr/local/cell\target\common\include -I"F:/usr/local/cell\host-win32\ppu\lib\gcc\ppu-lv2\4.1.1\include" -D_DEBUG -D__CELL_ASSERT__ -D__PS3__ -D__GCC__ -DLIBNAME=cellPrx_xai_plugin -DSTUBNAME=cellPrx_xai_plugin_stub -g -Wall -Wextra -O1 -mgen-microcode -fno-exceptions -fno-rtti "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp"
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'void usb_firm_loader()':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(484): warning : unused variable 'dev_hdd0'
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(485): warning : unused variable 'dev_hdd1'
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(486): warning : unused variable 'dev_hdd2'
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: At global scope:
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1431): warning : unused parameter 'id'
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'void toggle_generic(char*, char*, int)':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1448): warning : unused variable 'txt'
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'void uninstall_hen()':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1625): warning : unused variable 'stat'
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1746): warning : unused variable 'remove_hen_dirs'
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'int switch_hen_mode(int)':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1814): warning : control reaches end of non-void function
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'int read_vsh(std::uint64_t, char*, int)':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(107): warning : control reaches end of non-void function
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'int poke_vsh(std::uint64_t, char*, int)':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(84): warning : control reaches end of non-void function
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp: In function 'void remove_directory(char*)':
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\hfw_settings.cpp(1584): warning : 'list' is used uninitialized in this function
+         C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\/gccpch.h: At global scope:
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(23): warning : 'plugin_SetInterface' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(24): warning : 'plugin_SetInterface2' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(25): warning : 'plugin_GetInterface' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(26): warning : 'View_Find' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(27): warning : 'vsh_sprintf' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(33): warning : 'vshtask_A02D46E7' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(48): warning : 'xai_plugin_action_if' defined but not used
+     1>C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\gccpch.h(61): warning : 'xai_plugin_functions' defined but not used
+       Link:
+         F:\usr\local\cell\host-win32\ppu\bin\ppu-lv2-gcc.exe -o "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\xai_plugin.prx" -mprx -zgenprx -zgenstub -fno-exceptions -fno-rtti -Wl,--start-group PS3_Debug\hfw_settings.o PS3_Debug\des.o PS3_Debug\log.o PS3_Debug\prx.o F:/usr/local/cell\target\ppu\lib\libfs_stub.a F:/usr/local/cell\target\ppu\lib\libsyscall.a F:/usr/local/cell\target\ppu\lib\libc.a F:/usr/local/cell\target\ppu\lib\librtc_stub.a "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\\cellPrx_videorec_stub.a" "C:\Program Files (x86)\SN Systems\PS3\ppu\lib\sn\libsn.a" F:/usr/local/cell\target\ppu\lib\libm.a F:/usr/local/cell\target\ppu\lib\libio_stub.a F:/usr/local/cell\target\ppu\lib\liblv2_stub.a -Wl,--end-group
+         xai_plugin.vcxproj -> C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\xai_plugin.prx
+         Moving Stub Library cellPRX_xai_plugin_stub.a -> C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\
+       PostBuildEvent:
+         F:/usr/local/cell\host-win32\bin\make_fself "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\xai_plugin.prx" "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\PS3_Debug\xai_plugin.sprx"
+         :VCEnd
+     1>Compilación del proyecto terminada "C:\Users\Nathan\Documents\Visual Studio 2012\Projects\xai_plugin_hen\xai_plugin\xai_plugin.vcxproj" (Build destinos).
+
+Compilación correcta.
+
+Tiempo transcurrido 00:00:00.43
