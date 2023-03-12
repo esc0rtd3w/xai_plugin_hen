@@ -45,6 +45,7 @@ void enable_recording();
 void enable_screenshot();
 bool rsod_fix();
 void remarry_bd();
+void check_temperature();
 void control_led(const char * action);
 void override_sfo();
 bool enable_hvdbg();

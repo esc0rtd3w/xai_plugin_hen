@@ -51,11 +51,32 @@ void pokeq( uint64_t addr, uint64_t val) // pokeq(0x800000000000171CULL,       0
 	system_call_2(7, addr, val);
 }
 
+void pokeq32(uint64_t address, uint32_t value) 
+{
+	uint64_t old_value = peekq(address);
+	pokeq(address, ((uint64_t)value << 32) | (old_value & 0xFFFFFFFFULL));
+}
+
 uint32_t GetApplicableVersion(void * data)
 {
 	system_call_8(863, 0x6011, 1,(uint64_t)data,0,0,0,0,0);
 	return_to_user_prog(uint32_t);
 
+}
+
+int sys_game_get_temperature(int sel, uint32_t *temperature) 
+{
+    uint32_t temp;  
+    system_call_2(383, (uint64_t) sel, (uint64_t) &temp);
+    *temperature = (temp >> 24);
+    return_to_user_prog(int);
+}
+
+uint32_t celsius_to_fahrenheit(uint32_t *temp)
+{
+	uint32_t f_temp = 0;
+	f_temp = ((uint32_t)(*temp * 9 / 5) + 32);
+	return f_temp;
 }
 
 process_id_t vsh_pid = 0;
@@ -1071,7 +1092,25 @@ void remarry_bd()
 	}
 }
 
+void check_temperature()
+{
+	uint32_t temp_cpu_c = 0, temp_rsx_c = 0;
+	uint32_t temp_cpu_f = 0, temp_rsx_f = 0;
 
+	// Enabling sys_game_get_temperature() in 4.90 CEX
+	pokeq32(0x800000000000C6A4ULL, 0x38600000);
+
+	sys_game_get_temperature(0, &temp_cpu_c);
+    sys_game_get_temperature(1, &temp_rsx_c);
+
+	temp_cpu_f = celsius_to_fahrenheit(&temp_cpu_c);
+	temp_rsx_f = celsius_to_fahrenheit(&temp_rsx_c);
+
+	if(!temp_cpu_c || !temp_rsx_c || !temp_cpu_f || !temp_rsx_f)
+		notify("Unable to get temperature values");
+	else
+		notify("[CPU: %uC] - [RSX: %uC]\n[CPU: %uF] - [RSX: %uF]", (int)temp_cpu_c, (int)temp_rsx_c, (int)temp_cpu_f, (int)temp_rsx_f);
+}
 
 void dump_disc_key()
 {

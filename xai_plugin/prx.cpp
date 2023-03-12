@@ -253,6 +253,12 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 	*/
 
+	// Basic Tools
+	else if(strcmp(action, "show_temp") == 0)	
+	{
+		check_temperature();
+	}
+
 	// Dump Tools
 	else if(strcmp(action,"clean_log")==0)
 	{		
