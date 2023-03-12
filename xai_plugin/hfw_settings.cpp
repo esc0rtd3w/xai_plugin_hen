@@ -18,138 +18,6 @@
 #include "des.h"
 #include "videorec.h"
 
-static uint8_t erk[0x20] = 
-{
-	0x34, 0x18, 0x12, 0x37, 0x62, 0x91, 0x37, 0x1c,
-	0x8b, 0xc7, 0x56, 0xff, 0xfc, 0x61, 0x15, 0x25,
-	0x40, 0x3f, 0x95, 0xa8, 0xef, 0x9d, 0x0c, 0x99,
-	0x64, 0x82, 0xee, 0xc2, 0x16, 0xb5, 0x62, 0xed
-};
-
-static uint8_t hmac[0x40] = 
-{
-	0xcc, 0x30, 0xc4, 0x22, 0x91, 0x13, 0xdb, 0x25,
-	0x73, 0x35, 0x53, 0xaf, 0xd0, 0x6e, 0x87, 0x62,
-	0xb3, 0x72, 0x9d, 0x9e, 0xfa, 0xa6, 0xd5, 0xf3,
-	0x5a, 0x6f, 0x58, 0xbf, 0x38, 0xff, 0x8b, 0x5f,
-	0x58, 0xa2, 0x5b, 0xd9, 0xc9, 0xb5, 0x0b, 0x01,
-	0xd1, 0xab, 0x40, 0x28, 0x67, 0x69, 0x68, 0xea,
-	0xc7, 0xf8, 0x88, 0x33, 0xb6, 0x62, 0x93, 0x5d,
-	0x75, 0x06, 0xa6, 0xb5, 0xe0, 0xf9, 0xd9, 0x7a
-};
-
-static uint8_t iv_qa[0x10] = 
-{
-	0xe8, 0x66, 0x3a, 0x69, 0xcd, 0x1a, 0x5c, 0x45,
-	0x4a, 0x76, 0x1e, 0x72, 0x8c, 0x7c, 0x25, 0x4e
-};
-
-int lv1_allocate_memory(uint64_t size, uint64_t page_size_exp, uint64_t flags, uint64_t * addr, uint64_t * muid)
-{
-	uint64_t ret = 0, ret_addr = 0, ret_muid = 0;
-	__asm__ __volatile__(
-		"mr %%r3, %3;"
-			"mr %%r4, %4;"
-			"li %%r5, 0;"
-			"mr %%r6, %5;"
-			"li %%r10, 0;"
-			"li %%r11, 10;"
-			"sc;"
-			"mr %0, %%r3;"
-			"mr %1, %%r4;"
-			"mr %2, %%r5;":"=r"(ret), "=r"(ret_addr),
-			"=r"(ret_muid)
-			:"r"(size), "r"(page_size_exp), "r"(flags)
-			:"r0", "r2", "r3", "r4", "r5", "r6", "r7", "r8",
-			"r9", "r10", "r11", "r12", "lr", "ctr", "xer",
-			"cr0", "cr1", "cr5", "cr6", "cr7", "memory");
-
-	*addr = ret_addr;
-	*muid = ret_muid;
-	return (int)ret;
-}
-
-int lv1_write_virtual_uart( uint64_t port_number, uint64_t buffer, uint64_t bytes, uint64_t *bytes_written )
-{
-	uint64_t ret = 0, ret_bytes = 0;
-
-	__asm__ __volatile__(
-				"mr %%r3, %2;"
-				"mr %%r4, %3;"
-				"mr %%r5, %4;"
-				"li %%r10, 163;"
-				"li %%r11, 10;"
-				"sc;"
-				"mr %0, %%r3;"
-				"mr %1, %%r4;"
-					:"=r"(ret), "=r"(ret_bytes)
-					:"r"(port_number), "r"(buffer), "r"(bytes)
-					:"r0", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "lr", "ctr", "xer", "cr0", "cr1", "cr5", "cr6", "cr7", "memory");
-
-	*bytes_written = ret_bytes;
-	return (int)ret;
-}
-
-int lv1_insert_htab_entry(uint64_t htab_id, uint64_t hpte_group, uint64_t hpte_v, uint64_t hpte_r, uint64_t bolted_flag, uint64_t flags, uint64_t * hpte_index, uint64_t * hpte_evicted_v, uint64_t * hpte_evicted_r)
-{
-	uint64_t ret = 0, ret_hpte_index = 0, ret_hpte_evicted_v =
-		0, ret_hpte_evicted_r = 0;
-	__asm__ __volatile__("mr %%r3, %4;" "mr %%r4, %5;" "mr %%r5, %6;"
-					"mr %%r6, %7;" "mr %%r7, %8;" "mr %%r8, %9;"
-					"li %%r10, 0x9e;" "li %%r11, 10;" "sc;" "mr %0, %%r3;" "mr %1, %%r4;"
-					"mr %2, %%r5;" "mr %3, %%r6;":"=r"(ret),
-					"=r"(ret_hpte_index), "=r"(ret_hpte_evicted_v),
-					"=r"(ret_hpte_evicted_r)
-					:"r"(htab_id), "r"(hpte_group), "r"(hpte_v),
-					"r"(hpte_r), "r"(bolted_flag), "r"(flags)
-					:"r0", "r2", "r3", "r4", "r5", "r6", "r7", "r8",
-					"r9", "r10", "r11", "r12", "lr", "ctr", "xer",
-					"cr0", "cr1", "cr5", "cr6", "cr7", "memory");
-
-	*hpte_index = ret_hpte_index;
-	*hpte_evicted_v = ret_hpte_evicted_v;
-	*hpte_evicted_r = ret_hpte_evicted_r;
-	return (int)ret;
-}
-
-int mm_insert_htab_entry(uint64_t va_addr, uint64_t lpar_addr, uint64_t prot, uint64_t * index)
-{
-	uint64_t hpte_group, hpte_index = 0, hpte_v, hpte_r, hpte_evicted_v, hpte_evicted_r;
-
-	hpte_group = (((va_addr >> 28) ^ ((va_addr & 0xFFFFFFFULL) >> 12)) & 0x7FF) << 3;
-	hpte_v = ((va_addr >> 23) << 7) | HPTE_V_VALID;
-	hpte_r = lpar_addr | 0x38 | (prot & HPTE_R_PROT_MASK);
-
-	int result = lv1_insert_htab_entry(0, hpte_group, hpte_v, hpte_r, HPTE_V_BOLTED,
-									   0,
-									   &hpte_index, &hpte_evicted_v,
-									   &hpte_evicted_r);
-
-	if ((result == 0) && (index != 0))
-		*index = hpte_index;
-
-	return (int)result;
-}
-
-int mm_map_lpar_memory_region(uint64_t lpar_start_addr, uint64_t ea_start_addr, uint64_t size, uint64_t page_shift, uint64_t prot)
-{
-	int result;
-	uint64_t i;
-
-	for (i = 0; i < size >> page_shift; i++) 
-	{
-		result = mm_insert_htab_entry(MM_EA2VA(ea_start_addr), lpar_start_addr, prot, 0);
-
-		if (result != 0)
-			return result;
-
-		lpar_start_addr += (1 << page_shift);
-		ea_start_addr += (1 << page_shift);
-	}
-
-	return 0;
-}
-
 void buzzer(uint8_t mode)
 {	
 	system_call_3(392, 0x1007, 0xA, mode);
@@ -161,22 +29,9 @@ int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag)
 	return_to_user_prog(int);
 }
 
-bool check_flash_type()
-{
-	uint8_t flag;
-	lv2_ss_get_cache_of_flash_ext_flag(&flag);
-	return !(flag & 0x1);
-}
-
 int sys_storage_open(uint64_t dev_id, int *dev_handle)
 {
     system_call_4(600, dev_id, 0, (uint64_t) dev_handle, 0);
-    return_to_user_prog(int);
-}
-
-int sys_storage_read2(int fd, uint32_t start_sector, uint32_t sectors, uint8_t *bounce_buf, uint32_t *sectors_read, uint32_t flags)
-{
-    system_call_7(602, fd, 0, start_sector, sectors, (uint64_t) bounce_buf, (uint64_t) sectors_read, flags);
     return_to_user_prog(int);
 }
 
@@ -184,30 +39,6 @@ int sys_storage_close(int fd)
 {
     system_call_1(601, fd);
     return_to_user_prog(int);
-}
-
-int sys_storage_get_device_info2(uint64_t device, device_info_t *device_info)
-{
-    system_call_2(609, device, (uint64_t) device_info);
-    return_to_user_prog(int);
-}
-
-void lv1_patches()
-{
-	lv1_poke32(UM_PATCH_OFFSET, 0x38000000); 
-    lv1_poke32(DM_PATCH1_OFFSET, 0x60000000); 
-    lv1_poke32(DM_PATCH2_OFFSET, 0x38600001); 
-    lv1_poke32(DM_PATCH3_OFFSET, 0x3BE00001); 
-    lv1_poke32(DM_PATCH4_OFFSET, 0x38600000); 
-}
-
-void restore_patches()
-{
-	lv1_poke32(UM_PATCH_OFFSET, UM_PATCH_ORI); 
-    lv1_poke32(DM_PATCH1_OFFSET, DM_PATCH1_ORI); 
-    lv1_poke32(DM_PATCH2_OFFSET, DM_PATCH2_ORI); 
-    lv1_poke32(DM_PATCH3_OFFSET, DM_PATCH3_ORI);
-    lv1_poke32(DM_PATCH4_OFFSET, DM_PATCH4_ORI); 
 }
 
 xBDVD * iBdvd;
@@ -228,11 +59,6 @@ uint64_t lv1_peek(uint64_t addr)
 void lv1_poke( uint64_t addr, uint64_t val) 
 {
 	system_call_2(9, addr, val);
-}
-
-void lv1_poked(uint64_t addr, uint64_t value)
-{
-	system_call_2(7, HV_BASE + addr, value);
 }
 
 void lv1_poke32(uint64_t addr, uint32_t value)
@@ -444,78 +270,17 @@ void load_cfw_functions()
 	(void*&)(allocator_759E0635) = (void*)((int)getNIDfunc("allocator", 0x759E0635));
 	(void*&)(allocator_77A602DD) = (void*)((int)getNIDfunc("allocator", 0x77A602DD));
 
-	(void*&)(allocator_6137D196) = (void*)((int)getNIDfunc("allocator",0x6137D196));
-
-	(void*&)(cellCryptoPuSha1Hmac) = (void*)((int)getNIDfunc("sdk",0x74A2A1FE));
-
-	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc",0x273B9711));
+	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc", 0x273B9711));
 }
 
 
-int receive_eid_idps(uint8_t output[0x10]) 
-{
-	uint32_t readlen = 0;
-	int dev_id;
-	
-	uint64_t disc_size = 0;		
-	device_info_t disc_info;
-
-	uint64_t start_flash_sector = 0;
-	uint64_t device = FLASH_DEVICE_NOR;
-	uint16_t offset = 0;
-
-	offset = 0x1D0;
-	start_flash_sector = 0x181;		
-
-	if(!check_flash_type())
-	{
-		start_flash_sector = 0x20D;
-		device = FLASH_DEVICE_NAND;
-	}
-
-	if(!offset || !start_flash_sector || !device)
-		return 1;
-
-	if(sys_storage_open(device, &dev_id))
-		return 1;
-
-	if(sys_storage_get_device_info2(device, &disc_info))
-		return 1;
-
-	disc_size = disc_info.sector_size * disc_info.total_sectors;
-	uint32_t buf_size = disc_info.sector_size*1;
-	uint8_t* rb = (unsigned char *) allocator_6137D196(128, buf_size);
-	memset(rb, 0, buf_size);	
-
-	if(disc_size)
-	{
-		if(sys_storage_read2(dev_id, start_flash_sector, 1, rb, &readlen, FLASH_FLAGS))
-		{
-			sys_storage_close(dev_id);
-			allocator_77A602DD(rb);
-			return 1;
-		}		
-		
-		memcpy(output, (void*)&rb[offset], 0x10);	
-
-		if(output[0] != 0x00 && output[1] != 0x00 && output[2] != 0x00 && output[3] != 0x01 && output[4] != 0x00 && output[6] != 0x00)
-			return 1;
-	}
-	
-	sys_storage_close(dev_id);
-	allocator_77A602DD(rb);
-
-	return 0;
-}
-
-int dump_lv(int lv)
+int dump_lv2()
 {
 	int final_offset;
 	int mem = 0, max_offset = 0x40000;
 	int fd, fseek_offset = 0, start_offset = 0;
 
 	char usb[120], dump_file_path[120], lv_file[120];
-	char *dumping, *lv_dump, *lv_dumped, *lv_error;
 
 	uint8_t platform_info[0x18];
 	uint64_t nrw, seek, offset_dumped;
@@ -530,34 +295,9 @@ int dump_lv(int lv)
 	
     system_call_1(387, (uint64_t)platform_info);
 
-	if(lv == LV2)
-	{
-		final_offset = 0x800000ULL;
-		dumping = "Dumping LV2, please wait...";	
-		lv_dumped = "LV2 dumped in\n%s";
-		lv_error = "An error occurred while dumping LV2";
-		lv_dump = LV2_DUMP;
-	}
-	else if(lv == LV1)
-	{
-		final_offset = 0x1000000ULL;
-		dumping = "Dumping LV1, please wait...";	
-		lv_dumped = "LV1 dumped in\n%s";
-		lv_error = "An error occurred while dumping LV1";
-		lv_dump = LV1_DUMP;
-	}
-	else if(lv == RAM)
-	{
-		final_offset = 0x10000000ULL;
-		dumping = "Dumping RAM, it can take 5 minutes, please wait...";	
-		lv_dumped = "RAM dumped in\n%s";
-		lv_error = "An error occurred while dumping RAM";
-		lv_dump = RAM_DUMP;
-	}
-	else
-		return 0;	
+	final_offset = 0x800000ULL;	
 
-	vsh_sprintf(lv_file, lv_dump, platform_info[0], platform_info[1], platform_info[2] >> 4);	
+	vsh_sprintf(lv_file, LV2_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);	
 	vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
 
 	for(int i = 0; i < 127; i++)
@@ -573,13 +313,13 @@ int dump_lv(int lv)
 
 	if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
 	{
-		notify(lv_error);
+		notify("An error occurred while dumping LV2");
 		return 1;
 	}
 
 	cellFsChmod(dump_file_path, 0666);
 
-	notify(dumping);
+	notify("Dumping LV2, please wait...");
 
 	// Quickest method to dump LV2 and LV1 through xai_plugin
 	// Default method will take at least two minutes to dump LV2, and even more for LV1
@@ -588,10 +328,7 @@ int dump_lv(int lv)
 
 	for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
 	{
-		if(lv == LV2)
-			offset_dumped = peekq(0x8000000000000000ULL + offset);
-		else
-			offset_dumped = lv1_peek(0x8000000000000000ULL + offset);
+		offset_dumped = peekq(0x8000000000000000ULL + offset);
 
 		memcpy(dump + mem, &offset_dumped, 8);
 
@@ -605,7 +342,7 @@ int dump_lv(int lv)
 				allocator_77A602DD(dump);				
 				cellFsClose(fd);
 				cellFsUnlink(dump_file_path);
-				notify(lv_error);		
+				notify("An error occurred while dumping LV2");		
 
 				return 1;
 			}
@@ -626,7 +363,7 @@ int dump_lv(int lv)
 	allocator_77A602DD(dump);
 	cellFsClose(fd);
 
-	notify(lv_dumped, dump_file_path);
+	notify("LV2 dumped in\n%s", dump_file_path);
 	buzzer(SINGLE_BEEP);
 
 	return 0;
@@ -1711,108 +1448,6 @@ void read_qa_flag()
 		notify("QA Flags are enabled");
 	else
 		notify("QA Flags are disabled");
-}
-
-int set_qa_flag(uint8_t value)
-{
-	uint8_t idps[IDPS_SIZE];
-	uint8_t seed[TOKEN_SIZE];
-	uint8_t token[TOKEN_SIZE];	
-
-	if(receive_eid_idps(idps))
-		return 5;
-
-	memset(seed, 0, TOKEN_SIZE);
-	memcpy(seed + 4, idps, IDPS_SIZE);
-
-	if(seed[0x04] != 0x00 && seed[0x05] != 0x00 && seed[0x06] != 0x00 && 
-		seed[0x07] != 0x01 && seed[0x08] != 0x00 && seed[0x0A] != 0x00)
-	{
-		notify("IDPS is not valid");
-		return 1;
-	}	
-
-	seed[3] = 1;
-
-	if(value)
-	{
-		seed[39] |= 0x1; // QA_FLAG_EXAM_API_ENABLE
-		seed[39] |= 0x2; // QA_FLAG_QA_MODE_ENABLE
-
-		seed[47] |= 0x2; // checked by lv2_kernel.self and sys_init_osd.self 
-		seed[47] |= 0x4; // can run sys_init_osd.self from /app_home ?
-
-		seed[51] |= 0x1; // QA_FLAG_ALLOW_NON_QA
-		seed[51] |= 0x2; // QA_FLAG_FORCE_UPDATE
-	}
-
-	cellCryptoPuSha1Hmac(seed + 60, seed, (uint32_t)60, hmac, (uint32_t)0x40);
-	AesCbcCfbEncrypt(token, seed, 0x50, erk, 0x100, iv_qa);
-
-	lv1_patches();
-
-	struct ps3dm_scm_write_eeprom write_eeprom;
-	int len;
-	uint8_t *p = (uint8_t*)&write_eeprom;
-	uint64_t laid, paid, vuart_lpar_addr, muid, nwritten;
-
-	if(lv1_allocate_memory(4096, 0x0C, 0, &vuart_lpar_addr, &muid) != 0)
-	{
-		notify("Unable to allocate memory");
-		restore_patches();
-		return 2;
-	}
-
-	if(mm_map_lpar_memory_region(vuart_lpar_addr, HV_BASE, HV_SIZE, HV_PAGE_SIZE, 0) != 0)
-	{
-		notify("Unable to map memory region");
-		restore_patches();
-		return 3;
-	}
-
-	laid = 0x1070000002000001ULL;
-	paid = 0x1070000033000001ULL;
-
-	memset(&write_eeprom, 0, sizeof(write_eeprom));
-
-	ps3dm_init_header(&write_eeprom.dm_hdr, 1, PS3DM_FID_SCM,
-		sizeof(write_eeprom)	-	sizeof(struct ps3dm_header),
-		sizeof(write_eeprom)	-	sizeof(struct ps3dm_header));
-
-	ps3dm_init_ss_header(&write_eeprom.ss_hdr, PS3DM_PID_SCM_WRITE_EEPROM, laid, paid);
-	write_eeprom.offset = 0x48D3E;
-	write_eeprom.nwrite = 0x50;
-	write_eeprom.buf_size = 0x50;
-	memset(write_eeprom.buf, 0, sizeof(write_eeprom.buf));
-	memcpy(write_eeprom.buf, token, 0x50);
-	len = sizeof(write_eeprom);		
-
-	for(uint16_t n = 0; n < len ; n += 8)
-	{
-		static uint64_t value;
-		memcpy(&value, &p[n], 8);
-		lv1_poked((uint64_t) n, value);
-		__asm__("sync");
-		value =  peekq(0x8000000000000000ULL);
-	}	
-
-	if(lv1_write_virtual_uart(10, vuart_lpar_addr, len, &nwritten) != 0)
-	{
-		notify("Unable to write virtual UART");
-		restore_patches();
-		return 4;
-	}	
-
-	update_mgr_write_eprom(QA_FLAG_OFFSET, (value) ? 0x00 : 0xFF); 
-
-	restore_patches();
-
-	if(!value)
-		notify("QA Flags disabled");
-	else
-		notify("QA Flags enabled");
-
-	return 0;
 }
 
 int read_product_mode_flag(void * data)
