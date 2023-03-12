@@ -218,6 +218,9 @@ void load_cfw_functions()
 
 	
 	(void*&)(xsetting_D0261D72) = (void*)((int)getNIDfunc("xsetting",0xD0261D72));
+
+	(void*&)(allocator_759E0635) = (void*)((int)getNIDfunc("allocator", 0x759E0635));
+	(void*&)(allocator_77A602DD) = (void*)((int)getNIDfunc("allocator", 0x77A602DD));
 }
 
 
@@ -1515,7 +1518,72 @@ void toggle_hen_dev_build()
 }
 
 
+// TEST //
 void read_write_generic(const char* src, const char* dest)
+{
+	CellFsStat stat;
+	int ret;
+	int fd_src, fd_dest;
+	uint64_t read, write;		
+	
+	// Check if source file exists
+	ret = cellFsStat(src, &stat);
+	if(ret != CELL_OK)
+	{
+		notify("%s Open Error (Not exist): %x", src, ret);
+		return;
+	}
+
+	uint8_t *buffer = (uint8_t *)allocator_759E0635(stat.st_size);
+	if(!buffer)
+	{
+		notify("%s malloc Error", (int)src);
+		goto error;
+	}
+
+	// Open source file
+	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fd_src, 0, 0);
+	if(ret != CELL_OK)
+	{
+		notify("%s Open Error: %x", src, ret);
+		goto error;
+	}
+
+	// Read source file
+	ret = cellFsRead(fd_src, buffer, stat.st_size, &read);
+	if(ret != CELL_OK)
+	{
+		notify("%s Read Error: %x", src, ret);
+		goto error;
+	}
+
+	// Open destination file
+	ret = cellFsOpen(dest, CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &fd_dest, 0, 0);
+	if(ret != CELL_OK)
+	{
+		notify("%s Open Error: %x", dest, ret);
+		goto error;
+	}
+
+	// Write source to destination file
+	ret = cellFsWrite(fd_dest, buffer, stat.st_size, &write);
+	if(ret != CELL_OK)
+	{
+		notify("%s Write Error: %x", dest, ret);
+		goto error;
+	}
+
+	cellFsChmod(dest, 0666);
+
+error:
+	allocator_77A602DD(buffer);
+	cellFsClose(fd_src);
+	cellFsClose(fd_dest);
+}
+// TEST //
+
+// ORIGINAL
+/*void read_write_generic(const char* src, const char* dest)
 {
 	int ret;
 	int fda;
@@ -1564,7 +1632,7 @@ void read_write_generic(const char* src, const char* dest)
 
 		notify("%s created!", (char*)dest);
 	}
-}
+}*/
 
 /*
 void read_write_generic(const char* src, const char* dest)
