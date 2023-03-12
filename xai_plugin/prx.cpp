@@ -320,6 +320,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		recovery_mode();
 		xmb_reboot(SYS_HARD_REBOOT);
 	}
+	else if(strcmp(action, "toggle_hdd_space") == 0)
+	{
+		unlock_hdd_space();
+	}
 	/*
 	else if(strcmp(action,"service_mode")==0)
 	{

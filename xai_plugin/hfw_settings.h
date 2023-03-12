@@ -64,6 +64,7 @@ bool rsod_fix();
 void remarry_bd();
 void check_temperature();
 int dump_lv2();
+void unlock_hdd_space();
 void control_led(const char * action);
 void override_sfo();
 bool enable_hvdbg();

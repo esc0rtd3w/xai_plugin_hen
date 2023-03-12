@@ -73,6 +73,11 @@ uint64_t peekq(uint64_t addr) // peekq(0x80000000002E9D70ULL)==0x434558000000000
 	return_to_user_prog(uint64_t);
 }
 
+uint32_t peekq32(uint64_t addr) 
+{
+	return (peekq(addr) >> 32) & 0xFFFFFFFFUL;
+}
+
 void pokeq( uint64_t addr, uint64_t val) // pokeq(0x800000000000171CULL,       0x7C0802A6F8010010ULL);
 {
 	system_call_2(7, addr, val);
@@ -367,6 +372,60 @@ int dump_lv2()
 	buzzer(SINGLE_BEEP);
 
 	return 0;
+}
+
+// 3141card's PS3 Unlock HDD Space
+void unlock_hdd_space()
+{
+	uint64_t offset1 = 0, offset2 = 0;
+	uint64_t value1 = 0, value2 = 0;
+
+	// Check if CFW Syscalls are disabled
+	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+	{
+		notify("Syscalls are disabled");
+		return;
+	}
+
+	for(uint64_t i = 0x8000000000590000ULL; i < 0x8000000000640000ULL; i += 8)
+	{
+		if(peekq(i) == 0xFFFFC000FFFFF000ULL && peekq(i + 0x90) == 0x6C5F6D775F636673ULL)
+		{
+			offset1 = i - 0x0C;
+			offset2 = i + 0x38;
+
+			value1 = peekq32(offset1);
+
+			if(value1 == 0x08)
+			{
+				// Unlock 
+				pokeq32(offset1, 0x01);
+				pokeq32(offset2, 0x01);			
+
+				if(peekq32(offset1) != 0x01 && peekq32(offset2) != 0x01)
+					goto error;
+			}
+			else
+			{				
+				// Restore
+				pokeq32(offset1, 0x08);
+				pokeq32(offset2, 0x00);
+
+				if(peekq32(offset1) != 0x08 && peekq32(offset2) != 0x00)
+					goto error;
+			}
+
+			if(peekq32(offset1) == 0x08)
+				notify("Restored HDD space");
+			else
+				notify("Unlocked HDD space");
+			
+			return;
+		}		
+	}
+
+error:
+	notify("Unable to toggle HDD space");
 }
 
 
