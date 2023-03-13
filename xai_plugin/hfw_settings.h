@@ -1,5 +1,5 @@
 
-#define PRODUCT_MODE_FLAG_OFFSET 0x48C07
+#define PRODUCT_MODE_FLAG_OFFSET  0x48C07
 #define RECOVERY_MODE_FLAG_OFFSET 0x48C61
 
 #define VSH_PROCESS_NAME	"_main_vsh.self"
@@ -10,6 +10,20 @@
 //#define TOC 0x34FBB0// CEX 4.82/4.84/4.85
 //#define process_rtoc_entry_1 -0x7800
 
+#define LV2						0
+#define LV1						1
+#define RAM						2
+
+#define LV2_DUMP				"LV2-FW%X.%X%X.bin"
+#define LV1_DUMP				"LV1-FW%X.%X%X.bin"
+#define RAM_DUMP				"RAM-FW%X.%X%X.bin"
+#define TMP_FOLDER				"/dev_hdd0/tmp"
+
+#define SINGLE_BEEP 			0x6
+#define DOUBLE_BEEP 			0x36
+#define TRIPLE_BEEP 			0x1B6
+#define CONTINUOUS_BEEP			0xFFFF
+
 #define process_id_t uint32_t
 #define SYSCALL8_OPCODE_PS3MAPI			 		0x7777
 #define PS3MAPI_OPCODE_GET_ALL_PROC_PID			0x0021
@@ -17,6 +31,8 @@
 #define PS3MAPI_OPCODE_GET_PROC_MEM				0x0031
 #define PS3MAPI_OPCODE_SET_PROC_MEM				0x0032
 #define MAX_PROCESS 16
+
+#define QA_FLAG_OFFSET 		0x48C0A
 
 #define printf(...)
 //#define DPRINTF(...)
@@ -31,6 +47,7 @@ void reset_psn_patches();
 
 uint64_t lv1_peek(uint64_t addr);
 void lv1_poke( uint64_t addr, uint64_t val);
+void lv1_poke32(uint64_t addr, uint32_t value);
 
 void hook_func(void * original,void * backup, void * hook_function);
 void load_cfw_functions();
@@ -45,6 +62,9 @@ void enable_recording();
 void enable_screenshot();
 bool rsod_fix();
 void remarry_bd();
+void check_temperature();
+int dump_lv2();
+void unlock_hdd_space();
 void control_led(const char * action);
 void override_sfo();
 bool enable_hvdbg();
@@ -59,6 +79,7 @@ void rebuild_db();
 int fs_check();
 void recovery_mode();
 bool service_mode(); 
+void read_qa_flag();
 void toggle_generic(char* path_to_file, char* name);
 void toggle_auto_update();
 void toggle_hen_repair();
@@ -87,7 +108,6 @@ int set_product_mode_flag(uint8_t value);
 
 static int (*update_mgr_read_eprom)(int offset, void * buffer);      
 static int (*update_mgr_write_eprom)(int offset, int value);
-
 
 static int (*xBDVDGetInstance)();
 

@@ -15,10 +15,31 @@
 #include "explore_plugin.h"
 #include "xRegistry.h"
 #include <sys/memory.h>
-
-
 #include "des.h"
 #include "videorec.h"
+
+void buzzer(uint8_t mode)
+{	
+	system_call_3(392, 0x1007, 0xA, mode);
+}
+
+int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag)
+{
+	system_call_1(874, (uint64_t) flag);
+	return_to_user_prog(int);
+}
+
+int sys_storage_open(uint64_t dev_id, int *dev_handle)
+{
+    system_call_4(600, dev_id, 0, (uint64_t) dev_handle, 0);
+    return_to_user_prog(int);
+}
+
+int sys_storage_close(int fd)
+{
+    system_call_1(601, fd);
+    return_to_user_prog(int);
+}
 
 xBDVD * iBdvd;
 xsetting_D0261D72_class* (*xsetting_D0261D72)() = 0;
@@ -40,10 +61,21 @@ void lv1_poke( uint64_t addr, uint64_t val)
 	system_call_2(9, addr, val);
 }
 
+void lv1_poke32(uint64_t addr, uint32_t value)
+{
+	uint64_t old_value = lv1_peek(addr);
+	lv1_poke(addr, ((uint64_t)value << 32) | (old_value & 0xFFFFFFFFULL));
+}
+
 uint64_t peekq(uint64_t addr) // peekq(0x80000000002E9D70ULL)==0x4345580000000000ULL
 {
 	system_call_1(6, addr);
 	return_to_user_prog(uint64_t);
+}
+
+uint32_t peekq32(uint64_t addr) 
+{
+	return (peekq(addr) >> 32) & 0xFFFFFFFFUL;
 }
 
 void pokeq( uint64_t addr, uint64_t val) // pokeq(0x800000000000171CULL,       0x7C0802A6F8010010ULL);
@@ -51,11 +83,32 @@ void pokeq( uint64_t addr, uint64_t val) // pokeq(0x800000000000171CULL,       0
 	system_call_2(7, addr, val);
 }
 
+void pokeq32(uint64_t address, uint32_t value) 
+{
+	uint64_t old_value = peekq(address);
+	pokeq(address, ((uint64_t)value << 32) | (old_value & 0xFFFFFFFFULL));
+}
+
 uint32_t GetApplicableVersion(void * data)
 {
 	system_call_8(863, 0x6011, 1,(uint64_t)data,0,0,0,0,0);
 	return_to_user_prog(uint32_t);
 
+}
+
+int sys_game_get_temperature(int sel, uint32_t *temperature) 
+{
+    uint32_t temp;  
+    system_call_2(383, (uint64_t) sel, (uint64_t) &temp);
+    *temperature = (temp >> 24);
+    return_to_user_prog(int);
+}
+
+uint32_t celsius_to_fahrenheit(uint32_t *temp)
+{
+	uint32_t f_temp = 0;
+	f_temp = ((uint32_t)(*temp * 9 / 5) + 32);
+	return f_temp;
 }
 
 process_id_t vsh_pid = 0;
@@ -221,6 +274,158 @@ void load_cfw_functions()
 
 	(void*&)(allocator_759E0635) = (void*)((int)getNIDfunc("allocator", 0x759E0635));
 	(void*&)(allocator_77A602DD) = (void*)((int)getNIDfunc("allocator", 0x77A602DD));
+
+	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc", 0x273B9711));
+}
+
+
+int dump_lv2()
+{
+	int final_offset;
+	int mem = 0, max_offset = 0x40000;
+	int fd, fseek_offset = 0, start_offset = 0;
+
+	char usb[120], dump_file_path[120], lv_file[120];
+
+	uint8_t platform_info[0x18];
+	uint64_t nrw, seek, offset_dumped;
+	CellFsStat st;	
+
+	// Check if CFW Syscalls are disabled
+	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+	{
+		notify("Syscalls are disabled");
+		return 1;
+	}
+	
+    system_call_1(387, (uint64_t)platform_info);
+
+	final_offset = 0x800000ULL;	
+
+	vsh_sprintf(lv_file, LV2_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);	
+	vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
+
+	for(int i = 0; i < 127; i++)
+	{				
+		vsh_sprintf(usb, "/dev_usb%03d", i, NULL);
+
+		if(!cellFsStat(usb, &st))
+		{
+			vsh_sprintf(dump_file_path, "%s/%s", (int)usb, (int)lv_file);
+			break;
+		}
+	}
+
+	if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
+	{
+		notify("An error occurred while dumping LV2");
+		return 1;
+	}
+
+	cellFsChmod(dump_file_path, 0666);
+
+	notify("Dumping LV2, please wait...");
+
+	// Quickest method to dump LV2 and LV1 through xai_plugin
+	// Default method will take at least two minutes to dump LV2, and even more for LV1
+	uint8_t *dump = (uint8_t *)allocator_759E0635(0x40000);
+	memset(dump, 0, 0x40000);			
+
+	for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
+	{
+		offset_dumped = peekq(0x8000000000000000ULL + offset);
+
+		memcpy(dump + mem, &offset_dumped, 8);
+
+		mem += 8;
+
+		if(offset == max_offset - 8)
+		{
+			//cellFsLseek(fd, fseek_offset, SEEK_SET, &seek);
+			if(cellFsWrite(fd, dump, 0x40000, &nrw) != SUCCEEDED)
+			{
+				allocator_77A602DD(dump);				
+				cellFsClose(fd);
+				cellFsUnlink(dump_file_path);
+				notify("An error occurred while dumping LV2");		
+
+				return 1;
+			}
+
+			// Done dumping
+			if(max_offset == final_offset)
+				break;
+
+			fseek_offset += 0x40000;
+			memset(dump, 0, 0x40000);
+			mem = 0;
+
+			start_offset = start_offset + 0x40000;
+			max_offset = max_offset + 0x40000;
+		}
+	}
+
+	allocator_77A602DD(dump);
+	cellFsClose(fd);
+
+	notify("LV2 dumped in\n%s", dump_file_path);
+	buzzer(SINGLE_BEEP);
+
+	return 0;
+}
+
+// 3141card's PS3 Unlock HDD Space
+void unlock_hdd_space()
+{
+	uint64_t offset1 = 0, offset2 = 0;
+	uint64_t value1 = 0, value2 = 0;
+
+	// Check if CFW Syscalls are disabled
+	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+	{
+		notify("Syscalls are disabled");
+		return;
+	}
+
+	for(uint64_t i = 0x8000000000590000ULL; i < 0x8000000000640000ULL; i += 8)
+	{
+		if(peekq(i) == 0xFFFFC000FFFFF000ULL && peekq(i + 0x90) == 0x6C5F6D775F636673ULL)
+		{
+			offset1 = i - 0x0C;
+			offset2 = i + 0x38;
+
+			value1 = peekq32(offset1);
+
+			if(value1 == 0x08)
+			{
+				// Unlock 
+				pokeq32(offset1, 0x01);
+				pokeq32(offset2, 0x01);			
+
+				if(peekq32(offset1) != 0x01 && peekq32(offset2) != 0x01)
+					goto error;
+			}
+			else
+			{				
+				// Restore
+				pokeq32(offset1, 0x08);
+				pokeq32(offset2, 0x00);
+
+				if(peekq32(offset1) != 0x08 && peekq32(offset2) != 0x00)
+					goto error;
+			}
+
+			if(peekq32(offset1) == 0x08)
+				notify("Restored HDD space");
+			else
+				notify("Unlocked HDD space");
+			
+			return;
+		}		
+	}
+
+error:
+	notify("Unable to toggle HDD space");
 }
 
 
@@ -762,16 +967,6 @@ bool decrypt_eid2()
 
 
 // send decrypted buffers to drive
-int sys_storage_open(uint64_t id, int *fd)
-{
-    system_call_4(600, id, 0, (uint64_t) fd, 0);
-    return_to_user_prog(int);
-}
-int sys_storage_close(int fd)
-{
-    system_call_1(601, fd);
-    return_to_user_prog(int);
-}
 int sys_storage_send_device_command(int device_handle, unsigned int command, void *indata, uint64_t inlen, void *outdata, uint64_t outlen)
 {
 	system_call_6(SYS_STORAGE_SEND_DEVICE_COMMAND, device_handle, command, (uint64_t)(uint32_t)indata, inlen, (uint64_t)(uint32_t)outdata, outlen);
@@ -1071,7 +1266,25 @@ void remarry_bd()
 	}
 }
 
+void check_temperature()
+{
+	uint32_t temp_cpu_c = 0, temp_rsx_c = 0;
+	uint32_t temp_cpu_f = 0, temp_rsx_f = 0;
 
+	// Enabling sys_game_get_temperature() in 4.90 CEX
+	pokeq32(0x800000000000C6A4ULL, 0x38600000);
+
+	sys_game_get_temperature(0, &temp_cpu_c);
+    sys_game_get_temperature(1, &temp_rsx_c);
+
+	temp_cpu_f = celsius_to_fahrenheit(&temp_cpu_c);
+	temp_rsx_f = celsius_to_fahrenheit(&temp_rsx_c);
+
+	if(!temp_cpu_c || !temp_rsx_c || !temp_cpu_f || !temp_rsx_f)
+		notify("Unable to get temperature values");
+	else
+		notify("[CPU: %uC] - [RSX: %uC]\n[CPU: %uF] - [RSX: %uF]", (int)temp_cpu_c, (int)temp_rsx_c, (int)temp_cpu_f, (int)temp_rsx_f);
+}
 
 void dump_disc_key()
 {
@@ -1258,10 +1471,12 @@ int read_recovery_mode_flag(void * data)
 {	
 	return update_mgr_read_eprom(RECOVERY_MODE_FLAG_OFFSET,data);
 }
+
 int set_recovery_mode_flag(uint8_t value)
 {
 	return update_mgr_write_eprom(RECOVERY_MODE_FLAG_OFFSET,value);
 }
+
 void recovery_mode()
 {
 	uint8_t data;
@@ -1283,15 +1498,27 @@ void recovery_mode()
 	}
 }	
 
+void read_qa_flag()
+{
+	uint8_t value = 0;
+	update_mgr_read_eprom(QA_FLAG_OFFSET, &value);
+
+	if(!value)
+		notify("QA Flags are enabled");
+	else
+		notify("QA Flags are disabled");
+}
 
 int read_product_mode_flag(void * data)
 {
 	return update_mgr_read_eprom(PRODUCT_MODE_FLAG_OFFSET,data);
 }
+
 int set_product_mode_flag(uint8_t value)
 {
 	return update_mgr_write_eprom(PRODUCT_MODE_FLAG_OFFSET,value);
 }
+
 bool service_mode()
 {
 	uint8_t data;
@@ -1792,8 +2019,6 @@ void uninstall_hen()
 
 	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
 	//notify("This Feature Is Not Yet Implemented!");
-
-	cellFsUtilUnMount("/dev_rewrite", 0);
 }
 
 int switch_hen_mode(int mode)

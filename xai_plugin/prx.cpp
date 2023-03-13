@@ -253,7 +253,23 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 	*/
 
+	// Basic Tools
+	else if(strcmp(action, "show_temp") == 0)	
+	{
+		check_temperature();
+	}
+
+	// QA Tools
+	else if(strcmp(action, "check_qa") == 0)
+	{
+		read_qa_flag();
+	}
+
 	// Dump Tools
+	else if(strcmp(action, "dump_lv2") == 0)	
+	{
+		dump_lv2();		
+	}
 	else if(strcmp(action,"clean_log")==0)
 	{		
 		clean_log();
@@ -303,6 +319,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		recovery_mode();
 		xmb_reboot(SYS_HARD_REBOOT);
+	}
+	else if(strcmp(action, "toggle_hdd_space") == 0)
+	{
+		unlock_hdd_space();
 	}
 	/*
 	else if(strcmp(action,"service_mode")==0)
