@@ -1785,7 +1785,7 @@ void read_write_generic(const char* src, const char* dest)
 		cellFsClose(fda);
 		cellFsClose(fdb);
 
-		notify("%s created!", (char*)dest);
+		//notify("%s created!", (char*)dest);
 	}
 }
 
@@ -2015,7 +2015,7 @@ void uninstall_hen()
 
 	//remove_directory((char*)remove_hen_dirs[0]);// /dev_hdd0/hen
 	//remove_directory((char*)remove_hen_dirs[1]);// /dev_rewrite/hen
-	read_write_generic("/dev_hdd0/boot_plugins.txt", "/dev_hdd0/boot_plugins_copy.txt");
+	//read_write_generic("/dev_hdd0/boot_plugins.txt", "/dev_hdd0/boot_plugins_copy.txt");
 
 	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
 	//notify("This Feature Is Not Yet Implemented!");
@@ -2026,25 +2026,41 @@ int switch_hen_mode(int mode)
 	/*
 	0 = Release
 	1 = Debug
-	2 = USB (Release)
-	3 = USB (Debug)
+	2 = USB 000
+	3 = USB 001
 	*/
 
 	switch (mode)
 	{
 		case 0:
-			notify("TEST: Release Mode");
+			notify("Switching To RELEASE Mode. Please Wait...");
+			read_write_generic("/dev_hdd0/hen/mode/release/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
+			read_write_generic("/dev_hdd0/hen/mode/release/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/release/PS3HEN.BIN", "/dev_rewrite/hen/PS3HEN.BIN");
+			read_write_generic("/dev_hdd0/hen/mode/release/ps3hen_updater.xml", "/dev_rewrite/hen/xml/ps3hen_updater.xml");
 			break;
 		case 1:
-			notify("TEST: Debug Mode");
+			notify("Switching To DEBUG Mode. Please Wait...");
+			read_write_generic("/dev_hdd0/hen/mode/debug/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
+			read_write_generic("/dev_hdd0/hen/mode/debug/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/debug/PS3HEN.BIN", "/dev_rewrite/hen/PS3HEN.BIN");
+			read_write_generic("/dev_hdd0/hen/mode/debug/ps3hen_updater.xml", "/dev_rewrite/hen/xml/ps3hen_updater.xml");
 			break;
 		case 2:
-			notify("TEST: USB Release Mode");
+			notify("Switching To USB000 Mode. Please Wait...");
+			read_write_generic("/dev_hdd0/hen/mode/usb/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
+			read_write_generic("/dev_hdd0/hen/mode/usb/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/usb/000/hen_enable.xml", "/dev_hdd0/hen/xml/hen_enable.xml");
 			break;
 		case 3:
-			notify("TEST: USB Debug Mode");
+			notify("Switching To USB001 Mode. Please Wait...");
+			read_write_generic("/dev_hdd0/hen/mode/usb/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
+			read_write_generic("/dev_hdd0/hen/mode/usb/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/usb/001/hen_enable.xml", "/dev_hdd0/hen/xml/hen_enable.xml");
 			break;
 		default:
 			break;
+
+			notify("Please reboot to activate new mode!");
 	}
 }

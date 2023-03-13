@@ -377,13 +377,13 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 
 	// Switch HEN Mode USB Release
-	else if (strcmp(action, "hen_mode_usb_release") == 0)
+	else if (strcmp(action, "hen_mode_usb_000") == 0)
 	{
 		switch_hen_mode(2);
 	}
 
 	// Switch HEN Mode USB Debug
-	else if (strcmp(action, "hen_mode_usb_debug") == 0)
+	else if (strcmp(action, "hen_mode_usb_001") == 0)
 	{
 		switch_hen_mode(3);
 	}
