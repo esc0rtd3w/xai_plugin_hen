@@ -95,7 +95,7 @@ void toggle_clear_web_auth_cache();
 void toggle_clear_web_cookie();
 
 void read_write_generic(const char* src, const char* dest);
-void remove_file(char* path_to_file);
+void remove_file(char* path_to_file, char* message);
 void write_toggle(char* path_to_file, char* message);
 
 void installPKG(char * path);

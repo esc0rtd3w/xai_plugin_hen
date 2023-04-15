@@ -411,7 +411,7 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	// Remove check file for HEN Install Flag
 	else if (strcmp(action, "trigger_hen_install") == 0)
 	{
-		remove_file("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+		remove_file("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png", "Reboot to re-install PS3HEN");
 	}
 	
 	// Uninstall PS3HEN

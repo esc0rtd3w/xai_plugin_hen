@@ -1817,10 +1817,12 @@ void remove_directory(const char* src)
 }
 */
 
-void remove_file(char* path_to_file)
+void remove_file(char* path_to_file, char* message)
 {
 	cellFsUnlink(path_to_file);
-	//notify("%s Removed.\nReboot to re-install PS3HEN", path_to_file);
+	char text[256];
+	vsh_sprintf(text, "Removed: %s.\n%s",path_to_file, message);
+	notify("%s", text);
 }
 
 void uninstall_hen()
