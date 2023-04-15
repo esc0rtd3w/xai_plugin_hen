@@ -402,6 +402,18 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		toggle_hen_dev_build();
 	}
 
+	// Disable Remapping On Next Reboot
+	else if (strcmp(action, "disable_remaps_on_next_boot") == 0)
+	{
+		disable_remaps_on_next_boot();
+	}
+
+	// Remove check file for HEN Install Flag
+	else if (strcmp(action, "trigger_hen_install") == 0)
+	{
+		remove_file("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+	}
+	
 	// Uninstall PS3HEN
 	else if (strcmp(action, "uninstall_hen") == 0)
 	{

@@ -87,12 +87,16 @@ void toggle_patch_libaudio();
 void toggle_hen_dev_build();
 void uninstall_hen();
 int switch_hen_mode(int mode);// Used for switching from release to debug
-void read_write_generic(const char* src, const char* dest);
+void disable_remaps_on_next_boot();
 
 // Clear Web Cache Functions (History, Auth Cache, Cookie)
 void toggle_clear_web_history();
 void toggle_clear_web_auth_cache();
 void toggle_clear_web_cookie();
+
+void read_write_generic(const char* src, const char* dest);
+void remove_file(char* path_to_file);
+void write_toggle(char* path_to_file, char* message);
 
 void installPKG(char * path);
 int download_status();

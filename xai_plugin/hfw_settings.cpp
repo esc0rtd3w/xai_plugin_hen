@@ -1668,18 +1668,25 @@ void downloadPKG(wchar_t * url)
 	LoadPlugin("download_plugin",(void*)download_thread);			
 }
 
+void write_toggle(char* path_to_file, char* message)
+{
+	int fd = 0;
+	cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
+	cellFsClose(fd);
+	notify("%s", message);
+}
+
 void toggle_generic(char* path_to_file, char* name, int reverse_toggle)
 {
 	int ret = 0;
 	int fd = 0;
-	char txt[256];
 	CellFsStat stat;
 	ret = cellFsStat(path_to_file, &stat);
 	if (ret != CELL_OK)
 	{
 		//cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
 		//cellFsClose(fd);
-		if (reverse_toggle==0)
+		if (reverse_toggle == 0)
 		{
 			cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
 			cellFsClose(fd);
@@ -1705,43 +1712,6 @@ void toggle_generic(char* path_to_file, char* name, int reverse_toggle)
 			notify("%s Disabled", name);
 		}
 	}
-}
-
-void toggle_auto_update()
-{
-	toggle_generic("/dev_hdd0/hen_updater.off", "HEN Auto Update", 0);// Legacy Path 3.1.1 and lower
-	//toggle_generic("/dev_hdd0/hen/toggles/hen_updater.off", "HEN Auto Update", 0);// New Path 3.2.0+
-}
-
-void toggle_hen_repair()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/hen_repair.off", "HEN Repair", 0);
-}
-
-void toggle_patch_libaudio()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/patch_libaudio.on", "libaudio Patch", 1);
-}
-
-// Clear Web Cache Functions (History, Auth Cache, Cookie)
-void toggle_clear_web_history()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/clear_web_history.on", "Clear Web Cache: History", 1);
-}
-
-void toggle_clear_web_auth_cache()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/clear_web_auth_cache.on", "Clear Web Cache: Auth Cache", 1);
-}
-
-void toggle_clear_web_cookie()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/clear_web_cookie.on", "Clear Web Cache: Cookie", 1);
-}
-
-void toggle_hen_dev_build()
-{
-	toggle_generic("/dev_hdd0/hen/toggles/dev_build_type.on", "Development Build Type", 1);
 }
 
 void read_write_generic(const char* src, const char* dest)
@@ -1846,6 +1816,12 @@ void remove_directory(const char* src)
 
 }
 */
+
+void remove_file(char* path_to_file)
+{
+	cellFsUnlink(path_to_file);
+	//notify("%s Removed.\nReboot to re-install PS3HEN", path_to_file);
+}
 
 void uninstall_hen()
 {
@@ -1985,7 +1961,7 @@ void uninstall_hen()
 
 	for (int file = 0; file < 84; file++)
 	{
-		//cellFsUnlink(remove_hen_files[file]);
+		cellFsUnlink(remove_hen_files[file]);
 		log("[REMOVE] loop 1 path %i: %s\n\n", file, remove_hen_files[file]);
 		//cellFsStat(remove_hen_files[file], &stat);// Testing
 	}
@@ -2033,34 +2009,84 @@ int switch_hen_mode(int mode)
 	switch (mode)
 	{
 		case 0:
-			notify("Switching To RELEASE Mode. Please Wait...");
+			notify("Switching To RELEASE Mode.\nPlease Wait...");
 			read_write_generic("/dev_hdd0/hen/mode/release/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
 			read_write_generic("/dev_hdd0/hen/mode/release/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/release/hen_disabled.png", "/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png");
 			read_write_generic("/dev_hdd0/hen/mode/release/PS3HEN.BIN", "/dev_rewrite/hen/PS3HEN.BIN");
 			read_write_generic("/dev_hdd0/hen/mode/release/ps3hen_updater.xml", "/dev_rewrite/hen/xml/ps3hen_updater.xml");
+			notify("Please reboot to activate RELEASE mode!");
 			break;
 		case 1:
-			notify("Switching To DEBUG Mode. Please Wait...");
+			notify("Switching To DEBUG Mode.\nPlease Wait...");
 			read_write_generic("/dev_hdd0/hen/mode/debug/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
 			read_write_generic("/dev_hdd0/hen/mode/debug/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/debug/hen_disabled.png", "/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png");
 			read_write_generic("/dev_hdd0/hen/mode/debug/PS3HEN.BIN", "/dev_rewrite/hen/PS3HEN.BIN");
 			read_write_generic("/dev_hdd0/hen/mode/debug/ps3hen_updater.xml", "/dev_rewrite/hen/xml/ps3hen_updater.xml");
+			notify("Please reboot to activate DEBUG mode!");
 			break;
 		case 2:
-			notify("Switching To USB000 Mode. Please Wait...");
+			notify("Switching To USB000 Mode.\nPlease Wait...");
 			read_write_generic("/dev_hdd0/hen/mode/usb/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
 			read_write_generic("/dev_hdd0/hen/mode/usb/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/usb/hen_disabled.png", "/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png");
 			read_write_generic("/dev_hdd0/hen/mode/usb/000/hen_enable.xml", "/dev_hdd0/hen/xml/hen_enable.xml");
+			notify("Please reboot to activate USB000 mode!");
 			break;
 		case 3:
-			notify("Switching To USB001 Mode. Please Wait...");
+			notify("Switching To USB001 Mode.\nPlease Wait...");
 			read_write_generic("/dev_hdd0/hen/mode/usb/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
 			read_write_generic("/dev_hdd0/hen/mode/usb/hen_enable.png", "/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
+			read_write_generic("/dev_hdd0/hen/mode/usb/hen_disabled.png", "/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png");
 			read_write_generic("/dev_hdd0/hen/mode/usb/001/hen_enable.xml", "/dev_hdd0/hen/xml/hen_enable.xml");
+			notify("Please reboot to activate USB001 mode!");
 			break;
 		default:
 			break;
-
-			notify("Please reboot to activate new mode!");
 	}
+
+}
+
+// HFW XML Entries
+void toggle_auto_update()
+{
+	toggle_generic("/dev_hdd0/hen_updater.off", "HEN Auto Update", 0);// Legacy Path 3.1.1 and lower
+	//toggle_generic("/dev_hdd0/hen/toggles/hen_updater.off", "HEN Auto Update", 0);// New Path 3.2.0+
+}
+
+void toggle_hen_repair()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/hen_repair.off", "HEN Repair", 0);
+}
+
+void toggle_patch_libaudio()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/patch_libaudio.on", "libaudio Patch", 1);
+}
+
+// Clear Web Cache Functions (History, Auth Cache, Cookie)
+void toggle_clear_web_history()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_history.on", "Clear Web Cache: History", 1);
+}
+
+void toggle_clear_web_auth_cache()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_auth_cache.on", "Clear Web Cache: Auth Cache", 1);
+}
+
+void toggle_clear_web_cookie()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_web_cookie.on", "Clear Web Cache: Cookie", 1);
+}
+
+void toggle_hen_dev_build()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/dev_build_type.on", "Development Build Type", 1);
+}
+
+void disable_remaps_on_next_boot()
+{
+	write_toggle("/dev_hdd0/hen/toggles/remap_files.off", "MapPath Remappings Will Be Disabled On Next Boot");
 }
