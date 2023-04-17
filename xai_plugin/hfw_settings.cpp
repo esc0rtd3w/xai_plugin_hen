@@ -1859,8 +1859,7 @@ void remove_file(char* path_to_file, char* message)
 
 void uninstall_hen()
 {
-	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
-	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
+	// Remove HEN Files in Flash
 	cellFsUnlink("/dev_rewrite/vsh/module/videodownloader_plugin.sprx");
 	cellFsUnlink("/dev_rewrite/vsh/module/videorec.sprx");
 	cellFsUnlink("/dev_rewrite/vsh/module/xai_plugin.sprx");
@@ -1882,6 +1881,10 @@ void uninstall_hen()
 	read_write_generic("/dev_hdd0/hen/restore/category_video.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_video.xml");
 	read_write_generic("/dev_hdd0/hen/restore/download_list.xml", "/dev_rewrite/vsh/resource/explore/xmb/download_list.xml");
 	read_write_generic("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
+
+	// Remove HEN Directories
+	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
+	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
 
 	notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
 
