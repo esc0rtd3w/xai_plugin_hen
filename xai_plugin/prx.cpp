@@ -413,13 +413,25 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		remove_file("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png", "Reboot to re-install PS3HEN");
 	}
-	
+
 	// Uninstall PS3HEN
 	else if (strcmp(action, "uninstall_hen") == 0)
 	{
 		uninstall_hen();
 	}
 
+	// Toggle HotKey Polling on HEN Launch
+	else if (strcmp(action, "toggle_hotkey_polling") == 0)
+	{
+		toggle_hotkey_polling();
+	}
+
+	// Toggle app_home support
+	else if (strcmp(action, "toggle_app_home") == 0)
+	{
+		toggle_app_home();
+	}
+	
 	/*
 	// NoPSN Patches
 	else if (strcmp(action, "nopsn_amazon") == 0)

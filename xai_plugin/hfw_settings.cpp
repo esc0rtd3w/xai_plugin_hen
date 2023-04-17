@@ -1759,63 +1759,93 @@ void read_write_generic(const char* src, const char* dest)
 	}
 }
 
-void remove_directory(char* src)
+void remove_directory(char*src)
 {
 	int fd;
 	int ret;
-	char* list;
+	char list[1024];
 	ret = cellFsOpendir(src, &fd);
-	log("cellFsOpendir(src, &fd) = %x\n", ret);
-
+	log("cellFsOpendir(%s, &fd) = %x\n", (char*)src, (char*)ret);
 
 	CellFsDirent dirent;
-	for (int i = 0; i < 64; i++)
+	uint64_t n;
+	while ((ret = cellFsReaddir(fd, &dirent, &n)) == CELL_FS_SUCCEEDED && n > 0)
 	{
-		wait(1);
-		uint64_t n;
-		ret = cellFsReaddir(fd, &dirent, &n);
 		log("cellFsReaddir(fd, &dirent, &n) = %x -> ", ret);
 		log(dirent.d_name); log("\n");
+
 		if (CELL_FS_TYPE_DIRECTORY != dirent.d_type)
 		{
-			strcpy(list, src);
-			strcat(list, dirent.d_name);
+			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
 			log("Fileout: %s\n", list);
-			break;
+
+			// Delete file
+			ret = cellFsUnlink(list);
+			log("cellFsUnlink(%s) = %x\n", (char*)list, (char*)ret);
+		}
+		else if (strcmp(dirent.d_name, ".") != 0 && strcmp(dirent.d_name, "..") != 0)
+		{
+			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
+			log("Dirout: %s\n", list);
+
+			// Recursively delete subdirectory
+			remove_directory(list);
+
+			// Delete empty subdirectory
+			ret = cellFsRmdir(list);
+			log("cellFsRmdir(%s) = %x\n", (char*)list, (char*)ret);
 		}
 	}
 
 	ret = cellFsClosedir(fd);
+	cellFsRmdir(src);
 	log("cellFsClosedir(fd) = %x\n", ret);
 }
 
-/*
-void remove_directory(const char* src)
+void remove_directory_bug(char*_src)
 {
-	CellFsDirent dent;
-	int ret, dir;
-	uint64_t sw, pos, sr, rd;
+	int fd;
+	int ret;
+	char list[1024];
+	char src[1024];
+	vsh_sprintf(src, "/dev_hdd0/theme/../..%s", _src);// Insert recursive bug in path
+	ret = cellFsOpendir(src, &fd);
+	log("cellFsOpendir(%s, &fd) = %x\n", (char*)src, (char*)ret);
 
-	cellFsOpendir(src, &dir);
+	CellFsDirent dirent;
+	uint64_t n;
+	while ((ret = cellFsReaddir(fd, &dirent, &n)) == CELL_FS_SUCCEEDED && n > 0)
+	{
+		log("cellFsReaddir(fd, &dirent, &n) = %x -> ", ret);
+		log(dirent.d_name); log("\n");
 
-	while (1) {
-		cellFsReaddir(dir, &dent, &rd);
-		if (rd != 0) {
-			printf("Source: \n", src);
-			printf("cellFsReaddir: nread = %llu\n", rd);
-			printf("cellFsReaddir: err   = %d\n", err);
-			printf("dent.d_type          = %d\n", dent.d_type);
-			printf("dent.d_name          = %s\n", dent.d_name);
+		if (CELL_FS_TYPE_DIRECTORY != dirent.d_type)
+		{
+			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
+			log("Fileout: %s\n", list);
+
+			// Delete file
+			ret = cellFsUnlink(list);
+			log("cellFsUnlink(%s) = %x\n", (char*)list, (char*)ret);
 		}
-		else {
-			printf("cellFsReaddir: out\n");
-			break;
+		else if (strcmp(dirent.d_name, ".") != 0 && strcmp(dirent.d_name, "..") != 0)
+		{
+			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
+			log("Dirout: %s\n", list);
+
+			// Recursively delete subdirectory
+			remove_directory(list);
+
+			// Delete empty subdirectory
+			ret = cellFsRmdir(list);
+			log("cellFsRmdir(%s) = %x\n", (char*)list, (char*)ret);
 		}
 	}
-	cellFsRmdir(src);
 
+	ret = cellFsClosedir(fd);
+	cellFsRmdir(src);
+	log("cellFsClosedir(fd) = %x\n", ret);
 }
-*/
 
 void remove_file(char* path_to_file, char* message)
 {
@@ -1827,176 +1857,10 @@ void remove_file(char* path_to_file, char* message)
 
 void uninstall_hen()
 {
-	CellFsStat stat;
-
-	const char* remove_hen_files[84] = {
-		// Remove Icons
-		"/dev_hdd0/hen/icon/auto_update.png",
-		"/dev_hdd0/hen/icon/blind.png",
-		"/dev_hdd0/hen/icon/bubble_download.png",
-		"/dev_hdd0/hen/icon/clear_web_cache.png",
-		"/dev_hdd0/hen/icon/disc.png",
-		"/dev_hdd0/hen/icon/dump.png",
-		"/dev_hdd0/hen/icon/dump_backup_xregistry.png",
-		"/dev_hdd0/hen/icon/dump_clean_log.png",
-		"/dev_hdd0/hen/icon/dump_disc_hashkey.png",
-		"/dev_hdd0/hen/icon/dump_file.png",
-		"/dev_hdd0/hen/icon/dump_idps.png",
-		"/dev_hdd0/hen/icon/dump_log_klicense.png",
-		"/dev_hdd0/hen/icon/dump_log_secure_fileid.png",
-		"/dev_hdd0/hen/icon/dump_psid.png",
-		"/dev_hdd0/hen/icon/dump_view_log.png",
-		"/dev_hdd0/hen/icon/flash.png",
-		"/dev_hdd0/hen/icon/folder_base.png",
-		"/dev_hdd0/hen/icon/folder_development.png",
-		"/dev_hdd0/hen/icon/folder_download.png",
-		"/dev_hdd0/hen/icon/folder_dump.png",
-		"/dev_hdd0/hen/icon/folder_game.png",
-		"/dev_hdd0/hen/icon/folder_hft.png",
-		"/dev_hdd0/hen/icon/folder_info.png",
-		"/dev_hdd0/hen/icon/folder_ingame.png",
-		"/dev_hdd0/hen/icon/folder_list.png",
-		"/dev_hdd0/hen/icon/folder_log.png",
-		"/dev_hdd0/hen/icon/folder_maintenance.png",
-		"/dev_hdd0/hen/icon/folder_plain.png",
-		"/dev_hdd0/hen/icon/folder_play.png",
-		"/dev_hdd0/hen/icon/folder_plugin.png",
-		"/dev_hdd0/hen/icon/folder_ps2.png",
-		"/dev_hdd0/hen/icon/folder_ps3.png",
-		"/dev_hdd0/hen/icon/folder_psp.png",
-		"/dev_hdd0/hen/icon/folder_psx.png",
-		"/dev_hdd0/hen/icon/folder_reboot.png",
-		"/dev_hdd0/hen/icon/folder_retro.png",
-		"/dev_hdd0/hen/icon/folder_service.png",
-		"/dev_hdd0/hen/icon/folder_theme.png",
-		"/dev_hdd0/hen/icon/folder_theme_select.png",
-		"/dev_hdd0/hen/icon/folder_theme_sub.png",
-		"/dev_hdd0/hen/icon/folder_video.png",
-		"/dev_hdd0/hen/icon/folder_warn.png",
-		"/dev_hdd0/hen/icon/folder_xmbm.png",
-		"/dev_hdd0/hen/icon/hdd.png",
-		"/dev_rewrite/vsh/resource/explore/icon/hen_boot.png",
-		"/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png",
-		"/dev_rewrite/vsh/resource/explore/icon/hen_enable.png",
-		"/dev_hdd0/hen/icon/hen_mode_debug.png",
-		"/dev_hdd0/hen/icon/hen_mode_release.png",
-		"/dev_hdd0/hen/icon/hen_mode_usb_debug.png",
-		"/dev_hdd0/hen/icon/hen_mode_usb_release.png",
-		"/dev_rewrite/vsh/resource/explore/icon/hen_repair.png",
-		"/dev_hdd0/hen/icon/hen_update_info.png",
-		"/dev_hdd0/hen/icon/hen_update_info_note.png",
-		"/dev_hdd0/hen/icon/hen_update_main.png",
-		"/dev_hdd0/hen/icon/hen_update_theme.png",
-		"/dev_hdd0/hen/icon/ingame_enable_ss.png",
-		"/dev_hdd0/hen/icon/ingame_override_sfo.png",
-		"/dev_hdd0/hen/icon/music.png",
-		"/dev_hdd0/hen/icon/photo.png",
-		"/dev_hdd0/hen/icon/playstation_network_content.png",
-		"/dev_hdd0/hen/icon/power_full.png",
-		"/dev_hdd0/hen/icon/power_off.png",
-		"/dev_hdd0/hen/icon/power_soft.png",
-		"/dev_hdd0/hen/icon/ps3xploit_www.png",
-		"/dev_hdd0/hen/icon/recovery_check_file_system.png",
-		"/dev_hdd0/hen/icon/recovery_display_minver.png",
-		"/dev_hdd0/hen/icon/recovery_rebuild_db.png",
-		"/dev_hdd0/hen/icon/recovery_toggle.png",
-		"/dev_hdd0/hen/icon/settings.png",
-		"/dev_hdd0/hen/icon/switch_hen_mode.png",
-		"/dev_hdd0/hen/icon/toggle_clear_web_history.png",
-		"/dev_hdd0/hen/icon/toggle_clear_web_auth_cache.png",
-		"/dev_hdd0/hen/icon/toggle_clear_web_cookie.png",
-		"/dev_hdd0/hen/icon/toggle_patch_libaudio.png",
-		"/dev_hdd0/hen/icon/uninstall_hen.png",
-		"/dev_hdd0/hen/icon/video.png",
-		"/dev_hdd0/hen/icon/video2.png",
-
-		// Remove SPRX
-		"/dev_rewrite/vsh/module/videodownloader_plugin.sprx",
-		"/dev_rewrite/vsh/module/videorec.sprx",
-		"/dev_rewrite/vsh/module/xai_plugin.sprx",
-
-		// Remove RCO
-		"/dev_rewrite/vsh/resource/videodownloader_plugin.rco",
-		"/dev_rewrite/vsh/resource/videorec.rco",
-		"/dev_rewrite/vsh/resource/xai_plugin.rco" };
-
-	// Replace files with originals
-	const char* replace_rco_src[2] = {
-		"/dev_hdd0/hen/restore/explore_plugin_full.rco",
-		"/dev_hdd0/hen/restore/software_update_plugin.rco" };
-
-	const char* replace_rco_dest[2] = {
-		"/dev_rewrite/vsh/resource/explore_plugin_full.rco",
-		"/dev_rewrite/vsh/resource/software_update_plugin.rco" };
-
-	const char* replace_raf_src[1] = {
-		"/dev_hdd0/hen/restore/coldboot.raf" };
-
-	const char* replace_raf_dest[1] = {
-		"/dev_rewrite/vsh/resource/coldboot.raf" };
-
-	const char* replace_xml_src[4] = {
-		"/dev_hdd0/hen/restore/category_game.xml",
-		"/dev_hdd0/hen/restore/category_network.xml",
-		"/dev_hdd0/hen/restore/category_video.xml",
-		"/dev_hdd0/hen/restore/download_list.xml" };
-
-	const char* replace_xml_dest[4] = {
-		"/dev_rewrite/vsh/resource/explore/xmb/category_game.xml",
-		"/dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
-		"/dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
-		"/dev_rewrite/vsh/resource/explore/xmb/download_list.xml" };
-
-	// Remove directories last
-	const char* remove_hen_dirs[2] = {
-		"/dev_hdd0/hen",
-		"/dev_rewrite/hen" };
-
-	if(cellFsStat("/dev_rewrite", &stat) != CELL_OK)
-	{
-		if(cellFsUtilMount("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_rewrite", 0, 0, 0, 0) != CELL_OK)
-		{
-			notify("Unable to mount \"/dev_rewrite\"");
-			return;
-		}
-	}
-
-	for (int file = 0; file < 84; file++)
-	{
-		cellFsUnlink(remove_hen_files[file]);
-		log("[REMOVE] loop 1 path %i: %s\n\n", file, remove_hen_files[file]);
-		//cellFsStat(remove_hen_files[file], &stat);// Testing
-	}
-
-	for (int file = 0; file < 1; file++)
-	{
-		// Copy src to dest here
-		read_write_generic(replace_raf_src[file], replace_raf_dest[file]);
-		log("[REPLACE] loop 2 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_raf_src[file], replace_raf_dest[file]);
-	}
-
-	for (int file = 0; file < 2; file++)
-	{
-		// Copy src to dest here
-		read_write_generic((char*)replace_rco_src[file], (char*)replace_rco_dest[file]);
-		log("[REPLACE] loop 3 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_rco_src[file], replace_rco_dest[file]);
-		//cellFsStat(replace_src[c], &stat);// Testing
-	}
-
-	for (int file = 0; file < 4; file++)
-	{
-		// Copy src to dest here
-		read_write_generic((char*)replace_xml_src[file], (char*)replace_xml_dest[file]);
-		log("[REPLACE] loop 4 path %i: \nSrc: %s \nDest: %s\n\n", file, replace_xml_src[file], replace_xml_dest[file]);
-		//cellFsStat(replace_src[c], &stat);// Testing
-	}
-
-	//remove_directory((char*)remove_hen_dirs[0]);// /dev_hdd0/hen
-	//remove_directory((char*)remove_hen_dirs[1]);// /dev_rewrite/hen
-	//read_write_generic("/dev_hdd0/boot_plugins.txt", "/dev_hdd0/boot_plugins_copy.txt");
-
-	notify("PS3HEN Has Been Removed From Your System. The console will now reboot...");
-	//notify("This Feature Is Not Yet Implemented!");
+	//remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
+	//remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
+	remove_directory_bug("/dev_hdd0/hen");
+	remove_directory_bug("/dev_rewrite/hen");
 }
 
 int switch_hen_mode(int mode)
@@ -2091,4 +1955,26 @@ void toggle_hen_dev_build()
 void disable_remaps_on_next_boot()
 {
 	write_toggle("/dev_hdd0/hen/toggles/remap_files.off", "MapPath Remappings Will Be Disabled On Next Boot");
+}
+
+void toggle_hotkey_polling()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.off", "HotKey Polling at Launch", 0);
+}
+
+void toggle_app_home()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/app_home.on", "app_home Support", 1);
+	sys_timer_usleep(100000);
+	CellFsStat stat;
+	if (cellFsStat("/dev_hdd0/hen/toggles/app_home.on", &stat) == CELL_OK)
+	{
+		read_write_generic("/dev_hdd0/hen/toggles/app_home/on/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
+		notify("app_home Enabled\nexplore_plugin.sprx [DEX] copied successfully");
+	}
+	else
+	{
+		read_write_generic("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
+		notify("app_home Disabled\nexplore_plugin.sprx [CEX] copied successfully");
+	}
 }

@@ -84,7 +84,9 @@ void toggle_generic(char* path_to_file, char* name);
 void toggle_auto_update();
 void toggle_hen_repair();
 void toggle_patch_libaudio();
-void toggle_hen_dev_build();
+void toggle_hotkey_polling();
+void toggle_app_home();
+void toggle_hen_dev_build(); 
 void uninstall_hen();
 int switch_hen_mode(int mode);// Used for switching from release to debug
 void disable_remaps_on_next_boot();
