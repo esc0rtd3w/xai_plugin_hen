@@ -1726,8 +1726,8 @@ void read_write_generic(const char* src, const char* dest)
 		int fdb;
 		ret = cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fdb, 0, 0);
 
-		log("src: %s\n", (char*)src);
-		log("dest: %s\n", (char*)dest);
+		//log("src: %s\n", (char*)src);
+		//log("dest: %s\n", (char*)dest);
 
 		uint8_t buf[0x1000];
 		uint64_t nr, nrw;
@@ -1765,41 +1765,40 @@ void remove_directory(char*src)
 	int ret;
 	char list[1024];
 	ret = cellFsOpendir(src, &fd);
-	log("cellFsOpendir(%s, &fd) = %x\n", (char*)src, (char*)ret);
+	//log("cellFsOpendir(%s, &fd) = %x\n", (char*)src, (char*)ret);
 
 	CellFsDirent dirent;
 	uint64_t n;
 	while ((ret = cellFsReaddir(fd, &dirent, &n)) == CELL_FS_SUCCEEDED && n > 0)
 	{
-		log("cellFsReaddir(fd, &dirent, &n) = %x -> ", ret);
-		log(dirent.d_name); log("\n");
+		//log("cellFsReaddir(fd, &dirent, &n) = %x -> ", ret);
+		//log(dirent.d_name); log("\n");
 
 		if (CELL_FS_TYPE_DIRECTORY != dirent.d_type)
 		{
 			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
-			log("Fileout: %s\n", list);
+			//log("Fileout: %s\n", list);
 
 			// Delete file
 			ret = cellFsUnlink(list);
-			log("cellFsUnlink(%s) = %x\n", (char*)list, (char*)ret);
+			//log("cellFsUnlink(%s) = %x\n", (char*)list, (char*)ret);
 		}
 		else if (strcmp(dirent.d_name, ".") != 0 && strcmp(dirent.d_name, "..") != 0)
 		{
 			vsh_sprintf(list, "%s/%s", src, dirent.d_name);
-			log("Dirout: %s\n", list);
+			//log("Dirout: %s\n", list);
 
 			// Recursively delete subdirectory
 			remove_directory(list);
 
 			// Delete empty subdirectory
 			ret = cellFsRmdir(list);
-			log("cellFsRmdir(%s) = %x\n", (char*)list, (char*)ret);
+			//log("cellFsRmdir(%s) = %x\n", (char*)list, (char*)ret);
 		}
 	}
 
 	ret = cellFsClosedir(fd);
-	cellFsRmdir(src);
-	log("cellFsClosedir(fd) = %x\n", ret);
+	//log("cellFsClosedir(fd) = %x\n", ret);
 }
 
 /*
@@ -1844,7 +1843,6 @@ void remove_directory_bug(char*_src)
 	}
 
 	ret = cellFsClosedir(fd);
-	cellFsRmdir(src);
 	log("cellFsClosedir(fd) = %x\n", ret);
 }
 */
@@ -1859,38 +1857,74 @@ void remove_file(char* path_to_file, char* message)
 
 void uninstall_hen()
 {
-	// Remove HEN Files in Flash
-	cellFsUnlink("/dev_rewrite/vsh/module/videodownloader_plugin.sprx");
-	cellFsUnlink("/dev_rewrite/vsh/module/videorec.sprx");
-	cellFsUnlink("/dev_rewrite/vsh/module/xai_plugin.sprx");
-	cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_boot.png");
-	cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png");
-	cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png");
-	cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_repair.png");
-	cellFsUnlink("/dev_rewrite/vsh/resource/videodownloader_plugin.rco");
-	cellFsUnlink("/dev_rewrite/vsh/resource/videorec.rco");
-	cellFsUnlink("/dev_rewrite/vsh/resource/xai_plugin.rco");
+	int ret = 0;
+	CellFsStat stat;
 
 	// Restore OFW Files
-	read_write_generic("/dev_hdd0/hen/restore/coldboot.raf", "/dev_rewrite/vsh/resource/coldboot.raf");
-	read_write_generic("/dev_hdd0/hen/restore/explore_plugin_full.rco", "/dev_rewrite/vsh/resource/explore_plugin_full.rco");
-	read_write_generic("/dev_hdd0/hen/restore/software_update_plugin.rco", "/dev_rewrite/vsh/resource/software_update_plugin.rco");
-	read_write_generic("/dev_hdd0/hen/restore/category_game.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_game.xml");
-	read_write_generic("/dev_hdd0/hen/restore/category_game_tool2.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_game_tool2.xml");
-	read_write_generic("/dev_hdd0/hen/restore/category_network.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_network.xml");
-	read_write_generic("/dev_hdd0/hen/restore/category_video.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_video.xml");
-	read_write_generic("/dev_hdd0/hen/restore/download_list.xml", "/dev_rewrite/vsh/resource/explore/xmb/download_list.xml");
-	read_write_generic("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
+	const char* src_paths[] = {
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/coldboot.raf",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/explore_plugin_full.rco",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/software_update_plugin.rco",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_game.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_game_tool2.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_network.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_network_tool2.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_video.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/download_list.xml",
+		"/dev_hdd0/theme/../../dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx"
+	};
+
+	const char* dest_paths[] = {
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/coldboot.raf",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore_plugin_full.rco",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/software_update_plugin.rco",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_game.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_game_tool2.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_network_tool2.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/download_list.xml",
+		"/dev_hdd0/theme/../../dev_rewrite/vsh/module/explore_plugin.sprx"
+	};
+
+	for (int i = 0; i < sizeof(src_paths) / sizeof(src_paths[0]); i++) {
+		read_write_generic(src_paths[i], dest_paths[i]);
+		sys_timer_usleep(500000);
+		log("src: %s\ndest: %s\n", (char*)src_paths, (char*)dest_paths);
+	}
+
+	notify("Please Wait.\nThe process may appear to be frozen...");
+	sys_timer_usleep(5000000);
+
+
+	// Remove HEN Files in Flash
+	if ((ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/videodownloader_plugin.sprx"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/videorec.sprx"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/xai_plugin.sprx"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_boot.png"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_disabled.png"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_enable.png"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_repair.png"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/videodownloader_plugin.rco"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/videorec.rco"))
+		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/xai_plugin.rco")))
+	{
+		log("Unlink Error: %x", ret);
+	}
+
+	sys_timer_usleep(8000000);
 
 	// Remove HEN Directories
 	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
 	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
-
+	sys_timer_usleep(2000000);
+	cellFsRmdir("/dev_hdd0/hen");
+	cellFsRmdir("/dev_rewrite/hen");
 	notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
 
 	sys_timer_usleep(5000000);
 
-	xmb_reboot(SYS_HARD_REBOOT);
+	xmb_reboot(SYS_SOFT_REBOOT);
 }
 
 int switch_hen_mode(int mode)
