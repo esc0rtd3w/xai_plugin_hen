@@ -1684,8 +1684,6 @@ void toggle_generic(char* path_to_file, char* name, int reverse_toggle)
 	ret = cellFsStat(path_to_file, &stat);
 	if (ret != CELL_OK)
 	{
-		//cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
-		//cellFsClose(fd);
 		if (reverse_toggle == 0)
 		{
 			cellFsOpen(path_to_file, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fd, 0, 0);
@@ -1751,6 +1749,51 @@ void read_write_generic(const char* src, const char* dest)
 		}
 
 		cellFsChmod(dest, 0666);
+
+		cellFsClose(fda);
+		cellFsClose(fdb);
+
+		//notify("%s created!", (char*)dest);
+	}
+}
+
+void read_write_generic2(const char* src, const char* dest, CellFsMode chmod)
+{
+	int ret, fda;
+	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0);
+
+	if (ret != CELL_OK)
+		notify("%s Open Error: %x", src, ret);
+	else
+	{
+		int fdb;
+		ret = cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fdb, 0, 0);
+
+		//log("src: %s\n", (char*)src);
+		//log("dest: %s\n", (char*)dest);
+
+		uint8_t buf[0x1000];
+		uint64_t nr, nrw;
+
+		while ((ret = cellFsRead(fda, buf, 0x1000, &nr)) == CELL_FS_SUCCEEDED)
+		{
+			if ((int)nr > 0)
+			{
+				ret = cellFsWrite(fdb, buf, nr, &nrw);
+
+				if (ret != CELL_FS_SUCCEEDED)
+				{
+					notify("%s Copy Error: %x", src, ret);
+					return;
+				}
+
+				memset(buf, 0, 0x1000);
+			}
+			else
+				break;
+		}
+
+		cellFsChmod(dest, chmod);
 
 		cellFsClose(fda);
 		cellFsClose(fdb);
@@ -1859,68 +1902,80 @@ void uninstall_hen()
 {
 	int ret = 0;
 	CellFsStat stat;
-
+	
 	// Restore OFW Files
 	const char* src_paths[] = {
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/coldboot.raf",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/explore_plugin_full.rco",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/software_update_plugin.rco",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_game.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_game_tool2.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_network.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_network_tool2.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/category_video.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/restore/download_list.xml",
-		"/dev_hdd0/theme/../../dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx"
+		"/dev_hdd0/hen/restore/coldboot.raf",
+		"/dev_hdd0/hen/restore/explore_plugin_full.rco",
+		"/dev_hdd0/hen/restore/software_update_plugin.rco",
+		"/dev_hdd0/hen/restore/category_game.xml",
+		"/dev_hdd0/hen/restore/category_game_tool2.xml",
+		"/dev_hdd0/hen/restore/category_network.xml",
+		"/dev_hdd0/hen/restore/category_network_tool2.xml",
+		"/dev_hdd0/hen/restore/category_video.xml",
+		"/dev_hdd0/hen/restore/download_list.xml"
 	};
 
 	const char* dest_paths[] = {
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/coldboot.raf",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore_plugin_full.rco",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/software_update_plugin.rco",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_game.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_game_tool2.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_network_tool2.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/xmb/download_list.xml",
-		"/dev_hdd0/theme/../../dev_rewrite/vsh/module/explore_plugin.sprx"
+		"/dev_rewrite/vsh/resource/coldboot.raf",
+		"/dev_rewrite/vsh/resource/explore_plugin_full.rco",
+		"/dev_rewrite/vsh/resource/software_update_plugin.rco",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_game.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_game_tool2.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_network_tool2.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/download_list.xml"
 	};
 
 	for (int i = 0; i < sizeof(src_paths) / sizeof(src_paths[0]); i++) {
-		read_write_generic(src_paths[i], dest_paths[i]);
-		sys_timer_usleep(500000);
-		log("src: %s\ndest: %s\n", (char*)src_paths, (char*)dest_paths);
+		if (cellFsStat(src_paths[i], &stat) == 0)
+		{
+			cellFsUnlink(dest_paths[i]);
+			sys_timer_usleep(100000);
+			read_write_generic(src_paths[i], dest_paths[i]);
+			//log("src: %s\ndest: %s\n", (char*)src_paths, (char*)dest_paths);
+		}
+		else
+		{
+			//log("src file not exist: %s\n", (char*)src_paths);
+		}
 	}
+	
 
-	notify("Please Wait.\nThe process may appear to be frozen...");
-	sys_timer_usleep(5000000);
+	//notify("Please Wait.\nThe process may appear to be frozen...");
+
+	//installPKG("/dev_hdd0/hen/restore/ofw_files.pkg");
+
+	sys_timer_usleep(1000000);
 
 
 	// Remove HEN Files in Flash
-	if ((ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/videodownloader_plugin.sprx"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/videorec.sprx"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/module/xai_plugin.sprx"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_boot.png"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_disabled.png"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_enable.png"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/explore/icon/hen_repair.png"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/videodownloader_plugin.rco"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/videorec.rco"))
-		|| (ret = cellFsUnlink("/dev_hdd0/theme/../../dev_rewrite/vsh/resource/xai_plugin.rco")))
+	if ((ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_boot.png"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_repair.png"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/videodownloader_plugin.rco"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/videorec.rco"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/xai_plugin.rco"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/videodownloader_plugin.sprx"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/videorec.sprx"))
+		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/xai_plugin.sprx")))
 	{
 		log("Unlink Error: %x", ret);
 	}
 
-	sys_timer_usleep(8000000);
+	sys_timer_usleep(2000000);
 
 	// Remove HEN Directories
 	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
+	sys_timer_usleep(5000000);
 	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
-	sys_timer_usleep(2000000);
+	sys_timer_usleep(5000000);
 	cellFsRmdir("/dev_hdd0/hen");
 	cellFsRmdir("/dev_rewrite/hen");
-	notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
+	
+	//notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
 
 	sys_timer_usleep(5000000);
 
@@ -2033,12 +2088,18 @@ void toggle_app_home()
 	CellFsStat stat;
 	if (cellFsStat("/dev_hdd0/hen/toggles/app_home.on", &stat) == CELL_OK)
 	{
-		read_write_generic("/dev_hdd0/hen/toggles/app_home/on/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
-		notify("app_home Enabled\nexplore_plugin.sprx [DEX] copied successfully");
+		cellFsUnlink("/dev_rewrite/vsh/resource/explore/xmb/category_game.xml");
+		//cellFsUnlink("/dev_rewrite/vsh/module/explore_plugin.sprx");
+		read_write_generic2("/dev_hdd0/hen/toggles/app_home/on/category_game.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_game.xml", 0600);
+		//read_write_generic2("/dev_hdd0/hen/toggles/app_home/on/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
+		notify("app_home Enabled.\nRefresh XMB or Reboot.");
 	}
 	else
 	{
-		read_write_generic("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx");
-		notify("app_home Disabled\nexplore_plugin.sprx [CEX] copied successfully");
+		cellFsUnlink("/dev_rewrite/vsh/resource/explore/xmb/category_game.xml");
+		//cellFsUnlink("/dev_rewrite/vsh/module/explore_plugin.sprx");
+		read_write_generic2("/dev_hdd0/hen/toggles/app_home/off/category_game.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_game.xml", 0600);
+		//read_write_generic2("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
+		notify("app_home Disabled.\nRefresh XMB or Reboot.");
 	}
 }
