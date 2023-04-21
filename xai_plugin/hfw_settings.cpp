@@ -1929,49 +1929,40 @@ void uninstall_hen()
 	};
 
 	for (int i = 0; i < sizeof(src_paths) / sizeof(src_paths[0]); i++) {
-		if (cellFsStat(src_paths[i], &stat) == 0)
-		{
-			cellFsUnlink(dest_paths[i]);
-			sys_timer_usleep(100000);
-			read_write_generic(src_paths[i], dest_paths[i]);
-			//log("src: %s\ndest: %s\n", (char*)src_paths, (char*)dest_paths);
+		CellFsStat stat;
+		if (cellFsStat(src_paths[i], &stat) != CELL_FS_SUCCEEDED) {
+			// Source file does not exist
+			continue;
 		}
-		else
-		{
-			//log("src file not exist: %s\n", (char*)src_paths);
+		cellFsUnlink(dest_paths[i]);
+		sys_timer_usleep(100000);
+		read_write_generic(src_paths[i], dest_paths[i]);
+	}
+
+	// Remove HEN Files in Flash
+	const char* flash_files[] = {
+		"/dev_rewrite/vsh/resource/explore/icon/hen_boot.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_enable.png",
+		"/dev_rewrite/vsh/resource/explore/icon/hen_repair.png",
+		"/dev_rewrite/vsh/resource/videodownloader_plugin.rco",
+		"/dev_rewrite/vsh/resource/videorec.rco",
+		"/dev_rewrite/vsh/resource/xai_plugin.rco",
+		"/dev_rewrite/vsh/module/videodownloader_plugin.sprx",
+		"/dev_rewrite/vsh/module/videorec.sprx",
+		"/dev_rewrite/vsh/module/xai_plugin.sprx"
+	};
+	for (int i = 0; i < sizeof(flash_files) / sizeof(flash_files[0]); i++) {
+		if (cellFsUnlink(flash_files[i]) != CELL_FS_SUCCEEDED) {
+			log("Unlink Error: %x", ret);
 		}
 	}
 	
-
-	//notify("Please Wait.\nThe process may appear to be frozen...");
-
-	//installPKG("/dev_hdd0/hen/restore/ofw_files.pkg");
-
-	sys_timer_usleep(1000000);
-
-
-	// Remove HEN Files in Flash
-	if ((ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_boot.png"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_disabled.png"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_enable.png"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/explore/icon/hen_repair.png"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/videodownloader_plugin.rco"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/videorec.rco"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/resource/xai_plugin.rco"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/videodownloader_plugin.sprx"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/videorec.sprx"))
-		|| (ret = cellFsUnlink("/dev_rewrite/vsh/module/xai_plugin.sprx")))
-	{
-		log("Unlink Error: %x", ret);
-	}
-
 	sys_timer_usleep(2000000);
 
 	// Remove HEN Directories
 	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
-	sys_timer_usleep(5000000);
 	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
-	sys_timer_usleep(5000000);
 	cellFsRmdir("/dev_hdd0/hen");
 	cellFsRmdir("/dev_rewrite/hen");
 	
