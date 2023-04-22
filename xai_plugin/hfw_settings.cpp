@@ -2069,7 +2069,7 @@ void disable_remaps_on_next_boot()
 
 void toggle_hotkey_polling()
 {
-	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.off", "HotKey Polling at Launch", 0);
+	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.on", "HotKey Polling at Launch", 1);
 }
 
 void toggle_app_home()
