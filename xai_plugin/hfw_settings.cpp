@@ -2069,7 +2069,7 @@ void disable_remaps_on_next_boot()
 
 void toggle_hotkey_polling()
 {
-	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.on", "HotKey Polling at Launch", 1);
+	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.off", "HotKey Polling at Launch", 0);
 }
 
 void toggle_app_home()
@@ -2092,5 +2092,24 @@ void toggle_app_home()
 		read_write_generic2("/dev_hdd0/hen/toggles/app_home/off/category_game.xml", "/dev_rewrite/vsh/resource/explore/xmb/category_game.xml", 0600);
 		//read_write_generic2("/dev_hdd0/hen/toggles/app_home/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
 		notify("app_home Disabled.\nRefresh XMB or Reboot.");
+	}
+}
+
+void toggle_quick_preview()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/quick_preview.on", "Quick Preview Support", 1);
+	sys_timer_usleep(100000);
+	CellFsStat stat;
+	if (cellFsStat("/dev_hdd0/hen/toggles/quick_preview.on", &stat) == CELL_OK)
+	{
+		cellFsUnlink("/dev_rewrite/vsh/module/explore_plugin.sprx");
+		read_write_generic2("/dev_hdd0/hen/toggles/quick_preview/on/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
+		notify("Quick Preview Enabled\nexplore_plugin.sprx will have visual artifacts on 4.89+\nRefresh XMB or Reboot.");
+	}
+	else
+	{
+		cellFsUnlink("/dev_rewrite/vsh/module/explore_plugin.sprx");
+		read_write_generic2("/dev_hdd0/hen/toggles/quick_preview/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
+		notify("Quick Preview Disabled\nOriginal explore_plugin.sprx copied\nRefresh XMB or Reboot.");
 	}
 }

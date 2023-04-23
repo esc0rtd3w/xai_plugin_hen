@@ -86,6 +86,7 @@ void toggle_hen_repair();
 void toggle_patch_libaudio();
 void toggle_hotkey_polling();
 void toggle_app_home();
+void toggle_quick_preview();
 void toggle_hen_dev_build(); 
 void uninstall_hen();
 int switch_hen_mode(int mode);// Used for switching from release to debug

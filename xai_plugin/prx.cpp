@@ -431,6 +431,12 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		toggle_app_home();
 	}
+
+	// Toggle Quick Preview support
+	else if (strcmp(action, "toggle_quick_preview") == 0)
+	{
+		toggle_quick_preview();
+	}
 	
 	/*
 	// NoPSN Patches
