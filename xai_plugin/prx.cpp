@@ -148,8 +148,12 @@ int load_functions()
 	load_log_functions();
 	load_cfw_functions();
 
-	xmm0_interface = (xmb_plugin_xmm0 *)GetPluginInterface("xmb_plugin",'XMM0');
-	xmb2_interface = (xmb_plugin_xmb2 *)GetPluginInterface("xmb_plugin",'XMB2');
+	unsigned int xmm0_id = ('X' << 24) | ('M' << 16) | ('M' << 8) | '0';
+	unsigned int xmb2_id = ('X' << 24) | ('M' << 16) | ('B' << 8) | '2';
+	//xmm0_interface = (xmb_plugin_xmm0 *)GetPluginInterface("xmb_plugin",'XMM0');
+	//xmb2_interface = (xmb_plugin_xmb2 *)GetPluginInterface("xmb_plugin",'XMB2');
+	xmm0_interface = (xmb_plugin_xmm0 *)GetPluginInterface("xmb_plugin", xmm0_id);
+	xmb2_interface = (xmb_plugin_xmb2 *)GetPluginInterface("xmb_plugin", xmb2_id);
 
 	
 	setlogpath("/dev_hdd0/tmp/hfw_settings.log"); // default path
@@ -194,8 +198,10 @@ extern "C" int _xai_plugin_prx_exit(void)
 
 void xai_plugin_interface::xai_plugin_init(int view)
 {
+	unsigned int act0_id = ('A' << 24) | ('C' << 16) | ('T' << 8) | '0';
 	log_function("xai_plugin","1",__FUNCTION__,"()\n",0);
-	plugin_SetInterface(view,'ACT0', xai_plugin_action_if);
+	//plugin_SetInterface(view,'ACT0', xai_plugin_action_if);
+	plugin_SetInterface(view, act0_id, xai_plugin_action_if);
 }
 
 int xai_plugin_interface::xai_plugin_start(void * view)
