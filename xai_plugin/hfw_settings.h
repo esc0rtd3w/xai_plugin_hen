@@ -97,6 +97,11 @@ void toggle_clear_web_history();
 void toggle_clear_web_auth_cache();
 void toggle_clear_web_cookie();
 
+// Clear PSN Cache Functions (CI, MI, PTL)
+void toggle_clear_psn_ci();
+void toggle_clear_psn_mi();
+void toggle_clear_psn_ptl();
+
 void read_write_generic(const char* src, const char* dest);
 void remove_file(char* path_to_file, char* message);
 void write_toggle(char* path_to_file, char* message);

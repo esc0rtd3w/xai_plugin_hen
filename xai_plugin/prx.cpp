@@ -370,6 +370,24 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		toggle_clear_web_cookie();
 	}
 
+	// Clear PSN Cache: CI
+	else if (strcmp(action, "toggle_clear_psn_ci") == 0)
+	{
+		toggle_clear_psn_ci();
+	}
+
+	// Clear PSN Cache: MI
+	else if (strcmp(action, "toggle_clear_psn_mi") == 0)
+	{
+		toggle_clear_psn_mi();
+	}
+
+	// Clear PSN Cache: PTL
+	else if (strcmp(action, "toggle_clear_psn_ptl") == 0)
+	{
+		toggle_clear_psn_ptl();
+	}
+
 	// Switch HEN Mode Release
 	else if (strcmp(action, "hen_mode_release") == 0)
 	{

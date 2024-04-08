@@ -2057,6 +2057,21 @@ void toggle_clear_web_cookie()
 	toggle_generic("/dev_hdd0/hen/toggles/clear_web_cookie.on", "Clear Web Cache: Cookie", 1);
 }
 
+void toggle_clear_psn_ci()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_ci.on", "Clear PSN Cache: CI.TMP", 1);
+}
+
+void toggle_clear_psn_mi()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_mi.on", "Clear PSN Cache: MI.TMP", 1);
+}
+
+void toggle_clear_psn_ptl()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/clear_ptl.on", "Clear PSN Cache: PTL.TMP", 1);
+}
+
 void toggle_hen_dev_build()
 {
 	toggle_generic("/dev_hdd0/hen/toggles/dev_build_type.on", "Development Build Type", 1);
