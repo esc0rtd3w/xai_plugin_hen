@@ -2082,6 +2082,11 @@ void disable_remaps_on_next_boot()
 	write_toggle("/dev_hdd0/hen/toggles/remap_files.off", "MapPath Remappings Will Be Disabled On Next Boot");
 }
 
+void toggle_rap_bin()
+{
+	toggle_generic("/dev_hdd0/hen/toggles/rap_bin.on", "Reading from rap.bin", 1);
+}
+
 void toggle_hotkey_polling()
 {
 	toggle_generic("/dev_hdd0/hen/toggles/hotkey_polling.off", "HotKey Polling at Launch", 0);

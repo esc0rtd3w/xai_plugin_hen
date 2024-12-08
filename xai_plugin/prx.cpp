@@ -461,6 +461,12 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		toggle_quick_preview();
 	}
+
+	// Toggle rap.bin support
+	else if (strcmp(action, "toggle_rap_bin") == 0)
+	{
+		toggle_rap_bin();
+	}
 	
 	/*
 	// NoPSN Patches

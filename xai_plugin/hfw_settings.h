@@ -91,6 +91,7 @@ void toggle_hen_dev_build();
 void uninstall_hen();
 int switch_hen_mode(int mode);// Used for switching from release to debug
 void disable_remaps_on_next_boot();
+void toggle_rap_bin();
 
 // Clear Web Cache Functions (History, Auth Cache, Cookie)
 void toggle_clear_web_history();
