@@ -1912,8 +1912,10 @@ void uninstall_hen()
 		"/dev_hdd0/hen/restore/category_game_tool2.xml",
 		"/dev_hdd0/hen/restore/category_network.xml",
 		"/dev_hdd0/hen/restore/category_network_tool2.xml",
+		"/dev_hdd0/hen/restore/category_psn.xml",
 		"/dev_hdd0/hen/restore/category_video.xml",
-		"/dev_hdd0/hen/restore/download_list.xml"
+		"/dev_hdd0/hen/restore/download_list.xml",
+		"/dev_hdd0/hen/restore/registory.xml"
 	};
 
 	const char* dest_paths[] = {
@@ -1924,8 +1926,10 @@ void uninstall_hen()
 		"/dev_rewrite/vsh/resource/explore/xmb/category_game_tool2.xml",
 		"/dev_rewrite/vsh/resource/explore/xmb/category_network.xml",
 		"/dev_rewrite/vsh/resource/explore/xmb/category_network_tool2.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/category_psn.xml",
 		"/dev_rewrite/vsh/resource/explore/xmb/category_video.xml",
-		"/dev_rewrite/vsh/resource/explore/xmb/download_list.xml"
+		"/dev_rewrite/vsh/resource/explore/xmb/download_list.xml",
+		"/dev_rewrite/vsh/resource/explore/xmb/registory.xml"
 	};
 
 	for (int i = 0; i < sizeof(src_paths) / sizeof(src_paths[0]); i++) {
