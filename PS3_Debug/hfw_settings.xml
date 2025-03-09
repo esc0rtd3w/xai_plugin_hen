@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-
+﻿<!-- THIS FILE SHOULD NOT EXIST ON HDD! IT IS REMAPPED TO HDD ON HEN LAUNCH AFTER REMAP -->
 <XMBML version="1.0">
 
 	<View id="seg_hfw_settings">
 		<Attributes>
 			<Table key="hfw_settings">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_hft.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_hft.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ Hybrid Firmware Tools</String></Pair>
 				<Pair key="info"><String></String></Pair>
@@ -20,59 +19,67 @@
 	<View id="seg_settings_menu">
 		<Attributes>
 			<Table key="reboot_ps3">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_reboot.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_reboot.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ Restart PS3</String></Pair>
 			</Table>
 			<Table key="dump_tools">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_dump.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_dump.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ Dump Tools</String></Pair>
 			</Table>
 			<Table key="recovery_menu">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_service.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_service.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ Service Tools</String></Pair>
 			</Table>
 			<Table key="ingame_settings">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_ingame.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_ingame.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ In-Game Settings</String></Pair>
 			</Table>
+			<Table key="ps3hen_maintenance">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_maintenance.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>★ Maintenance</String></Pair>
+                <Pair key="info"><String>Options for configuring PS3HEN updates, removal, and more</String></Pair>
+			</Table>
+			<Table key="ps3hen_development">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_development.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>★ Development</String></Pair>
+                <Pair key="info"><String>Developer options for switching modes, changing build type, and more</String></Pair>
+			</Table>
             <Table key="ps3hen_theme">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_theme_select.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_theme_select.png</String></Pair>
                 <Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
                 <Pair key="title"><String>★ Theme Selector</String></Pair>
                 <Pair key="info"><String>Themes must be first installed from Updater</String></Pair>
 				<Pair key="child"><String>segment</String></Pair>
             </Table>
-			<Table key="ps3hen_maintenance">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_maintenance.png</String></Pair>
-				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
-				<Pair key="title"><String>★ PS3HEN Maintenance</String></Pair>
-			</Table>
 			<Table key="ps3hen_updater">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_download.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_download.png</String></Pair>
 				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
 				<Pair key="title"><String>★ PS3HEN Updater</String></Pair>
 				<Pair key="info"><String>You MUST reboot console after update has been installed</String></Pair>
 			</Table>		
 		</Attributes>
 		<Items>
-			<Query class="type:x-xmb/folder-pixmap" key="reboot_ps3"		attr="reboot_ps3"		src="#seg_reboot_ps3"/>
-			<Query class="type:x-xmb/folder-pixmap" key="ingame_settings"	attr="ingame_settings"	src="#seg_ingame_settings"/> 
-			<Query class="type:x-xmb/folder-pixmap" key="dump_tools"		attr="dump_tools"		src="#seg_dump_tools"/>
-			<Query class="type:x-xmb/folder-pixmap" key="recovery_menu"		attr="recovery_menu"	src="#seg_recovery_menu"/>
-            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_theme"		attr="ps3hen_theme"		src="#seg_ps3hen_theme"/>
-            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_maintenance"		attr="ps3hen_maintenance"		src="#seg_ps3hen_maintenance"/>			
-			<Query class="type:x-xmb/folder-pixmap" key="ps3hen_update"		attr="ps3hen_updater"	src="xmb://localhost/dev_flash/hen/xml/ps3hen_updater.xml#seg_ps3hen_updater"/>
+			<Query class="type:x-xmb/folder-pixmap" key="reboot_ps3" attr="reboot_ps3" src="#seg_reboot_ps3"/>
+			<Query class="type:x-xmb/folder-pixmap" key="ingame_settings" attr="ingame_settings"	src="#seg_ingame_settings"/> 
+			<Query class="type:x-xmb/folder-pixmap" key="dump_tools" attr="dump_tools" src="#seg_dump_tools"/>
+			<Query class="type:x-xmb/folder-pixmap" key="recovery_menu" attr="recovery_menu" src="#seg_recovery_menu"/>
+            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_maintenance" attr="ps3hen_maintenance" src="#seg_ps3hen_maintenance"/>
+            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_development" attr="ps3hen_development" src="#seg_ps3hen_development"/>
+            <Query class="type:x-xmb/folder-pixmap" key="ps3hen_theme" attr="ps3hen_theme" src="#seg_ps3hen_theme"/>			
+			<Query class="type:x-xmb/folder-pixmap" key="ps3hen_update" attr="ps3hen_updater" src="xmb://localhost/dev_flash/hen/xml/ps3hen_updater.xml#seg_ps3hen_updater"/>
 		</Items>
 	</View>
 
 	<View id="seg_reboot_ps3">
 		<Attributes>
 			<Table key="soft_reboot_action">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/power_soft.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/power_soft.png</String></Pair>
 				<Pair key="title"><String>Quick Restart</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -82,7 +89,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="hard_reboot_action">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/power_full.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/power_full.png</String></Pair>
 				<Pair key="title"><String>Full Restart</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -92,7 +99,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="power_off_action">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/power_off.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/power_off.png</String></Pair>
 				<Pair key="title"><String>Power Off</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -103,16 +110,16 @@
 			</Table>
 		</Attributes>
 		<Items>		  
-			<Item class="type:x-xmb/module-action" key="soft_reboot_action"		attr="soft_reboot_action"/>
-			<Item class="type:x-xmb/module-action" key="hard_reboot_action"		attr="hard_reboot_action"/>
-			<Item class="type:x-xmb/module-action" key="power_off_action"		attr="power_off_action"/>
+			<Item class="type:x-xmb/module-action" key="soft_reboot_action"	attr="soft_reboot_action"/>
+			<Item class="type:x-xmb/module-action" key="hard_reboot_action"	attr="hard_reboot_action"/>
+			<Item class="type:x-xmb/module-action" key="power_off_action" attr="power_off_action"/>
 		</Items>
 	</View>	
 	
 	<View id="seg_ingame_settings">
 		<Attributes>
 			<Table key="enable_screenshot">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/ingame_enable_ss.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/ingame_enable_ss.png</String></Pair>
 				<Pair key="title"><String>Enable In-Game Screenshot</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -121,7 +128,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="enable_recording">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/folder_list.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_list.png</String></Pair>
 				<Pair key="title"><String>Enable Gameplay Recording</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -130,7 +137,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="override_sfo">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/ingame_override_sfo.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/ingame_override_sfo.png</String></Pair>
 				<Pair key="title"><String>Override Disc SFO</String></Pair>
 				<Pair key="info"><String>SFO Attribute to enables RemotePlay + SystemBGM on Disc Games with no Updates</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -140,16 +147,16 @@
 			</Table>
 		</Attributes>
 		<Items>
-			<!-- <Item class="type:x-xmb/module-action" key="enable_screenshot"		attr="enable_screenshot"/> -->
-			<!--<Item class="type:x-xmb/module-action" key="enable_recording"		attr="enable_recording"/>-->
-			<Item class="type:x-xmb/module-action" key="override_sfo"			attr="override_sfo"/>
+			<!--<Item class="type:x-xmb/module-action" key="enable_screenshot" attr="enable_screenshot"/>-->
+			<!--<Item class="type:x-xmb/module-action" key="enable_recording" attr="enable_recording"/>-->
+			<Item class="type:x-xmb/module-action" key="override_sfo" attr="override_sfo"/>
 		</Items>
 	</View>
 
 	<View id="seg_dump_tools">
 		<Attributes>
 			<Table key="view_log">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_view_log.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_view_log.png</String></Pair>
 				<Pair key="title"><String>View Log</String></Pair>
 				<Pair key="info"><String>http://localhost/dev_hdd0/tmp/hfw_settings.log
 				(webMAN MOD is required for this function)</String></Pair>
@@ -157,7 +164,7 @@
 				<Pair key="module_action"><String>http://localhost/dev_hdd0/tmp/hfw_settings.log</String></Pair>
 			</Table>			
 			<Table key="clean_log">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_clean_log.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_clean_log.png</String></Pair>
 				<Pair key="title"><String>Clean Log File</String></Pair>
 				<Pair key="info"><String>/dev_hdd0/tmp/hfw_settings.log</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -166,7 +173,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="dump_idps">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_idps.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_idps.png</String></Pair>
 				<Pair key="title"><String>Dump IDPS</String></Pair>
 				<Pair key="info"><String>Saves IDPS to log file</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -175,7 +182,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="dump_psid">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_psid.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_psid.png</String></Pair>
 				<Pair key="title"><String>Dump PSID</String></Pair>
 				<Pair key="info"><String>Saves PSID to log file</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -184,7 +191,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="log_klic">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_log_klicense.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_log_klicense.png</String></Pair>
 				<Pair key="title"><String>Log KLicense usage</String></Pair>
 				<Pair key="info"><String>Saves filename and klicensee to log file</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -193,7 +200,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="log_secureid">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_log_secure_fileid.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_log_secure_fileid.png</String></Pair>
 				<Pair key="title"><String>Log Secure File ID usage</String></Pair>
 				<Pair key="info"><String>Writes save data name and file id key to log file</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -202,7 +209,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="dump_disc_key">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_disc_hashkey.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_disc_hashkey.png</String></Pair>
 				<Pair key="title"><String>Dump Disc Hash Key</String></Pair>
 				<Pair key="info"><String>Retrieves disc hash key from an ORIGINAL game disc</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -211,7 +218,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="backup_registry">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/dump_backup_xregistry.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_backup_xregistry.png</String></Pair>
 				<Pair key="title"><String>Backup xRegistry.sys</String></Pair>
 				<Pair key="info"><String></String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -221,21 +228,21 @@
 			</Table>
 		</Attributes>
 		<Items>
-			<Item class="type:x-xmb/module-action" key="view_log"			attr="view_log"/>
-			<Item class="type:x-xmb/module-action" key="clean_log"			attr="clean_log"/>
-			<Item class="type:x-xmb/module-action" key="dump_idps"			attr="dump_idps"/>
-			<Item class="type:x-xmb/module-action" key="dump_psid"			attr="dump_psid"/>
-			<Item class="type:x-xmb/module-action" key="log_klic"			attr="log_klic"/>
-			<Item class="type:x-xmb/module-action" key="log_secureid"		attr="log_secureid"/>
-			<Item class="type:x-xmb/module-action" key="dump_disc_key"		attr="dump_disc_key"/>
-			<Item class="type:x-xmb/module-action" key="backup_registry"	attr="backup_registry"/>
+			<Item class="type:x-xmb/module-action" key="view_log" attr="view_log"/>
+			<Item class="type:x-xmb/module-action" key="clean_log" attr="clean_log"/>
+			<Item class="type:x-xmb/module-action" key="dump_idps" attr="dump_idps"/>
+			<Item class="type:x-xmb/module-action" key="dump_psid" attr="dump_psid"/>
+			<Item class="type:x-xmb/module-action" key="log_klic" attr="log_klic"/>
+			<Item class="type:x-xmb/module-action" key="log_secureid" attr="log_secureid"/>
+			<Item class="type:x-xmb/module-action" key="dump_disc_key" attr="dump_disc_key"/>
+			<Item class="type:x-xmb/module-action" key="backup_registry" attr="backup_registry"/>
 		</Items>
 	</View>
 
 	<View id="seg_recovery_menu">
 		<Attributes>
 			<Table key="applicable_version">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_display_minver.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/recovery_display_minver.png</String></Pair>
 				<Pair key="title"><String>Display applicable version</String></Pair>
 				<Pair key="info"><String>Displays Minimum Downgrade Version</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -245,7 +252,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="fs_check">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_check_file_system.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/recovery_check_file_system.png</String></Pair>
 				<Pair key="title"><String>Check File system</String></Pair>
 				<Pair key="info"><String>Reboots and allows you to check and repair filesystem</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -255,7 +262,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="rebuild_db">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_rebuild_db.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/recovery_rebuild_db.png</String></Pair>
 				<Pair key="title"><String>Rebuild Database</String></Pair>
 				<Pair key="info"><String>Reboots with Database rebuilding flag set</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -265,7 +272,7 @@
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
 			<Table key="recovery_mode">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/recovery_toggle.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/recovery_toggle.png</String></Pair>
 				<Pair key="title"><String>Toggle Recovery Mode</String></Pair>
 				<Pair key="info"><String>Reboot to Recovery Mode (Not supported on NAND models!)</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -276,23 +283,17 @@
 			</Table>
 		</Attributes>
 		<Items>
-			<Item class="type:x-xmb/module-action"  key="applicable_version"	attr="applicable_version"/>
-			<Item class="type:x-xmb/module-action"  key="fs_check"				attr="fs_check"/>
-			<Item class="type:x-xmb/module-action"  key="rebuild_db"			attr="rebuild_db"/>
-			<Item class="type:x-xmb/module-action"  key="recovery_mode"			attr="recovery_mode"/>
+			<Item class="type:x-xmb/module-action" key="applicable_version" attr="applicable_version"/>
+			<Item class="type:x-xmb/module-action" key="fs_check" attr="fs_check"/>
+			<Item class="type:x-xmb/module-action" key="rebuild_db" attr="rebuild_db"/>
+			<Item class="type:x-xmb/module-action" key="recovery_mode" attr="recovery_mode"/>
 		</Items>
 	</View>
-
-	<View id="seg_ps3hen_theme">
-		<Items>		  
-			<Query class="type:x-xmb/xmlpackagefolder" key="theme_switch" src="host://localhost/q?path=/dev_hdd0/hen/themes&suffix=.pkg&subclass=x-host/package"/>	  
-		</Items>
-	</View>	
 	
 	<View id="seg_ps3hen_maintenance">
 		<Attributes>
 			<Table key="toggle_auto_update">
-				<Pair key="icon"><String>/dev_flash/vsh/resource/explore/icon/auto_update.png</String></Pair>
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/auto_update.png</String></Pair>
 				<Pair key="title"><String>Toggle Automatic Update</String></Pair>
 				<Pair key="info"><String>This will toggle on/off the automatic update of HEN on launch</String></Pair>
 				<Pair key="module_name"><String>xai_plugin</String></Pair>
@@ -301,10 +302,328 @@
 				<Pair key="bar_action"><String>none</String></Pair>
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
+			<Table key="disable_remaps_on_next_boot">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/disable_remaps_on_next_boot.png</String></Pair>
+				<Pair key="title"><String>Disable Remapping On Next Reboot</String></Pair>
+				<Pair key="info"><String>This will disable the remapped files from mappath so these files can be managed</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>disable_remaps_on_next_boot</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_app_home">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_app_home.png</String></Pair>
+				<Pair key="title"><String>Toggle app_home Support</String></Pair>
+				<Pair key="info"><String>Switch between category_game.xml with and without seg_gamedebug</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_app_home</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_99_pkg_install">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_99_pkg_install.png</String></Pair>
+				<Pair key="title"><String>Toggle 99% Package Install/Delete</String></Pair>
+				<Pair key="info"><String>This toggles the 99% Package Install/Delete options under Package Manager</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_99_pkg_install</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_hotkey_polling">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_hotkey_polling.png</String></Pair>
+				<Pair key="title"><String>Toggle Hotkey Polling on HEN Launch</String></Pair>
+				<Pair key="info"><String>This will toggle on/off L2 and R2 button detection on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_hotkey_polling</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_patch_libaudio">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_patch_libaudio.png</String></Pair>
+				<Pair key="title"><String>Toggle Patch: libaudio</String></Pair>
+				<Pair key="info"><String>This will toggle on/off the BT audio patch. May cause an issue with Sony BT headset Pulse</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_patch_libaudio</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="clear_web_cache">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/clear_web_cache.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>Clear Web Cache</String></Pair>
+				<Pair key="info"><String>Users can toggle clearing History, Auth Cache, and Cookies on HEN launch</String></Pair>
+			</Table>
+			<Table key="clear_psn_cache">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/clear_psn_cache.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>Clear PSN Cache</String></Pair>
+				<Pair key="info"><String>Users can toggle clearing CI.TMP, MI.TMP, and PTL.TMP on HEN launch</String></Pair>
+			</Table>
+			<Table key="toggle_hen_repair">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_repair.png</String></Pair>
+				<Pair key="title"><String>Toggle HEN Repair File Check</String></Pair>
+				<Pair key="info"><String>This will toggle on/off the file check to repair HEN files at /dev_hdd0/hen/ on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_hen_repair</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="uninstall_hen">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/uninstall_hen.png</String></Pair>
+				<Pair key="title"><String>Uninstall HEN (Screen Will Appear Frozen)</String></Pair>
+				<Pair key="info"><String>This will remove PS3HEN from your system and restore OFW files, except silk_webkit.sprx</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>uninstall_hen</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
 		</Attributes>
 		<Items>
 			<Item class="type:x-xmb/module-action" key="toggle_auto_update"	attr="toggle_auto_update"/>
+			<Item class="type:x-xmb/module-action" key="disable_remaps_on_next_boot"	attr="disable_remaps_on_next_boot"/>
+			<Item class="type:x-xmb/module-action" key="toggle_app_home"	attr="toggle_app_home"/>
+			<Item class="type:x-xmb/module-action" key="toggle_99_pkg_install"	attr="toggle_99_pkg_install"/>
+			<Item class="type:x-xmb/module-action" key="toggle_hotkey_polling"	attr="toggle_hotkey_polling"/>
+			<Item class="type:x-xmb/module-action" key="toggle_patch_libaudio"	attr="toggle_patch_libaudio"/>
+			<Query class="type:x-xmb/folder-pixmap" key="clear_web_cache" attr="clear_web_cache" src="#seg_clear_web_cache"/>
+			<Query class="type:x-xmb/folder-pixmap" key="clear_psn_cache" attr="clear_psn_cache" src="#seg_clear_psn_cache"/>
+			<!--<Item class="type:x-xmb/module-action" key="toggle_hen_repair"	attr="toggle_hen_repair"/>-->
+			<Item class="type:x-xmb/module-action" key="uninstall_hen"	attr="uninstall_hen"/>
 		</Items>
 	</View>
+	
+	<View id="seg_ps3hen_development">
+		<Attributes>
+			<Table key="switch_hen_mode">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/switch_hen_mode.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>Switch HEN Mode</String></Pair>
+				<Pair key="info"><String>This will allow you to toggle between Release, Debug, and USB Modes</String></Pair>
+			</Table>
+			<Table key="trigger_hen_install">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/trigger_hen_install.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>Allow HEN Re-Install From Browser</String></Pair>
+				<Pair key="info"><String>This will remove hen_enable.png and allow PS3HEN to be re-installed from browser</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>trigger_hen_install</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_quick_preview">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_quick_preview.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>Enable Quick Preview Option On XMB</String></Pair>
+				<Pair key="info"><String>NOTE: The DEX version of explore_plugin.sprx will have visual artifacts on 4.89+</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_quick_preview</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_rap_bin">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_rap_bin.png</String></Pair>
+				<Pair key="title"><String>Toggle rap.bin Support</String></Pair>
+				<Pair key="info"><String>Allows reading rap.bin in conjunction with using RAP files</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_rap_bin</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="dump_lv2">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_lv2_memory.png</String></Pair>
+				<Pair key="title"><String>Dump LV2 Memory</String></Pair>
+				<Pair key="info"><String>NOTE: This saves the exploited LV2 memory to a file, and is not a clean OFW dump</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>dump_lv2</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_hen_dev_build">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_dev_build.png</String></Pair>
+				<Pair key="title"><String>★ Toggle Development Build Type</String></Pair>
+				<Pair key="info"><String>This changes build type to use alternate update and version check paths on server</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_hen_dev_build</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Query class="type:x-xmb/folder-pixmap" key="switch_hen_mode" attr="switch_hen_mode" src="#seg_switch_hen_mode"/>
+			<Item class="type:x-xmb/module-action" key="trigger_hen_install"	attr="trigger_hen_install"/>
+			<Item class="type:x-xmb/module-action" key="toggle_quick_preview"	attr="toggle_quick_preview"/>
+			<!-- <Item class="type:x-xmb/module-action" key="toggle_rap_bin"	attr="toggle_rap_bin"/> -->
+			<Item class="type:x-xmb/module-action" key="dump_lv2"	attr="dump_lv2"/>
+			<Item class="type:x-xmb/module-action" key="toggle_hen_dev_build"	attr="toggle_hen_dev_build"/>
+		</Items>
+	</View>
+
+	<View id="seg_switch_hen_mode">
+		<Attributes>
+			<Table key="hen_mode_release">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_release.png</String></Pair>
+				<Pair key="title"><String>Switch To Release Mode</String></Pair>
+				<Pair key="info"><String>This is the default mode and is ideal for most users</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_release</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="hen_mode_debug">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_debug.png</String></Pair>
+				<Pair key="title"><String>Switch To Debug Mode</String></Pair>
+				<Pair key="info"><String>This mode has debug output over UDP for developers and advanced users</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_debug</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="hen_mode_usb_000">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_usb_000.png</String></Pair>
+				<Pair key="title"><String>Switch To USB000 Mode</String></Pair>
+				<Pair key="info"><String>This mode runs the release payload directly from a USB device (dev_usb000)</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_usb_000</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="hen_mode_usb_001">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_usb_001.png</String></Pair>
+				<Pair key="title"><String>Switch To USB001 Mode</String></Pair>
+				<Pair key="info"><String>This mode runs the debug payload directly from a USB device (dev_usb001)</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_usb_001</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="hen_mode_custom">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_custom.png</String></Pair>
+				<Pair key="title"><String>Switch To Custom Mode</String></Pair>
+				<Pair key="info"><String>This mode runs a custom user payload *USE WITH CAUTION!*</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_custom</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="hen_mode_usb_custom">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/hen_mode_usb_custom.png</String></Pair>
+				<Pair key="title"><String>Switch To USB Custom Mode</String></Pair>
+				<Pair key="info"><String>This mode runs a custom user payload directly from a USB device *USE WITH CAUTION!*</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>hen_mode_usb_custom</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Item class="type:x-xmb/module-action" key="hen_mode_release" attr="hen_mode_release"/>
+			<Item class="type:x-xmb/module-action" key="hen_mode_debug" attr="hen_mode_debug"/>
+			<!--<Item class="type:x-xmb/module-action" key="hen_mode_usb_000" attr="hen_mode_usb_000"/>-->
+			<!--<Item class="type:x-xmb/module-action" key="hen_mode_usb_001" attr="hen_mode_usb_001"/>-->
+			<!--<Item class="type:x-xmb/module-action" key="hen_mode_custom" attr="hen_mode_custom"/>-->
+			<!--<Item class="type:x-xmb/module-action" key="hen_mode_usb_custom" attr="hen_mode_usb_custom"/>-->
+		</Items>
+	</View>
+
+	<View id="seg_clear_psn_cache">
+		<Attributes>
+			<Table key="toggle_clear_psn_ci">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_psn_ci.png</String></Pair>
+				<Pair key="title"><String>Clear PSN CI</String></Pair>
+				<Pair key="info"><String>This will remove/clear CI.TMP from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_psn_ci</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_clear_psn_mi">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_psn_mi.png</String></Pair>
+				<Pair key="title"><String>Clear PSN MI</String></Pair>
+				<Pair key="info"><String>This will remove/clear MI.TMP from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_psn_mi</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_clear_psn_ptl">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_psn_ptl.png</String></Pair>
+				<Pair key="title"><String>Clear PSN PTL</String></Pair>
+				<Pair key="info"><String>This will remove/clear PTL.TMP from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_psn_ptl</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_psn_ci" attr="toggle_clear_psn_ci"/>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_psn_mi" attr="toggle_clear_psn_mi"/>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_psn_ptl" attr="toggle_clear_psn_ptl"/>
+		</Items>
+	</View>
+
+	<View id="seg_clear_web_cache">
+		<Attributes>
+			<Table key="toggle_clear_web_history">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_web_history.png</String></Pair>
+				<Pair key="title"><String>Clear Web History</String></Pair>
+				<Pair key="info"><String>This will remove/clear history.xml from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_web_history</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_clear_web_auth_cache">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_web_auth_cache.png</String></Pair>
+				<Pair key="title"><String>Clear Web Auth Cache</String></Pair>
+				<Pair key="info"><String>This will remove/clear auth_cache.dat from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_web_auth_cache</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="toggle_clear_web_cookie">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/toggle_clear_web_cookie.png</String></Pair>
+				<Pair key="title"><String>Clear Web Cookies</String></Pair>
+				<Pair key="info"><String>This will remove/clear cookie.dat from current user on HEN launch</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_clear_web_cookie</String></Pair>
+				<Pair key="ingame"><String>disable</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_web_history" attr="toggle_clear_web_history"/>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_web_auth_cache" attr="toggle_clear_web_auth_cache"/>
+			<Item class="type:x-xmb/module-action" key="toggle_clear_web_cookie" attr="toggle_clear_web_cookie"/>
+		</Items>
+	</View>
+
+	<View id="seg_ps3hen_theme">
+		<Items>		  
+			<Query class="type:x-xmb/xmlpackagefolder" key="seg_ps3hen_theme" src="host://localhost/q?path=/dev_hdd0/hen/themes&suffix=.pkg&subclass=x-host/package"/>	  
+		</Items>
+	</View>	
 
 </XMBML>
