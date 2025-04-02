@@ -103,7 +103,32 @@ void toggle_clear_psn_ci();
 void toggle_clear_psn_mi();
 void toggle_clear_psn_ptl();
 
+// BadHTAB Testing
+int dump_lv1();
+bool test_lv1_peek();
+bool test_lv1_poke();
+void badhtab_copy_log();
+void badhtab_toggle_glitcher_test();
+void badhtab_toggle_skip_stage1();
+//void badhtab_toggle_skip_stage_cfw();
+void badhtab_toggle_skip_stage2();
+void badhtab_toggle_skip_patch_more_lv1();
+void badhtab_toggle_lv1_dump();
+void badhtab_toggle_lv1_dump_240m();
+void badhtab_toggle_otheros();
+void badhtab_toggle_lv2_kernel_self();
+void badhtab_toggle_lv2_kernel_fself();
+
+// LV1 Patches
+int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t pvalue);
+int unmask_bootldr();
+
+void toggle_lv1_patch_unmask_bootldr();
+void toggle_lv1_patch_test1();
+
 void read_write_generic(const char* src, const char* dest);
+void read_write_generic_notify(const char* src, const char* dest);
+void read_write_generic2(const char* src, const char* dest, CellFsMode chmod);
 void remove_file(char* path_to_file, char* message);
 void write_toggle(char* path_to_file, char* message);
 

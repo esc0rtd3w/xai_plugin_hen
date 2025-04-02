@@ -52,7 +52,8 @@ void hook_func(void * original,void * backup, void * hook_function)
 
 uint64_t lv1_peek(uint64_t addr)
 {
-	system_call_1(8, addr);
+	//system_call_1(8, addr);
+	system_call_1(11, addr);
 	return_to_user_prog(uint64_t);
 }
 
@@ -369,6 +370,102 @@ int dump_lv2()
 	cellFsClose(fd);
 
 	notify("LV2 dumped in\n%s", dump_file_path);
+	buzzer(SINGLE_BEEP);
+
+	return 0;
+}
+
+
+int dump_lv1()
+{
+	int final_offset;
+	int mem = 0, max_offset = 0x40000;
+	int fd, fseek_offset = 0, start_offset = 0;
+
+	char usb[120], dump_file_path[120], lv_file[120];
+
+	uint8_t platform_info[0x18];
+	uint64_t nrw, seek, offset_dumped;
+	CellFsStat st;	
+
+	// Check if CFW Syscalls are disabled
+	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+	{
+		notify("Syscalls are disabled");
+		return 1;
+	}
+	
+    system_call_1(387, (uint64_t)platform_info);
+
+	final_offset = 0x1000000ULL;
+
+	vsh_sprintf(lv_file, LV1_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);	
+	vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
+
+	for(int i = 0; i < 127; i++)
+	{				
+		vsh_sprintf(usb, "/dev_usb%03d", i, NULL);
+
+		if(!cellFsStat(usb, &st))
+		{
+			vsh_sprintf(dump_file_path, "%s/%s", (int)usb, (int)lv_file);
+			break;
+		}
+	}
+
+	if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
+	{
+		notify("An error occurred while dumping LV1");
+		return 1;
+	}
+
+	cellFsChmod(dump_file_path, 0666);
+
+	notify("Dumping LV1, please wait...");
+
+	// Quickest method to dump LV2 and LV1 through xai_plugin
+	// Default method will take at least two minutes to dump LV2, and even more for LV1
+	uint8_t *dump = (uint8_t *)allocator_759E0635(0x40000);
+	memset(dump, 0, 0x40000);			
+
+	for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
+	{
+		offset_dumped = lv1_peek(0x8000000000000000ULL + offset);
+
+		memcpy(dump + mem, &offset_dumped, 8);
+
+		mem += 8;
+
+		if(offset == max_offset - 8)
+		{
+			//cellFsLseek(fd, fseek_offset, SEEK_SET, &seek);
+			if(cellFsWrite(fd, dump, 0x40000, &nrw) != SUCCEEDED)
+			{
+				allocator_77A602DD(dump);				
+				cellFsClose(fd);
+				cellFsUnlink(dump_file_path);
+				notify("An error occurred while dumping LV1");		
+
+				return 1;
+			}
+
+			// Done dumping
+			if(max_offset == final_offset)
+				break;
+
+			fseek_offset += 0x40000;
+			memset(dump, 0, 0x40000);
+			mem = 0;
+
+			start_offset = start_offset + 0x40000;
+			max_offset = max_offset + 0x40000;
+		}
+	}
+
+	allocator_77A602DD(dump);
+	cellFsClose(fd);
+
+	notify("LV1 dumped in\n%s", dump_file_path);
 	buzzer(SINGLE_BEEP);
 
 	return 0;
@@ -1651,7 +1748,6 @@ void applicable_version()
 	notify(tmp);	
 }
 
-
 wchar_t * url_path;
 download_if * download_interface;
 
@@ -1754,6 +1850,51 @@ void read_write_generic(const char* src, const char* dest)
 		cellFsClose(fdb);
 
 		//notify("%s created!", (char*)dest);
+	}
+}
+
+void read_write_generic_notify(const char* src, const char* dest)
+{
+	int ret, fda;
+	ret = cellFsOpen(src, CELL_FS_O_RDONLY, &fda, 0, 0);
+
+	if (ret != CELL_OK)
+		notify("%s Open Error: %x", src, ret);
+	else
+	{
+		int fdb;
+		ret = cellFsOpen(dest, CELL_FS_O_CREAT | CELL_FS_O_RDWR, &fdb, 0, 0);
+
+		//log("src: %s\n", (char*)src);
+		//log("dest: %s\n", (char*)dest);
+
+		uint8_t buf[0x1000];
+		uint64_t nr, nrw;
+
+		while ((ret = cellFsRead(fda, buf, 0x1000, &nr)) == CELL_FS_SUCCEEDED)
+		{
+			if ((int)nr > 0)
+			{
+				ret = cellFsWrite(fdb, buf, nr, &nrw);
+
+				if (ret != CELL_FS_SUCCEEDED)
+				{
+					notify("%s Copy Error: %x", src, ret);
+					return;
+				}
+
+				memset(buf, 0, 0x1000);
+			}
+			else
+				break;
+		}
+
+		cellFsChmod(dest, 0666);
+
+		cellFsClose(fda);
+		cellFsClose(fdb);
+
+		notify("%s created!", (char*)dest);
 	}
 }
 
@@ -1896,6 +2037,106 @@ void remove_file(char* path_to_file, char* message)
 	char text[256];
 	vsh_sprintf(text, "Removed: %s.\n%s",path_to_file, message);
 	notify("%s", text);
+}
+
+// BadHTAB LV1 Testing
+bool test_lv1_peek()
+{
+	uint64_t addr = 0x3B1894;
+	uint64_t val = lv1_peek(addr);
+
+	if (val != 0 && val != 0xFFFFFFFFFFFFFFFFULL)
+	{
+		notify("lv1_peek() success: %016llX", val);
+		return true;
+	}
+	else
+	{
+		notify("lv1_peek() failed or returned invalid data.");
+		return false;
+	}
+}
+
+bool test_lv1_poke()
+{
+	uint64_t addr = 0x3B1894;
+	uint64_t original = lv1_peek(addr);
+
+	lv1_poke(addr, original);
+	
+
+	uint64_t verify = lv1_peek(addr);
+
+	if (verify == original)
+	{
+		notify("lv1_poke() success");
+		return true;
+	}
+	else
+	{
+		notify("lv1_poke() failed");
+		return false;
+	}
+}
+
+int unmask_bootldr()
+{
+	uint64_t addr = 0x27B630;
+	uint64_t value = 0x39840200f8010090ULL;
+	//uint64_t original = lv1_peek(addr);
+
+	lv1_poke(addr, value);
+
+	uint64_t verify = lv1_peek(addr);
+
+	if (verify == value)
+	{
+		notify("Apply LV1 Patch: Unmask bootldr Success\n%016llX", verify);
+		return 0;
+	}
+	else
+	{
+		notify("Apply LV1 Patch: Unmask bootldr Failed\n%016llX", verify);
+		return 1;
+	}
+}
+
+
+int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t pvalue)
+{
+	uint64_t verify = 0;
+	uint64_t cvalue = lv1_peek(addr);
+
+	if(cvalue==ovalue)
+	{
+		lv1_poke(addr, pvalue);
+		verify = lv1_peek(addr);
+		if (verify == pvalue)
+		{
+			notify("Apply LV1 Patch: %s Success", (char*)name);
+			return 0;
+		}
+		else
+		{
+			notify("Apply LV1 Patch: %s Failed", (char*)name);
+			return 1;
+		}
+	}
+	else
+	{
+		lv1_poke(addr, ovalue);
+		verify = lv1_peek(addr);
+		if (verify == ovalue)
+		{
+			notify("Restore LV1 Patch: %s Success", (char*)name);
+			return 0;
+		}
+		else
+		{
+			notify("Restore LV1 Patch: %s Failed", (char*)name);
+			return 1;
+		}
+	}
 }
 
 void uninstall_hen()
@@ -2136,4 +2377,70 @@ void toggle_quick_preview()
 		read_write_generic2("/dev_hdd0/hen/toggles/quick_preview/off/explore_plugin.sprx", "/dev_rewrite/vsh/module/explore_plugin.sprx", 0644);
 		notify("Quick Preview Disabled\nOriginal explore_plugin.sprx copied\nRefresh XMB or Reboot.");
 	}
+}
+
+// BadHTAB Testing
+void badhtab_copy_log()
+{
+	read_write_generic_notify("/dev_hdd0/BadHTAB.txt", "/dev_usb000/BadHTAB.txt");
+}
+
+void badhtab_toggle_glitcher_test()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doGlitcherTest.txt", "Glitcher Test", 1);
+}
+
+void badhtab_toggle_skip_stage1()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doSkipStage1.txt", "Skip Stage 1", 1);
+}
+
+/*void badhtab_toggle_skip_stage_cfw()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doStage1_CFW.txt", "Skip Stage CFW", 1);
+}*/
+
+void badhtab_toggle_skip_stage2()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doSkipStage2.txt", "Skip Stage 2", 1);
+}
+
+void badhtab_toggle_skip_patch_more_lv1()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doSkipPatchMoreLv1.txt", "Skip Patch More LV1", 1);
+}
+
+void badhtab_toggle_lv1_dump()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doDumpLv1.txt", "BadHTAB LV1 Dump", 1);
+}
+
+void badhtab_toggle_lv1_dump_240m()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doDumpLv1_240M.txt", "BadHTAB LV1 Dump 240M", 1);
+}
+
+void badhtab_toggle_otheros()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doOtherOS.txt", "BadHTAB OtherOS", 1);
+}
+
+void badhtab_toggle_lv2_kernel_self()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doLoadLv2Kernel_Self.txt", "BadHTAB LV2 Kernel SELF", 1);
+}
+
+void badhtab_toggle_lv2_kernel_fself()
+{
+	toggle_generic("/dev_hdd0/BadHTAB_doLoadLv2Kernel_Fself.txt", "BadHTAB LV2 Kernel FSELF", 1);
+}
+
+// LV1 Patches
+void toggle_lv1_patch_unmask_bootldr()
+{
+	toggle_lv1_patch("Unmask bootldr", 0x27B630, 0x39840200f8010090ULL, 0x0000000000000000ULL);
+}
+void toggle_lv1_patch_test1()
+{
+	toggle_lv1_patch("Test #1", 0x3B1894, 0x4672692041707320ULL, 0x4672692041707220ULL);
 }

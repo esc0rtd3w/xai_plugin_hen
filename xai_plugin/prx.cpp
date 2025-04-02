@@ -468,6 +468,78 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		toggle_rap_bin();
 	}
 	
+	// BadHTAB Testing
+	else if(strcmp(action, "dump_lv1") == 0)	
+	{
+		dump_lv1();		
+	}
+	else if(strcmp(action, "badhtab_copy_log") == 0)	
+	{
+		badhtab_copy_log();		
+	}
+	else if(strcmp(action, "badhtab_toggle_glitcher_test") == 0)	
+	{
+		badhtab_toggle_glitcher_test();		
+	}
+	else if(strcmp(action, "badhtab_toggle_skip_stage1") == 0)	
+	{
+		badhtab_toggle_skip_stage1();		
+	}
+	/*else if(strcmp(action, "badhtab_toggle_skip_stage_cfw") == 0)	
+	{
+		badhtab_toggle_skip_stage_cfw();		
+	}*/
+	else if(strcmp(action, "badhtab_toggle_skip_stage2") == 0)	
+	{
+		badhtab_toggle_skip_stage2();		
+	}
+	else if(strcmp(action, "badhtab_toggle_skip_patch_more_lv1") == 0)	
+	{
+		badhtab_toggle_skip_patch_more_lv1();		
+	}
+	else if(strcmp(action, "badhtab_toggle_lv1_dump") == 0)	
+	{
+		badhtab_toggle_lv1_dump();		
+	}
+	else if(strcmp(action, "badhtab_toggle_lv1_dump_240m") == 0)	
+	{
+		badhtab_toggle_lv1_dump_240m();		
+	}
+	else if(strcmp(action, "badhtab_toggle_otheros") == 0)	
+	{
+		badhtab_toggle_otheros();		
+	}
+	else if(strcmp(action, "badhtab_toggle_lv2_kernel_self") == 0)	
+	{
+		badhtab_toggle_lv2_kernel_self();		
+	}
+	else if(strcmp(action, "badhtab_toggle_lv2_kernel_fself") == 0)	
+	{
+		badhtab_toggle_lv2_kernel_fself();		
+	}
+	else if (strcmp(action, "test_lv1_peek") == 0)
+	{
+		test_lv1_peek();
+	}
+	else if (strcmp(action, "test_lv1_poke") == 0)
+	{
+		test_lv1_poke();
+	}
+
+	// LV1 Patches
+	else if (strcmp(action, "enable_hvdbg") == 0)
+	{
+		enable_hvdbg();
+	}
+	else if (strcmp(action, "toggle_lv1_patch_unmask_bootldr") == 0)
+	{
+		toggle_lv1_patch_unmask_bootldr();
+	}
+	else if (strcmp(action, "toggle_lv1_patch_test1") == 0)
+	{
+		toggle_lv1_patch_test1();
+	}
+	
 	/*
 	// NoPSN Patches
 	else if (strcmp(action, "nopsn_amazon") == 0)
