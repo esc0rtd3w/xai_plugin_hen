@@ -46,6 +46,7 @@ void psn_patch(uint32_t paddr, uint32_t pbytes, bool reset);
 void reset_psn_patches();
 
 uint64_t lv1_peek(uint64_t addr);
+uint32_t lv1_peek32(uint64_t addr);
 void lv1_poke( uint64_t addr, uint64_t val);
 void lv1_poke32(uint64_t addr, uint32_t value);
 
@@ -104,9 +105,12 @@ void toggle_clear_psn_mi();
 void toggle_clear_psn_ptl();
 
 // BadHTAB Testing
+int dump_full_ram();
 int dump_lv1();
 bool test_lv1_peek();
+bool test_lv1_peek32();
 bool test_lv1_poke();
+bool test_lv1_poke32();
 void badhtab_copy_log();
 void badhtab_toggle_glitcher_test();
 void badhtab_toggle_skip_stage1();
@@ -121,10 +125,12 @@ void badhtab_toggle_lv2_kernel_fself();
 
 // LV1 Patches
 int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t pvalue);
+int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_t pvalue);
 int unmask_bootldr();
 
 void toggle_lv1_patch_unmask_bootldr();
 void toggle_lv1_patch_test1();
+void toggle_lv1_patch_test2();
 
 void read_write_generic(const char* src, const char* dest);
 void read_write_generic_notify(const char* src, const char* dest);

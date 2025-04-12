@@ -166,7 +166,25 @@ void notify(const char * format, int param1)
 	vshtask_A02D46E7(0, tmp);
 }
 
+void notify(const char * format, int param1, int param2)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
+	vshtask_A02D46E7(0, tmp);
+}
+
 void notify(const char * format, int param1, int param2, int param3, int param4)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2, param3, param4);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
+	vshtask_A02D46E7(0, tmp);
+}
+
+void notify(const char* format, const char* param1, uint64_t param2, uint32_t param3, uint32_t param4)
 {
 	char tmp[0x100];
 	vsh_sprintf(tmp, format, param1, param2, param3, param4);
@@ -242,6 +260,42 @@ void notify(char * param)
 	log(param);	log("\n");
 	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
 	vshtask_A02D46E7(0, param);
+}
+
+void notify64(const char * format, uint64_t param1, uint64_t param2)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
+}
+
+void notify64(const char * format, uint64_t param1, uint64_t param2, uint64_t param3)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param2, param3);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
+}
+
+void notify64(const char * format, char* param1, uint64_t param2, uint64_t param3)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, (char*)format, param1, param2, param3);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
+}
+
+void notify64(const char * format, char* param1, uint64_t param2, uint64_t param3, uint64_t param4)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, (char*)format, param1, param2, param3, param4);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
 }
 
 

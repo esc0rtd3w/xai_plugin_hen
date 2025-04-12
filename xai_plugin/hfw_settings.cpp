@@ -57,6 +57,11 @@ uint64_t lv1_peek(uint64_t addr)
 	return_to_user_prog(uint64_t);
 }
 
+uint32_t lv1_peek32(uint64_t addr)
+{
+	return (lv1_peek(addr) >> 32) & 0xFFFFFFFFUL;
+}
+
 void lv1_poke( uint64_t addr, uint64_t val) 
 {
 	system_call_2(9, addr, val);
@@ -2039,73 +2044,265 @@ void remove_file(char* path_to_file, char* message)
 	notify("%s", text);
 }
 
+int dump_full_ram() {
+    #define CHUNK_SIZE    0x20000        // 128 KB
+    //#define CHUNK_SIZE    0x40000        // 256 KB
+	#define FULL_RAM_SIZE 0x10000000ULL    // 256 MB
+
+    char dump_file_path[120];
+    vsh_sprintf(dump_file_path, "%s/%s", TMP_FOLDER, "FullRAMDump.bin");
+
+    // Check for an attached USB drive; if found, use its path instead.
+    char usb[120];
+    CellFsStat st; // Make sure CellFsStat is the proper type in your project.
+    for (int i = 0; i < 127; i++) {
+        vsh_sprintf(usb, "/dev_usb%03d", i);
+        if (cellFsStat(usb, &st) == CELL_FS_SUCCEEDED) {
+            vsh_sprintf(dump_file_path, "%s/%s", usb, "FullRAMDump.bin");
+            break;
+        }
+    }
+
+    // Open the dump file for writing.
+    int fd;
+    if (cellFsOpen(dump_file_path,
+                   CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR,
+                   &fd, 0, 0) != CELL_FS_SUCCEEDED) {
+        notify("Failed to open dump file: %s", dump_file_path);
+        return 1;
+    }
+    cellFsChmod(dump_file_path, 0666);
+    notify("Starting full RAM dump");
+
+    // Allocate a buffer using the PS3HEN memory allocator.
+    uint8_t *buffer = (uint8_t *)allocator_759E0635(CHUNK_SIZE);
+    if (!buffer) {
+        notify("Memory allocation error");
+        cellFsClose(fd);
+        return 1;
+    }
+    memset(buffer, 0, CHUNK_SIZE);
+
+    // Dump full RAM (from 0x0 to FULL_RAM_SIZE) in CHUNK_SIZE increments.
+    // Memory is read from the mapped PS3 address space starting at 0x8000000000000000ULL.
+    uint64_t offset = 0;
+    uint64_t nrw = 0;
+    while (offset < FULL_RAM_SIZE) {
+        for (int i = 0; i < CHUNK_SIZE; i += 8) {
+            uint64_t data = lv1_peek(0x8000000000000000ULL + offset + i);
+            memcpy(buffer + i, &data, 8);
+        }
+        if (cellFsWrite(fd, buffer, CHUNK_SIZE, &nrw) != CELL_FS_SUCCEEDED) {
+            notify("Error writing dump at offset 0x%llX", offset);
+            allocator_77A602DD(buffer);
+            cellFsClose(fd);
+            return 1;
+        }
+        sys_timer_usleep(1000); // Delay 1ms to help prevent freezing on HEN
+        offset += CHUNK_SIZE;
+    }
+
+    allocator_77A602DD(buffer);
+    cellFsClose(fd);
+    notify("Full RAM dump complete:\n%s", dump_file_path);
+    buzzer(SINGLE_BEEP);
+    return 0;
+}
+
 // BadHTAB LV1 Testing
+/*
+uint64_t lv1_peek2(uint64_t addr) {
+    if ((addr & 7ULL) == 0)
+        return lv1_peek(addr);
+    
+    uint64_t aligned = addr & ~7ULL;
+    int offset = addr & 7;
+    uint64_t first  = lv1_peek(aligned);
+    uint64_t second = lv1_peek(aligned + 8);
+    
+    int numFirstBytes = 8 - offset;
+    uint64_t mask = (1ULL << (numFirstBytes * 8)) - 1;
+    uint64_t part1 = first & mask;
+    uint64_t part2 = second >> (numFirstBytes * 8);
+    
+    return (part1 << (offset * 8)) | part2;
+}
+
+void lv1_poke2(uint64_t addr, uint64_t val)
+{
+    // If address is already aligned, use the standard poke.
+    if ((addr & 7ULL) == 0) {
+        lv1_poke(addr, val);
+        return;
+    }
+
+    // Calculate the aligned base address and the offset within it.
+    uint64_t aligned = addr & ~7ULL;  // aligned address (multiple of 8)
+    int r = addr & 7;                 // offset in bytes (1..7)
+    int numFirst = 8 - r;             // number of bytes in the first word to update
+
+    // Read the two aligned 64-bit words covering the region.
+    uint64_t orig1 = lv1_peek(aligned);
+    uint64_t orig2 = lv1_peek(aligned + 8);
+
+    // For the first aligned word:
+    // We want to replace its lower (numFirst*8) bits with the upper part of val.
+    // Create a mask to isolate the lower numFirst bytes.
+    uint64_t mask1 = (1ULL << (numFirst * 8)) - 1;
+    // Extract from val the bits that should go into the first word.
+    // (Shift val right by r bytes so that its upper (8 - r) bytes line up.)
+    uint64_t A = val >> (r * 8);
+    // Build the new first word by preserving the upper bytes and inserting A.
+    uint64_t new1 = (orig1 & ~mask1) | (A & mask1);
+
+    // For the second aligned word:
+    // We want to replace its upper r bytes with the lower part of val.
+    // Create a mask that isolates the upper r bytes.
+    uint64_t mask2 = 0xFFFFFFFFFFFFFFFFULL << ((8 - r) * 8);
+    // Extract the lower r bytes from val.
+    uint64_t B = val & ((1ULL << (r * 8)) - 1);
+    // Build the new second word:
+    // Preserve the lower (8 - r) bytes of orig2 and insert B shifted into the upper r bytes.
+    uint64_t new2 = (orig2 & ~mask2) | (B << ((8 - r) * 8));
+
+    // Write back the modified aligned words.
+    lv1_poke(aligned, new1);
+    lv1_poke(aligned + 8, new2);
+}
+*/
+
+// Patches the 64-bit word at addr only if (current & mask) equals (expected & mask).
+// Then it writes (current & ~mask) | (patch & mask) to preserve any bytes outside the mask.
+bool lv1_patch_pattern(uint64_t addr, uint64_t expected, uint64_t patch, uint64_t mask)
+{
+    uint64_t current = lv1_peek(addr);
+    if ((current & mask) != (expected & mask))
+    {
+        return false;
+    }
+    
+    // Construct the new value: preserve bytes outside the mask,
+    // and use patch bytes for the masked part.
+    uint64_t new_val = (current & ~mask) | (patch & mask);
+    lv1_poke(addr, new_val);
+    
+    return (lv1_peek(addr) & mask) == (patch & mask);
+}
+
 bool test_lv1_peek()
 {
-	uint64_t addr = 0x3B1894;
+	uint64_t addr = 0x1130;
 	uint64_t val = lv1_peek(addr);
 
 	if (val != 0 && val != 0xFFFFFFFFFFFFFFFFULL)
 	{
-		notify("lv1_peek() success: %016llX", val);
+		notify64("lv1_peek() success\naddr: 0x%016llX\nval: 0x%016llX", addr, val);
 		return true;
 	}
 	else
 	{
-		notify("lv1_peek() failed or returned invalid data.");
+		notify64("lv1_peek() success\naddr: 0x%016llX\nval: 0x%016llX", addr, val);
+		return false;
+	}
+}
+
+bool test_lv1_peek32()
+{
+	uint64_t addr = 0x1130;
+	uint32_t val = lv1_peek32(addr);
+
+	if (val != 0 && val != 0xFFFFFFF)
+	{
+		notify("lv1_peek32() success\naddr: 0x%08X\nval: 0x%08X", addr, val);
+		return true;
+	}
+	else
+	{
+		notify("lv1_peek32() success\naddr: 0x%08X\nval: 0x%08X", addr, val);
 		return false;
 	}
 }
 
 bool test_lv1_poke()
 {
-	uint64_t addr = 0x3B1894;
+	uint64_t addr = 0x1130;
+	uint64_t patch = 0x7C01012438000000ULL;
 	uint64_t original = lv1_peek(addr);
-
-	lv1_poke(addr, original);
+	
+	lv1_poke(addr, patch);
 	
 
 	uint64_t verify = lv1_peek(addr);
 
-	if (verify == original)
+	if (verify == patch)
 	{
-		notify("lv1_poke() success");
+		notify64("lv1_poke() success\naddr: 0x%016llX\npatch: 0x%016llX\noriginal: 0x%016llX", addr, patch, original);
 		return true;
 	}
 	else
 	{
-		notify("lv1_poke() failed");
+		notify64("lv1_poke() failed\naddr: 0x%016llX\npatch: 0x%016llX\noriginal: 0x%016llX", addr, patch, original);
+		return false;
+	}
+}
+
+bool test_lv1_poke32()
+{
+	uint64_t addr = 0x1130;
+	uint32_t patch = 0x7C010124;
+	uint32_t original = lv1_peek32(addr);
+	
+	lv1_poke32(addr, patch);
+	
+
+	uint32_t verify = lv1_peek32(addr);
+
+	if (verify == patch)
+	{
+		notify("lv1_poke32() success\naddr: 0x%08X\npatch: 0x%08X\noriginal: 0x%08X", addr, patch, original);
+		return true;
+	}
+	else
+	{
+		notify("lv1_poke32() failed\naddr: 0x%08X\npatch: 0x%08X\noriginal: 0x%08X", addr, patch, original);
 		return false;
 	}
 }
 
 int unmask_bootldr()
 {
-	uint64_t addr = 0x27B630;
-	uint64_t value = 0x39840200f8010090ULL;
-	//uint64_t original = lv1_peek(addr);
+    uint64_t addr1 = 0x27B638;
+    uint64_t addr2 = 0x27B640;
 
-	lv1_poke(addr, value);
+    uint64_t orig1 = 0x7C7F1B7839840200ULL;
+    uint64_t orig2 = 0xF8010090FBC10070ULL;
 
-	uint64_t verify = lv1_peek(addr);
+    uint64_t patch1 = 0x7C7F1B7800000000ULL;
+    uint64_t patch2 = 0x00000000FBC10070ULL;
 
-	if (verify == value)
-	{
-		notify("Apply LV1 Patch: Unmask bootldr Success\n%016llX", verify);
-		return 0;
-	}
-	else
-	{
-		notify("Apply LV1 Patch: Unmask bootldr Failed\n%016llX", verify);
-		return 1;
-	}
+    uint64_t full_mask = 0xFFFFFFFFFFFFFFFFULL;
+
+    bool patch1_ok = lv1_patch_pattern(addr1, orig1, patch1, full_mask);
+    bool patch2_ok = lv1_patch_pattern(addr2, orig2, patch2, full_mask);
+
+    if (patch1_ok && patch2_ok)
+    {
+        notify("Apply LV1 Patch 1: Unmask bootldr Success at 0x%016llX", lv1_peek(addr1));
+        notify("Apply LV1 Patch 2: Unmask bootldr Success at 0x%016llX", lv1_peek(addr2));
+        return 0;
+    }
+    else
+    {
+        notify("Apply LV1 Patch Failed.");
+        return 1;
+    }
 }
-
 
 int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t pvalue)
 {
 	uint64_t verify = 0;
 	uint64_t cvalue = lv1_peek(addr);
+	//notify("Current Value 0x%016llX", cvalue);
 
 	if(cvalue==ovalue)
 	{
@@ -2113,29 +2310,85 @@ int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t 
 		verify = lv1_peek(addr);
 		if (verify == pvalue)
 		{
-			notify("Apply LV1 Patch: %s Success", (char*)name);
+			notify64("Apply LV1 Patch: %s Success\naddr: 0x%016llX\ncvalue: 0x%016llX\nverify: 0x%016llX", (char*)name, addr, cvalue, verify);
 			return 0;
 		}
 		else
 		{
-			notify("Apply LV1 Patch: %s Failed", (char*)name);
+			notify64("Apply LV1 Patch: %s Failed\naddr: 0x%016llX\ncvalue: 0x%08X\nverify: 0x%016llX", (char*)name, addr, cvalue, verify);
 			return 1;
 		}
 	}
 	else
 	{
+		notify64("Expected Original Value Not Found\naddr: 0x%016llX\ncvalue: 0x%08X\npvalue: 0x%016llX", (char*)name, addr, cvalue, ovalue);
+	}
+
+	if(cvalue==pvalue)
+	{
 		lv1_poke(addr, ovalue);
 		verify = lv1_peek(addr);
 		if (verify == ovalue)
 		{
-			notify("Restore LV1 Patch: %s Success", (char*)name);
+			notify64("Restore LV1 Patch: %s Success\naddr: 0x%016llX\ncvalue: 0x%016llX\nverify: 0x%016llX", (char*)name, addr, cvalue, verify);
 			return 0;
 		}
 		else
 		{
-			notify("Restore LV1 Patch: %s Failed", (char*)name);
+			notify64("Restore LV1 Patch: %s Failed\naddr: 0x%016llX\ncvalue: 0x%016llX\nverify: 0x%016llX", (char*)name, addr, cvalue, verify);
 			return 1;
 		}
+	}
+	else
+	{
+		notify64("Expected Patched Value Not Found\naddr: 0x%016llX\ncvalue: 0x%016llX\npvalue: 0x%016llX", (char*)name, addr, cvalue, pvalue);
+	}
+}
+
+int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_t pvalue)
+{
+	uint32_t verify = 0;
+	uint32_t cvalue = lv1_peek32(addr);
+	notify("Current Value 0x%08X", cvalue);
+
+	if(cvalue==ovalue)
+	{
+		lv1_poke32(addr, pvalue);
+		verify = lv1_peek32(addr);
+		if (verify == pvalue)
+		{
+			notify("Apply LV1 32-bit Patch: %s Success\naddr: 0x%08X\ncvalue: 0x%08X\nverify: 0x%08X", (char*)name, addr, cvalue, verify);
+			return 0;
+		}
+		else
+		{
+			notify("Apply LV1 32-bit Patch: %s Failed\naddr: 0x%08X\ncvalue: 0x%08X\nverify: 0x%08X", (char*)name, addr, cvalue, verify);
+			return 1;
+		}
+	}
+	else
+	{
+		notify("Expected Original Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, ovalue);
+	}
+
+	if(cvalue==pvalue)
+	{
+		lv1_poke32(addr, ovalue);
+		verify = lv1_peek32(addr);
+		if (verify == ovalue)
+		{
+			notify("Restore LV1 32-bit Patch: %s Success\naddr: 0x%08X\ncvalue: 0x%08X\nverify: 0x%08X", (char*)name, addr, cvalue, verify);
+			return 0;
+		}
+		else
+		{
+			notify("Restore LV1 32-bit Patch: %s Failed\naddr: 0x%08X\ncvalue: 0x%08X\nverify: 0x%08X", (char*)name, addr, cvalue, verify);
+			return 1;
+		}
+	}
+	else
+	{
+		notify("Expected Patched Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, pvalue);
 	}
 }
 
@@ -2207,11 +2460,15 @@ void uninstall_hen()
 
 	// Remove HEN Directories
 	remove_directory("/dev_hdd0/theme/../../dev_hdd0/hen");
+	remove_directory("/dev_hdd0/theme/../../dev_hdd0/game/PS3XPLOIT");
 	remove_directory("/dev_hdd0/theme/../../dev_rewrite/hen");
 	cellFsRmdir("/dev_hdd0/hen");
+	cellFsRmdir("/dev_hdd0/game/PS3XPLOIT");
 	cellFsRmdir("/dev_rewrite/hen");
 	
-	//notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
+	sys_timer_usleep(1000000);
+	
+	notify("PS3HEN has been removed.\nSystem will now reboot back into HFW...");
 
 	sys_timer_usleep(5000000);
 
@@ -2440,7 +2697,26 @@ void toggle_lv1_patch_unmask_bootldr()
 {
 	toggle_lv1_patch("Unmask bootldr", 0x27B630, 0x39840200f8010090ULL, 0x0000000000000000ULL);
 }
+
 void toggle_lv1_patch_test1()
 {
-	toggle_lv1_patch("Test #1", 0x3B1894, 0x4672692041707320ULL, 0x4672692041707220ULL);
+	toggle_lv1_patch("Patch #1", 0x3B1890, 0x0100000046726920ULL, 0x0100000047726920ULL);
+	toggle_lv1_patch("Patch #2", 0x3B1898, 0x4170722031362032ULL, 0x4270722031362032ULL);
+	toggle_lv1_patch("Patch #3", 0x3B18A0, 0x303A31373A323320ULL, 0x313A31373A323320ULL);
+	toggle_lv1_patch("Patch #4", 0x3B18A8, 0x3230313000000000ULL, 0x3230333000000000ULL);
+
+	//lv1_patch_pattern(0x3B1890, 0x0100000046726920ULL, 0x0100000047726920ULL, 0xFFFFFFFFFFFFFFFFULL);// 0100000046726920
+	//lv1_patch_pattern(0x3B1894, 0x4170722031362032ULL, 0x4270722031362032ULL, 0xFFFFFFFFFFFFFFFFULL);// 4170722031362032
+	//lv1_patch_pattern(0x3B1894, 0x303A31373A323320ULL, 0x313A31373A323320ULL, 0xFFFFFFFFFFFFFFFFULL);// 303A31373A323320
+	//lv1_patch_pattern(0x3B1894, 0x0100000046726920ULL, 0x0100000047726920ULL, 0xFFFFFFFFFFFFFFFFULL);// 3230313000000000
+}
+
+void toggle_lv1_patch_test2()
+{
+	toggle_lv1_patch32("Patch #1", 0x3B1894, 0x46726920, 0x57656420);
+	toggle_lv1_patch32("Patch #2", 0x3B1898, 0x41707220, 0x4D617920);
+	toggle_lv1_patch32("Patch #3", 0x3B189C, 0x31362032, 0x30342031);
+	toggle_lv1_patch32("Patch #4", 0x3B18A0, 0x303A3137, 0x323A3131);
+	toggle_lv1_patch32("Patch #5", 0x3B18A4, 0x3A323320, 0x3A313020);
+	toggle_lv1_patch32("Patch #6", 0x3B18A8, 0x32303130, 0x32303235);
 }

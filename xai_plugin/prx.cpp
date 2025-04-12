@@ -473,6 +473,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		dump_lv1();		
 	}
+	else if(strcmp(action, "dump_full_ram") == 0)	
+	{
+		dump_full_ram();		
+	}
 	else if(strcmp(action, "badhtab_copy_log") == 0)	
 	{
 		badhtab_copy_log();		
@@ -521,9 +525,17 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		test_lv1_peek();
 	}
+	else if (strcmp(action, "test_lv1_peek32") == 0)
+	{
+		test_lv1_peek32();
+	}
 	else if (strcmp(action, "test_lv1_poke") == 0)
 	{
 		test_lv1_poke();
+	}
+	else if (strcmp(action, "test_lv1_poke32") == 0)
+	{
+		test_lv1_poke32();
 	}
 
 	// LV1 Patches
@@ -538,6 +550,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "toggle_lv1_patch_test1") == 0)
 	{
 		toggle_lv1_patch_test1();
+	}
+	else if (strcmp(action, "toggle_lv1_patch_test2") == 0)
+	{
+		toggle_lv1_patch_test2();
 	}
 	
 	/*
