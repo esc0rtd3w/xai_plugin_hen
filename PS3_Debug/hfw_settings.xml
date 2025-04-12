@@ -456,6 +456,12 @@
 				<Pair key="bar_action"><String>none</String></Pair>
 				<Pair key="lbl_half"><String>1</String></Pair>
 			</Table>
+			<Table key="bad_htab_menu">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/bad_htab_menu.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>★ BadHTAB LV1 Exploit Testing</String></Pair>
+				<Pair key="info"><String>NOTE: These REQUIRE using BadHTAB hardware glitch exploit, or toggle options the exploit can use</String></Pair>
+			</Table>
 		</Attributes>
 		<Items>
 			<Query class="type:x-xmb/folder-pixmap" key="switch_hen_mode" attr="switch_hen_mode" src="#seg_switch_hen_mode"/>
@@ -464,6 +470,7 @@
 			<!-- <Item class="type:x-xmb/module-action" key="toggle_rap_bin"	attr="toggle_rap_bin"/> -->
 			<Item class="type:x-xmb/module-action" key="dump_lv2"	attr="dump_lv2"/>
 			<Item class="type:x-xmb/module-action" key="toggle_hen_dev_build"	attr="toggle_hen_dev_build"/>
+			<Query class="type:x-xmb/folder-pixmap" key="bad_htab_menu" attr="bad_htab_menu" src="#seg_bad_htab_menu"/>
 		</Items>
 	</View>
 
@@ -537,6 +544,247 @@
 			<!--<Item class="type:x-xmb/module-action" key="hen_mode_usb_001" attr="hen_mode_usb_001"/>-->
 			<!--<Item class="type:x-xmb/module-action" key="hen_mode_custom" attr="hen_mode_custom"/>-->
 			<!--<Item class="type:x-xmb/module-action" key="hen_mode_usb_custom" attr="hen_mode_usb_custom"/>-->
+		</Items>
+	</View>
+
+	<View id="seg_bad_htab_menu">
+		<Attributes>
+			<Table key="lv1_patches_menu">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/folder_plain.png</String></Pair>
+				<Pair key="icon_notation"><String>WNT_XmbItemAlbum</String></Pair>
+				<Pair key="title"><String>★ LV1 Patches</String></Pair>
+				<Pair key="info"><String>NOTE: These are all experimental and should be used with caution</String></Pair>
+			</Table>
+			<Table key="detect_pico">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_info.png</String></Pair>
+				<Pair key="title"><String>Check Pico Device Status</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>detect_pico</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="dump_lv1">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_lv1_memory.png</String></Pair>
+				<Pair key="title"><String>Dump LV1 Memory</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>dump_lv1</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="dump_full_ram">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/dump_lv1_memory.png</String></Pair>
+				<Pair key="title"><String>Dump Full RAM (256MB)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>dump_full_ram</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="test_lv1_peek">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Test LV1 Peek (64-bit)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>test_lv1_peek</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="test_lv1_peek32">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Test LV1 Peek (32-bit)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>test_lv1_peek32</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="test_lv1_poke">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Test LV1 Poke (64-bit)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>test_lv1_poke</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="test_lv1_poke32">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Test LV1 Poke (32-bit)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>test_lv1_poke32</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_copy_log">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_copy.png</String></Pair>
+				<Pair key="title"><String>Copy BadHTAB log from dev_hdd0 to dev_usb000</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_copy_log</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_glitcher_test">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle Glitcher Test</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_glitcher_test</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_skip_stage1">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle Skip Stage 1</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_skip_stage1</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_skip_stage_cfw">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle Skip Stage CFW</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_skip_stage_cfw</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_skip_stage2">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle Skip Stage 2</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_skip_stage2</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_skip_patch_more_lv1">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle Skip Patch More LV1</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_skip_patch_more_lv1</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_lv1_dump">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle LV1 Dump After Exploitation</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_lv1_dump</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_lv1_dump_240m">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle LV1 Dump After Exploitation 240M</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_lv1_dump_240m</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_otheros">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle OtherOS Launch After Exploitation</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_otheros</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_lv2_kernel_self">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle LV2 Kernel SELF Reload After Exploitation</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_lv2_kernel_self</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="badhtab_toggle_lv2_kernel_fself">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>Toggle LV2 Kernel FSELF Reload After Exploitation</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>badhtab_toggle_lv2_kernel_fself</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Query class="type:x-xmb/folder-pixmap" key="lv1_patches_menu" attr="lv1_patches_menu" src="#seg_lv1_patches_menu"/>
+			<!-- <Item class="type:x-xmb/module-action" key="detect_pico" attr="detect_pico"/> -->
+			<Item class="type:x-xmb/module-action" key="dump_lv1" attr="dump_lv1"/>
+			<Item class="type:x-xmb/module-action" key="dump_full_ram" attr="dump_full_ram"/>
+			<Item class="type:x-xmb/module-action" key="test_lv1_peek" attr="test_lv1_peek"/>
+			<Item class="type:x-xmb/module-action" key="test_lv1_peek32" attr="test_lv1_peek32"/>
+			<Item class="type:x-xmb/module-action" key="test_lv1_poke" attr="test_lv1_poke"/>
+			<Item class="type:x-xmb/module-action" key="test_lv1_poke32" attr="test_lv1_poke32"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_copy_log" attr="badhtab_copy_log"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_glitcher_test" attr="badhtab_toggle_glitcher_test"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_skip_stage1" attr="badhtab_toggle_skip_stage1"/>
+			<!-- <Item class="type:x-xmb/module-action" key="badhtab_toggle_skip_stage_cfw" attr="badhtab_toggle_skip_stage_cfw"/> -->
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_skip_stage2" attr="badhtab_toggle_skip_stage2"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_skip_patch_more_lv1" attr="badhtab_toggle_skip_patch_more_lv1"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_lv1_dump" attr="badhtab_toggle_lv1_dump"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_lv1_dump_240m" attr="badhtab_toggle_lv1_dump_240m"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_otheros" attr="badhtab_toggle_otheros"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_lv2_kernel_self" attr="badhtab_toggle_lv2_kernel_self"/>
+			<Item class="type:x-xmb/module-action" key="badhtab_toggle_lv2_kernel_fself" attr="badhtab_toggle_lv2_kernel_fself"/>
+		</Items>
+	</View>
+
+	<View id="seg_lv1_patches_menu">
+		<Attributes>
+			<Table key="lv1_patch_test1">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>LV1 Patch: Test #1 (64-bit Peek/Poke)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_lv1_patch_test1</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="lv1_patch_test2">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>LV1 Patch: Test #2 (32-bit Peek/Poke)</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_lv1_patch_test2</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="lv1_patch_enable_hvdbg">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>LV1 Patch: Enable HV Debug</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>enable_hvdbg</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+			<Table key="lv1_patch_unmask_bootldr">
+				<Pair key="icon"><String>/dev_hdd0/hen/icon/generic_toggle.png</String></Pair>
+				<Pair key="title"><String>LV1 Patch: Unmask bootldr</String></Pair>
+				<Pair key="info"><String>**EXPERIMENTAL ONLY**</String></Pair>
+				<Pair key="module_name"><String>xai_plugin</String></Pair>
+				<Pair key="module_action"><String>toggle_lv1_patch_unmask_bootldr</String></Pair>
+				<Pair key="bar_action"><String>none</String></Pair>
+				<Pair key="lbl_half"><String>1</String></Pair>
+			</Table>
+		</Attributes>
+		<Items>
+			<Item class="type:x-xmb/module-action" key="lv1_patch_test1" attr="lv1_patch_test1"/>
+			<Item class="type:x-xmb/module-action" key="lv1_patch_test2" attr="lv1_patch_test2"/>
+			<Item class="type:x-xmb/module-action" key="lv1_patch_enable_hvdbg" attr="lv1_patch_enable_hvdbg"/>
+			<Item class="type:x-xmb/module-action" key="lv1_patch_unmask_bootldr" attr="lv1_patch_unmask_bootldr"/>
 		</Items>
 	</View>
 
