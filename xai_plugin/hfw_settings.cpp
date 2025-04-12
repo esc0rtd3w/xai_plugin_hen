@@ -2191,7 +2191,8 @@ bool lv1_patch_pattern(uint64_t addr, uint64_t expected, uint64_t patch, uint64_
 
 bool test_lv1_peek()
 {
-	uint64_t addr = 0x1130;
+	//uint64_t addr = 0x1130;
+	uint64_t addr = 0x323740;// 0000000000323740  53 6F 6E 79 20 43 65 6C  Sony Cel
 	uint64_t val = lv1_peek(addr);
 
 	if (val != 0 && val != 0xFFFFFFFFFFFFFFFFULL)
@@ -2201,14 +2202,15 @@ bool test_lv1_peek()
 	}
 	else
 	{
-		notify64("lv1_peek() success\naddr: 0x%016llX\nval: 0x%016llX", addr, val);
+		notify64("lv1_peek() failed\naddr: 0x%016llX\nval: 0x%016llX", addr, val);
 		return false;
 	}
 }
 
 bool test_lv1_peek32()
 {
-	uint64_t addr = 0x1130;
+	//uint64_t addr = 0x1130;
+	uint64_t addr = 0x323740;// 0000000000323740  53 6F 6E 79  Sony
 	uint32_t val = lv1_peek32(addr);
 
 	if (val != 0 && val != 0xFFFFFFF)
@@ -2218,15 +2220,17 @@ bool test_lv1_peek32()
 	}
 	else
 	{
-		notify("lv1_peek32() success\naddr: 0x%08X\nval: 0x%08X", addr, val);
+		notify("lv1_peek32() failed\naddr: 0x%08X\nval: 0x%08X", addr, val);
 		return false;
 	}
 }
 
 bool test_lv1_poke()
 {
-	uint64_t addr = 0x1130;
-	uint64_t patch = 0x7C01012438000000ULL;
+	//uint64_t addr = 0x1130;
+	uint64_t addr = 0x323740;// 0000000000323740  53 6F 6E 79 20 43 65 6C  Sony Cel
+	//uint64_t patch = 0x7C01012438000000ULL;
+	uint64_t patch = 0x4141414142424242ULL;// 0x536F6E792043656CULL
 	uint64_t original = lv1_peek(addr);
 	
 	lv1_poke(addr, patch);
@@ -2248,8 +2252,11 @@ bool test_lv1_poke()
 
 bool test_lv1_poke32()
 {
-	uint64_t addr = 0x1130;
-	uint32_t patch = 0x7C010124;
+	//uint64_t addr = 0x1130;
+	uint64_t addr = 0x323740;// 0000000000323740  53 6F 6E 7  Sony
+	//uint32_t patch = 0x7C010124;
+	uint32_t patch = 0x41414141;// 0x536F6E79
+	//uint32_t patch2 = 0x42424242;// 0x2043656C
 	uint32_t original = lv1_peek32(addr);
 	
 	lv1_poke32(addr, patch);
@@ -2293,7 +2300,8 @@ int unmask_bootldr()
     }
     else
     {
-        notify("Apply LV1 Patch Failed.");
+        notify("Apply LV1 Patch Failed at 0x%016llX\nval:0x%016llX", addr1, lv1_peek(addr1));
+        notify("Apply LV1 Patch Failed at 0x%016llX\nval:0x%016llX", addr2, lv1_peek(addr2));
         return 1;
     }
 }
@@ -2321,7 +2329,7 @@ int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t 
 	}
 	else
 	{
-		notify64("Expected Original Value Not Found\naddr: 0x%016llX\ncvalue: 0x%08X\npvalue: 0x%016llX", (char*)name, addr, cvalue, ovalue);
+		//notify64("Expected Original Value Not Found\naddr: 0x%016llX\ncvalue: 0x%08X\npvalue: 0x%016llX", (char*)name, addr, cvalue, ovalue);
 	}
 
 	if(cvalue==pvalue)
@@ -2341,7 +2349,7 @@ int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t 
 	}
 	else
 	{
-		notify64("Expected Patched Value Not Found\naddr: 0x%016llX\ncvalue: 0x%016llX\npvalue: 0x%016llX", (char*)name, addr, cvalue, pvalue);
+		//notify64("Expected Patched Value Not Found\naddr: 0x%016llX\ncvalue: 0x%016llX\npvalue: 0x%016llX", (char*)name, addr, cvalue, pvalue);
 	}
 }
 
@@ -2349,7 +2357,7 @@ int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_
 {
 	uint32_t verify = 0;
 	uint32_t cvalue = lv1_peek32(addr);
-	notify("Current Value 0x%08X", cvalue);
+	//notify("Current Value 0x%08X", cvalue);
 
 	if(cvalue==ovalue)
 	{
@@ -2368,7 +2376,7 @@ int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_
 	}
 	else
 	{
-		notify("Expected Original Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, ovalue);
+		//notify("Expected Original Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, ovalue);
 	}
 
 	if(cvalue==pvalue)
@@ -2388,7 +2396,7 @@ int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_
 	}
 	else
 	{
-		notify("Expected Patched Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, pvalue);
+		//notify("Expected Patched Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, pvalue);
 	}
 }
 
@@ -2700,10 +2708,12 @@ void toggle_lv1_patch_unmask_bootldr()
 
 void toggle_lv1_patch_test1()
 {
-	toggle_lv1_patch("Patch #1", 0x3B1890, 0x0100000046726920ULL, 0x0100000047726920ULL);
-	toggle_lv1_patch("Patch #2", 0x3B1898, 0x4170722031362032ULL, 0x4270722031362032ULL);
-	toggle_lv1_patch("Patch #3", 0x3B18A0, 0x303A31373A323320ULL, 0x313A31373A323320ULL);
-	toggle_lv1_patch("Patch #4", 0x3B18A8, 0x3230313000000000ULL, 0x3230333000000000ULL);
+	toggle_lv1_patch("Patch #1", 0x323740, 0x536F6E792043656CULL, 0x4141414142424242ULL);
+
+	//toggle_lv1_patch("Patch #1", 0x3B1890, 0x0100000046726920ULL, 0x0100000047726920ULL);
+	//toggle_lv1_patch("Patch #2", 0x3B1898, 0x4170722031362032ULL, 0x4270722031362032ULL);
+	//toggle_lv1_patch("Patch #3", 0x3B18A0, 0x303A31373A323320ULL, 0x313A31373A323320ULL);
+	//toggle_lv1_patch("Patch #4", 0x3B18A8, 0x3230313000000000ULL, 0x3230333000000000ULL);
 
 	//lv1_patch_pattern(0x3B1890, 0x0100000046726920ULL, 0x0100000047726920ULL, 0xFFFFFFFFFFFFFFFFULL);// 0100000046726920
 	//lv1_patch_pattern(0x3B1894, 0x4170722031362032ULL, 0x4270722031362032ULL, 0xFFFFFFFFFFFFFFFFULL);// 4170722031362032
@@ -2713,10 +2723,13 @@ void toggle_lv1_patch_test1()
 
 void toggle_lv1_patch_test2()
 {
-	toggle_lv1_patch32("Patch #1", 0x3B1894, 0x46726920, 0x57656420);
-	toggle_lv1_patch32("Patch #2", 0x3B1898, 0x41707220, 0x4D617920);
-	toggle_lv1_patch32("Patch #3", 0x3B189C, 0x31362032, 0x30342031);
-	toggle_lv1_patch32("Patch #4", 0x3B18A0, 0x303A3137, 0x323A3131);
-	toggle_lv1_patch32("Patch #5", 0x3B18A4, 0x3A323320, 0x3A313020);
-	toggle_lv1_patch32("Patch #6", 0x3B18A8, 0x32303130, 0x32303235);
+	toggle_lv1_patch32("Patch #1", 0x323740, 0x536F6E79, 0x41414141);
+	toggle_lv1_patch32("Patch #2", 0x323744, 0x2043656C, 0x42424242);
+
+	//toggle_lv1_patch32("Patch #1", 0x3B1894, 0x46726920, 0x57656420);
+	//toggle_lv1_patch32("Patch #2", 0x3B1898, 0x41707220, 0x4D617920);
+	//toggle_lv1_patch32("Patch #3", 0x3B189C, 0x31362032, 0x30342031);
+	//toggle_lv1_patch32("Patch #4", 0x3B18A0, 0x303A3137, 0x323A3131);
+	//toggle_lv1_patch32("Patch #5", 0x3B18A4, 0x3A323320, 0x3A313020);
+	//toggle_lv1_patch32("Patch #6", 0x3B18A8, 0x32303130, 0x32303235);
 }
