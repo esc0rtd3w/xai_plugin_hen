@@ -1,3 +1,6 @@
+//#include <sysutil\sysutil_msgdialog.h>
+//#include <sysutil\sysutil_oskdialog.h>
+//#include <sysutil\sysutil_oskdialog_ext.h>
 
 #define PRODUCT_MODE_FLAG_OFFSET  0x48C07
 #define RECOVERY_MODE_FLAG_OFFSET 0x48C61
@@ -46,12 +49,187 @@ void psn_patch(uint32_t paddr, uint32_t pbytes, bool reset);
 void reset_psn_patches();
 
 uint64_t lv1_peek(uint64_t addr);
+uint8_t lv1_peek8(uint64_t addr);
+uint16_t lv1_peek16(uint64_t addr) ;
 uint32_t lv1_peek32(uint64_t addr);
 void lv1_poke( uint64_t addr, uint64_t val);
 void lv1_poke32(uint64_t addr, uint32_t value);
 
 void hook_func(void * original,void * backup, void * hook_function);
 void load_cfw_functions();
+
+/*void convert_utf16_to_ascii(const uint16_t *utf16, char *ascii, size_t maxLen);
+void ascii_to_utf16(const char *ascii, uint16_t *utf16, size_t maxLen);
+int getHexInput(const char *prompt, uint64_t *outValue);
+int lv1_peek_keyboard();
+int lv1_poke_keyboard();*/
+
+//static int extract_field(const char *json, const char *key, char *dest, size_t dest_size);
+//void process_json_command(const char *json);
+//void process_json_file(const char *filepath);
+//void scan_usb_for_json(void);
+
+
+
+// HV dump region functions
+int dump_lv0_code();
+int dump_lv1_code();
+int dump_lv2_region();
+int dump_spe_mmio(int idx);
+int dump_pervasive_mem();
+int dump_spe_shadow(int idx);
+int dump_xdr_ch1_size();
+int dump_xdr_ch0_size();
+int dump_xdr_type();
+
+int dump_sb_bus_base();
+int dump_sata1_regs();
+int dump_sata2_regs();
+int dump_usb1_regs();
+int dump_usb2_regs();
+int dump_gelic_regs();
+int dump_encdec_regs();
+int dump_sb_ext_intc();
+int dump_sb_int_hdl1();
+int dump_sb_int_hdl2();
+int dump_sb_status();
+
+int dump_syscon_pkt_hdr();
+int dump_syscon_pkt_bdy();
+int dump_syscon_recv1();
+int dump_syscon_recv2();
+int dump_syscon_send_hdr();
+int dump_syscon_send_bdy();
+int dump_syscon_send1();
+int dump_syscon_send2();
+int dump_syscon_rcv3();
+int dump_syscon_testbit();
+int dump_syscon_notify();
+
+int dump_sata1_bar();
+int dump_sata2_bar();
+int dump_gelic_bar();
+int dump_encdec_bar();
+int dump_encdec_test();
+int dump_encdec_cmd();
+int dump_usb1_bar();
+int dump_usb2_bar();
+
+int dump_sata1_bar2();
+int dump_sata2_bar2();
+int dump_sata1_bar3();
+int dump_sata2_bar3();
+int dump_usb1_bar2();
+int dump_usb2_bar2();
+
+int dump_nor_flash();
+int dump_sys_rom();
+
+int dump_avmngr_regs1();
+int dump_avmngr_regs2();
+int dump_av_outctrl();
+int dump_av_pllctrl();
+int dump_av_misc1();
+int dump_av_misc2();
+int dump_av_misc3();
+int dump_av_misc4();
+int dump_av_misc5();
+
+int dump_gpu_mem0();
+int dump_gpu_mem1();
+int dump_gpu_mem2();
+int dump_gpu_mem3();
+int dump_gpu_mem4();
+
+int dump_rsx_intstate();
+int dump_ramin_all();
+int dump_ramin_hash();
+int dump_ramin_fifo();
+int dump_dma_objs();
+int dump_graph_objs();
+int dump_graph_ctx();
+
+int dump_gameos0();
+int dump_gameos1();
+int dump_gameos2();
+int dump_gameos_htab();
+
+// Dump all regions at once
+int dump_all_regions();
+
+
+
+// RSX Overclocking
+
+void log_to_usb(const char *message);
+void TestRsxClockSettings();
+void TestRsxClockSettingsSafe();
+
+void OverclockGpuCoreTest();
+void OverclockGpuMemTest();
+
+// Matched Speeds
+void set_rsx_clock_100_100();
+void set_rsx_clock_150_150();
+void set_rsx_clock_200_200();
+void set_rsx_clock_250_250();
+void set_rsx_clock_300_300();
+void set_rsx_clock_350_350();
+void set_rsx_clock_400_400();
+void set_rsx_clock_450_450();
+void set_rsx_clock_500_500();
+void set_rsx_clock_550_550();
+void set_rsx_clock_600_600();
+void set_rsx_clock_650_650();
+void set_rsx_clock_700_700();
+void set_rsx_clock_750_750();
+void set_rsx_clock_800_800();
+void set_rsx_clock_850_850();
+void set_rsx_clock_900_900();
+void set_rsx_clock_950_950();
+void set_rsx_clock_1000_1000();
+
+// Core-Only Speeds
+void set_rsx_clock_100_650();
+void set_rsx_clock_150_650();
+void set_rsx_clock_200_650();
+void set_rsx_clock_250_650();
+void set_rsx_clock_300_650();
+void set_rsx_clock_350_650();
+void set_rsx_clock_400_650();
+void set_rsx_clock_450_650();
+void set_rsx_clock_500_650();
+void set_rsx_clock_550_650();
+void set_rsx_clock_600_650();
+//void set_rsx_clock_650_650();// Duplicate
+void set_rsx_clock_700_650();
+void set_rsx_clock_750_650();
+void set_rsx_clock_800_650();
+void set_rsx_clock_850_650();
+void set_rsx_clock_900_650();
+void set_rsx_clock_950_650();
+void set_rsx_clock_1000_650();
+
+// Memory Only Speeds
+void set_rsx_clock_500_100();
+void set_rsx_clock_500_150();
+void set_rsx_clock_500_200();
+void set_rsx_clock_500_250();
+void set_rsx_clock_500_300();
+void set_rsx_clock_500_350();
+void set_rsx_clock_500_400();
+void set_rsx_clock_500_450();
+//void set_rsx_clock_500_500();// Duplicate
+void set_rsx_clock_500_550();
+void set_rsx_clock_500_600();
+//void set_rsx_clock_500_650();// Duplicate
+void set_rsx_clock_500_700();
+void set_rsx_clock_500_750();
+void set_rsx_clock_500_800();
+void set_rsx_clock_500_850();
+void set_rsx_clock_500_900();
+void set_rsx_clock_500_950();
+void set_rsx_clock_500_1000();
 
 int sys_ss_get_console_id(void * idps);
 int sys_ss_get_open_psid(void * psid);
@@ -131,6 +309,20 @@ int unmask_bootldr();
 void toggle_lv1_patch_unmask_bootldr();
 void toggle_lv1_patch_test1();
 void toggle_lv1_patch_test2();
+
+union clock_s {
+public:
+    struct {
+    public:
+        uint8_t junk1;
+        uint8_t junk2;
+        uint8_t mul;
+        uint8_t junk3;
+    };
+    uint32_t value;
+};
+void lv1_read(uint64_t addr, uint64_t size, void *out_Buf);
+void lv1_write(uint64_t addr, uint64_t size, const void *in_Buf);
 
 void read_write_generic(const char* src, const char* dest);
 void read_write_generic_notify(const char* src, const char* dest);

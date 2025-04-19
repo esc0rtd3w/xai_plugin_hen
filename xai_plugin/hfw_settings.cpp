@@ -1,4 +1,4 @@
-
+﻿
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,14 +57,38 @@ uint64_t lv1_peek(uint64_t addr)
 	return_to_user_prog(uint64_t);
 }
 
+uint8_t lv1_peek8(uint64_t addr)
+{
+	return (lv1_peek(addr) >> 56) & 0xFFUL;
+}
+
+uint16_t lv1_peek16(uint64_t addr)
+{
+	return (lv1_peek(addr) >> 48) & 0xFFFFUL;
+}
+
 uint32_t lv1_peek32(uint64_t addr)
 {
 	return (lv1_peek(addr) >> 32) & 0xFFFFFFFFUL;
 }
 
-void lv1_poke( uint64_t addr, uint64_t val) 
+void lv1_poke( uint64_t addr, uint64_t val)
 {
 	system_call_2(9, addr, val);
+}
+
+void lv1_poke8(uint64_t addr, uint8_t value) 
+{
+    uint64_t old_value = lv1_peek(addr);
+    uint64_t new_value = ((old_value & 0xFFFFFFFFFFFFFF00ULL) | value);
+    lv1_poke(addr, new_value);
+}
+
+void lv1_poke16(uint64_t addr, uint16_t value) 
+{
+    uint64_t old_value = lv1_peek(addr);
+    uint64_t new_value = ((old_value & 0xFFFFFFFFFFFFFF00ULL) | ((uint64_t)value << 8));
+    lv1_poke(addr, new_value);
 }
 
 void lv1_poke32(uint64_t addr, uint32_t value)
@@ -93,6 +117,105 @@ void pokeq32(uint64_t address, uint32_t value)
 {
 	uint64_t old_value = peekq(address);
 	pokeq(address, ((uint64_t)value << 32) | (old_value & 0xFFFFFFFFULL));
+}
+
+void lv1_read(uint64_t addr, uint64_t size, void *out_Buf)
+{
+	if (size == 0)
+		return;
+
+	uint64_t curOffset = 0;
+	uint64_t left = size;
+
+	uint64_t chunkSize = sizeof(uint64_t);
+
+	uint8_t *outBuf = (uint8_t *)out_Buf;
+
+	uint64_t zz = (addr % chunkSize);
+
+	if (zz != 0)
+	{
+		uint64_t readSize = (chunkSize - zz);
+
+		if (readSize > left)
+			readSize = left;
+
+		uint64_t a = (addr - zz);
+
+		uint64_t v = lv1_peek(a);
+		uint8_t *vx = (uint8_t *)&v;
+
+		memcpy(&outBuf[curOffset], &vx[zz], readSize);
+
+		curOffset += readSize;
+		left -= readSize;
+	}
+
+	while (1)
+	{
+		if (left == 0)
+			break;
+
+		uint64_t readSize = (left > chunkSize) ? chunkSize : left;
+
+		uint64_t v = lv1_peek(addr + curOffset);
+
+		memcpy(&outBuf[curOffset], &v, readSize);
+
+		curOffset += readSize;
+		left -= readSize;
+	}
+}
+
+void lv1_write(uint64_t addr, uint64_t size, const void *in_Buf)
+{
+	if (size == 0)
+		return;
+
+	uint64_t curOffset = 0;
+	uint64_t left = size;
+
+	uint64_t chunkSize = sizeof(uint64_t);
+
+	const uint8_t *inBuf = (const uint8_t *)in_Buf;
+
+	uint64_t zz = (addr % chunkSize);
+
+	if (zz != 0)
+	{
+		uint64_t writeSize = (chunkSize - zz);
+
+		if (writeSize > left)
+			writeSize = left;
+
+		uint64_t a = (addr - zz);
+
+		uint64_t v = lv1_peek(a);
+		uint8_t *vx = (uint8_t *)&v;
+
+		memcpy(&vx[zz], &inBuf[curOffset], writeSize);
+
+		lv1_poke(a, v);
+
+		curOffset += writeSize;
+		left -= writeSize;
+	}
+
+	while (1)
+	{
+		if (left == 0)
+			break;
+
+		uint64_t writeSize = (left > chunkSize) ? chunkSize : left;
+
+		uint64_t v = lv1_peek(addr + curOffset);
+		memcpy(&v, &inBuf[curOffset], writeSize);
+
+		lv1_poke(addr + curOffset, v);
+
+		curOffset += writeSize;
+		left -= writeSize;
+	}
 }
 
 uint32_t GetApplicableVersion(void * data)
@@ -284,6 +407,98 @@ void load_cfw_functions()
 	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc", 0x273B9711));
 }
 
+/*void convert_utf16_to_ascii(const uint16_t *utf16, char *ascii, size_t maxLen)
+{
+    size_t i = 0;
+    while(i < maxLen - 1 && utf16[i] != 0)
+    {
+        ascii[i] = (char)utf16[i];
+        i++;
+    }
+    ascii[i] = '\0';
+}
+
+void ascii_to_utf16(const char *ascii, uint16_t *utf16, size_t maxLen)
+{
+    size_t i = 0;
+    while (i < maxLen - 1 && ascii[i] != '\0')
+    {
+         utf16[i] = (uint16_t)ascii[i];
+         i++;
+    }
+    utf16[i] = 0;
+}
+
+int getHexInput(const char *prompt, uint64_t *outValue)
+{
+    int ret;
+    CellOskDialogParam dialogParam;
+    memset(&dialogParam, 0, sizeof(dialogParam));
+
+    // Configure dialog parameters.
+    dialogParam.allowOskPanelFlg = CELL_OSKDIALOG_FULLKEY_PANEL;
+    dialogParam.firstViewPanel = CELL_OSKDIALOG_PANELMODE_ALPHABET;
+    dialogParam.controlPoint.x = 100.0f;
+    dialogParam.controlPoint.y = 100.0f;
+    dialogParam.prohibitFlgs = CELL_OSKDIALOG_NO_RETURN;
+
+    // Create local buffers for the UTF-16 prompt and initial text.
+    uint16_t utf16Prompt[256];
+    uint16_t utf16InitText[16];
+    ascii_to_utf16(prompt, utf16Prompt, sizeof(utf16Prompt) / sizeof(uint16_t));
+    ascii_to_utf16("0x", utf16InitText, sizeof(utf16InitText) / sizeof(uint16_t));
+
+    CellOskDialogInputFieldInfo inputFieldInfo;
+    // Use the converted UTF-16 strings instead of L(prompt)
+    inputFieldInfo.message = utf16Prompt;
+    inputFieldInfo.init_text = utf16InitText;
+    inputFieldInfo.limit_length = 32;
+
+    // Load the OSK dialog asynchronously.
+    ret = cellOskDialogLoadAsync(0, &dialogParam, &inputFieldInfo);
+    if(ret != 0)
+    {
+        printf("cellOskDialogLoadAsync failed: 0x%x\n", ret);
+        return ret;
+    }
+
+    // Poll for user input.
+    CellOskDialogCallbackReturnParam callbackParam;
+    memset(&callbackParam, 0, sizeof(callbackParam));
+    while (1)
+    {
+        ret = cellOskDialogGetInputText(&callbackParam);
+        if(ret == 0)
+        {
+            if (callbackParam.result == CELL_OSKDIALOG_INPUT_FIELD_RESULT_OK ||
+                callbackParam.result == CELL_OSKDIALOG_INPUT_FIELD_RESULT_CANCELED ||
+                callbackParam.result == CELL_OSKDIALOG_INPUT_FIELD_RESULT_ABORT)
+            {
+                break;
+            }
+        }
+        sys_timer_usleep(100 * 1000);  // wait 100ms
+    }
+
+    // Unload the OSK dialog.
+    cellOskDialogUnloadAsync(&callbackParam);
+
+    // If the input was confirmed, convert the UTF-16 result to ASCII.
+    if (callbackParam.result == CELL_OSKDIALOG_INPUT_FIELD_RESULT_OK)
+    {
+        char asciiInput[256];
+        // Here, convert_utf16_to_ascii() converts the OSK result (callbackParam.pResultString) into a C string.
+        convert_utf16_to_ascii(callbackParam.pResultString, asciiInput, sizeof(asciiInput));
+        printf("User entered: %s\n", asciiInput);
+        *outValue = strtoull(asciiInput, NULL, 16);
+        return 0;
+    }
+    else
+    {
+        printf("Input canceled or error (result = %d)\n", callbackParam.result);
+        return -1;
+    }
+}*/
 
 int dump_lv2()
 {
@@ -383,97 +598,98 @@ int dump_lv2()
 
 int dump_lv1()
 {
-	int final_offset;
-	int mem = 0, max_offset = 0x40000;
-	int fd, fseek_offset = 0, start_offset = 0;
+    int final_offset;
+    int mem = 0, max_offset = 0x40000;
+    int fd, fseek_offset = 0, start_offset = 0;
 
-	char usb[120], dump_file_path[120], lv_file[120];
+    char usb[120], dump_file_path[120], lv_file[120];
 
-	uint8_t platform_info[0x18];
-	uint64_t nrw, seek, offset_dumped;
-	CellFsStat st;	
+    uint8_t platform_info[0x18];
+    uint64_t nrw, seek, offset_dumped;
+    CellFsStat st;  
 
-	// Check if CFW Syscalls are disabled
-	if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
-	{
-		notify("Syscalls are disabled");
-		return 1;
-	}
-	
+    // Check if CFW Syscalls are disabled
+    if(peekq(0x8000000000363BE0ULL) == 0xFFFFFFFF80010003ULL)
+    {
+        notify("Syscalls are disabled");
+        return 1;
+    }
+    
     system_call_1(387, (uint64_t)platform_info);
 
-	final_offset = 0x1000000ULL;
+    final_offset = 0x1000000ULL;
 
-	vsh_sprintf(lv_file, LV1_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);	
-	vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
+    vsh_sprintf(lv_file, LV1_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);  
+    vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
 
-	for(int i = 0; i < 127; i++)
-	{				
-		vsh_sprintf(usb, "/dev_usb%03d", i, NULL);
+    for(int i = 0; i < 127; i++)
+    {                
+        vsh_sprintf(usb, "/dev_usb%03d", i, NULL);
 
-		if(!cellFsStat(usb, &st))
-		{
-			vsh_sprintf(dump_file_path, "%s/%s", (int)usb, (int)lv_file);
-			break;
-		}
-	}
+        if(!cellFsStat(usb, &st))
+        {
+            vsh_sprintf(dump_file_path, "%s/%s", (int)usb, (int)lv_file);
+            break;
+        }
+    }
 
-	if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
-	{
-		notify("An error occurred while dumping LV1");
-		return 1;
-	}
+    if(cellFsOpen(dump_file_path, CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR, &fd, 0, 0) != SUCCEEDED)
+    {
+        notify("An error occurred while dumping LV1");
+        return 1;
+    }
 
-	cellFsChmod(dump_file_path, 0666);
+    cellFsChmod(dump_file_path, 0666);
 
-	notify("Dumping LV1, please wait...");
+    notify("Dumping LV1, please wait...");
 
-	// Quickest method to dump LV2 and LV1 through xai_plugin
-	// Default method will take at least two minutes to dump LV2, and even more for LV1
-	uint8_t *dump = (uint8_t *)allocator_759E0635(0x40000);
-	memset(dump, 0, 0x40000);			
+    // Quickest method to dump LV2 and LV1 through xai_plugin
+    // Default method will take at least two minutes to dump LV2, and even more for LV1
+    uint8_t *dump = (uint8_t *)allocator_759E0635(0x40000);
+    memset(dump, 0, 0x40000);            
 
-	for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
-	{
-		offset_dumped = lv1_peek(0x8000000000000000ULL + offset);
+    for(uint64_t offset = start_offset; offset < max_offset; offset += 8)
+    {
+        // Use lv1_read to fetch data
+        lv1_read(0x8000000000000000ULL + offset, 8, &offset_dumped);
 
-		memcpy(dump + mem, &offset_dumped, 8);
+        memcpy(dump + mem, &offset_dumped, 8);
 
-		mem += 8;
+        mem += 8;
 
-		if(offset == max_offset - 8)
-		{
-			//cellFsLseek(fd, fseek_offset, SEEK_SET, &seek);
-			if(cellFsWrite(fd, dump, 0x40000, &nrw) != SUCCEEDED)
-			{
-				allocator_77A602DD(dump);				
-				cellFsClose(fd);
-				cellFsUnlink(dump_file_path);
-				notify("An error occurred while dumping LV1");		
+        if(offset == max_offset - 8)
+        {
+            //cellFsLseek(fd, fseek_offset, SEEK_SET, &seek);
+            if(cellFsWrite(fd, dump, 0x40000, &nrw) != SUCCEEDED)
+            {
+                allocator_77A602DD(dump);                
+                cellFsClose(fd);
+                cellFsUnlink(dump_file_path);
+                notify("An error occurred while dumping LV1");        
 
-				return 1;
-			}
+                return 1;
+            }
 
-			// Done dumping
-			if(max_offset == final_offset)
-				break;
+            // Done dumping
+            if(max_offset == final_offset)
+                break;
 
-			fseek_offset += 0x40000;
-			memset(dump, 0, 0x40000);
-			mem = 0;
+            fseek_offset += 0x40000;
+            memset(dump, 0, 0x40000);
+            mem = 0;
 
-			start_offset = start_offset + 0x40000;
-			max_offset = max_offset + 0x40000;
-		}
-	}
+            start_offset = start_offset + 0x40000;
+            max_offset = max_offset + 0x40000;
+        }
+    }
 
-	allocator_77A602DD(dump);
-	cellFsClose(fd);
+    allocator_77A602DD(dump);
+    cellFsClose(fd);
 
-	notify("LV1 dumped in\n%s", dump_file_path);
-	buzzer(SINGLE_BEEP);
+    notify("LV1 dumped in\n%s", dump_file_path);
+    buzzer(SINGLE_BEEP);
 
-	return 0;
+    return 0;
 }
 
 // 3141card's PS3 Unlock HDD Space
@@ -2045,25 +2261,30 @@ void remove_file(char* path_to_file, char* message)
 }
 
 int dump_full_ram() {
-    #define CHUNK_SIZE    0x20000        // 128 KB
-    //#define CHUNK_SIZE    0x40000        // 256 KB
-	#define FULL_RAM_SIZE 0x10000000ULL    // 256 MB
+    //#define CHUNK_SIZE    0x10000        // 64 KB
+    #define CHUNK_SIZE    0x40000        // 256 KB
+    #define FULL_RAM_SIZE 0x10000000ULL    // 256 MB
 
-    char dump_file_path[120];
-    vsh_sprintf(dump_file_path, "%s/%s", TMP_FOLDER, "FullRAMDump.bin");
+	uint8_t platform_info[0x18];
+	system_call_1(387, (uint64_t)platform_info);
+
+    char dump_file_path[120], lv_file[120];
+
+	vsh_sprintf(lv_file, RAM_DUMP, platform_info[0], platform_info[1], platform_info[2] >> 4);  
+    vsh_sprintf(dump_file_path, "%s/%s", (int)TMP_FOLDER, (int)lv_file);
+    //vsh_sprintf(dump_file_path, "%s/%s", TMP_FOLDER, RAM_DUMP);
 
     // Check for an attached USB drive; if found, use its path instead.
     char usb[120];
-    CellFsStat st; // Make sure CellFsStat is the proper type in your project.
-    for (int i = 0; i < 127; i++) {
+    CellFsStat st;
+    for (int i = 0; i < 8; i++) {
         vsh_sprintf(usb, "/dev_usb%03d", i);
         if (cellFsStat(usb, &st) == CELL_FS_SUCCEEDED) {
-            vsh_sprintf(dump_file_path, "%s/%s", usb, "FullRAMDump.bin");
+            vsh_sprintf(dump_file_path, "%s/%s", usb, RAM_DUMP);
             break;
         }
     }
 
-    // Open the dump file for writing.
     int fd;
     if (cellFsOpen(dump_file_path,
                    CELL_FS_O_CREAT | CELL_FS_O_TRUNC | CELL_FS_O_RDWR,
@@ -2074,7 +2295,6 @@ int dump_full_ram() {
     cellFsChmod(dump_file_path, 0666);
     notify("Starting full RAM dump");
 
-    // Allocate a buffer using the PS3HEN memory allocator.
     uint8_t *buffer = (uint8_t *)allocator_759E0635(CHUNK_SIZE);
     if (!buffer) {
         notify("Memory allocation error");
@@ -2083,22 +2303,20 @@ int dump_full_ram() {
     }
     memset(buffer, 0, CHUNK_SIZE);
 
-    // Dump full RAM (from 0x0 to FULL_RAM_SIZE) in CHUNK_SIZE increments.
-    // Memory is read from the mapped PS3 address space starting at 0x8000000000000000ULL.
     uint64_t offset = 0;
     uint64_t nrw = 0;
     while (offset < FULL_RAM_SIZE) {
-        for (int i = 0; i < CHUNK_SIZE; i += 8) {
-            uint64_t data = lv1_peek(0x8000000000000000ULL + offset + i);
-            memcpy(buffer + i, &data, 8);
-        }
+        // Use lv1_read to fetch the memory chunk
+        lv1_read(0x8000000000000000ULL + offset, CHUNK_SIZE, buffer);
+
         if (cellFsWrite(fd, buffer, CHUNK_SIZE, &nrw) != CELL_FS_SUCCEEDED) {
             notify("Error writing dump at offset 0x%llX", offset);
             allocator_77A602DD(buffer);
             cellFsClose(fd);
             return 1;
         }
-        sys_timer_usleep(1000); // Delay 1ms to help prevent freezing on HEN
+
+        sys_timer_usleep(1000);
         offset += CHUNK_SIZE;
     }
 
@@ -2398,6 +2616,427 @@ int toggle_lv1_patch32(const char* name, uint64_t addr, uint32_t ovalue, uint32_
 	{
 		//notify("Expected Patched Value Not Found\naddr: 0x%08X\ncvalue: 0x%08X\npvalue: 0x%08X", (char*)name, addr, cvalue, pvalue);
 	}
+}
+
+/*int lv1_peek_keyboard()
+{
+    uint64_t addr, value;
+    // Prompt user for address input
+    if(getHexInput("Enter hex address to peek:", &addr) != 0) {
+         notify("Failed to get address input.");
+         return -1;
+    }
+    // Call the low-level peek
+    value = lv1_peek(addr);
+    // Display the result
+    notify64("Peek: addr: 0x%016llX, value: 0x%016llX", addr, value);
+    return 0;
+}
+
+int lv1_poke_keyboard()
+{
+    uint64_t addr, value, verify;
+    // Prompt user for address input
+    if(getHexInput("Enter hex address to poke:", &addr) != 0) {
+         notify("Failed to get address input.");
+         return -1;
+    }
+    // Prompt user for value input
+    if(getHexInput("Enter hex value to poke:", &value) != 0) {
+         notify("Failed to get value input.");
+         return -1;
+    }
+    // Write the value
+    lv1_poke(addr, value);
+    // Verify the write by reading back the value
+    verify = lv1_peek(addr);
+    if(verify == value) {
+         notify64("Poke: Success.\naddr: 0x%016llX, value: 0x%016llX", addr, verify);
+         return 0;
+    } else {
+         notify64("Poke: Failed.\naddr: 0x%016llX, expected: 0x%016llX, got: 0x%016llX", addr, value, verify);
+         return 1;
+    }
+}*/
+
+
+#define USB_PATH    "/dev_usb000"
+#define CHUNK_SZ    0x10000ULL
+#define HV_BASE     0x8000000000000000ULL
+
+//------------------------------------------------------------------------------
+// Generic dumper: read HV @ (HV_BASE+phys) for 'size' bytes and write to USB_PATH/fname
+//------------------------------------------------------------------------------
+static int dump_hv_region(const char *fname, uint64_t phys, uint64_t size) {
+    char path[128];
+    vsh_sprintf(path, "%s/%s", USB_PATH, fname);
+
+    int fd;
+    if (cellFsOpen(path,
+                   CELL_FS_O_CREAT|CELL_FS_O_TRUNC|CELL_FS_O_RDWR,
+                   &fd, NULL, 0) != CELL_FS_SUCCEEDED) {
+        notify("OPEN_FAIL %s", path);
+        return -1;
+    }
+    cellFsChmod(path, 0666);
+
+    uint8_t *buf = (uint8_t*)allocator_759E0635(CHUNK_SZ);
+    if (!buf) {
+        notify("ALLOC_FAIL");
+        cellFsClose(fd);
+        return -1;
+    }
+
+    uint64_t off = 0, written;
+    while (off < size) {
+        uint64_t chunk = (size - off > CHUNK_SZ) ? CHUNK_SZ : (size - off);
+        lv1_read(HV_BASE + phys + off, chunk, buf);
+        if (cellFsWrite(fd, buf, chunk, &written) != CELL_FS_SUCCEEDED) {
+            notify("WRITE_ERR @%llx", off);
+            break;
+        }
+        off += chunk;
+        sys_timer_usleep(1000);
+    }
+
+    allocator_77A602DD(buf);
+    cellFsClose(fd);
+    notify("%s dumped %llx bytes", fname, size);
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+// 1) LV0 / LV1 / LV2
+//------------------------------------------------------------------------------
+int dump_lv0_code() {
+    return dump_hv_region("hv_lv0_code.bin",
+                          0x0000000000080000ULL, 0x0000000000020000ULL);
+}
+int dump_lv1_code() {
+    return dump_hv_region("hv_lv1_code.bin",
+                          0x0000000000200000ULL, 0x0000000000040000ULL);
+}
+int dump_lv2_region() {
+    return dump_hv_region("hv_lv2_region.bin",
+                          0x0000000008000000ULL, 0x0000000000800000ULL);
+}
+
+//------------------------------------------------------------------------------
+// 2) SPE0–6 MMIO (base=0x20000000000 + idx*0x80000, size=0x80000)
+//------------------------------------------------------------------------------
+int dump_spe_mmio(int idx) {
+    static const uint64_t base[7] = {
+        0x00000020000000000ULL,
+        0x00000020000080000ULL,
+        0x00000020000100000ULL,
+        0x00000020000180000ULL,
+        0x00000020000200000ULL,
+        0x00000020000280000ULL,
+        0x00000020000300000ULL
+    };
+    if (idx<0||idx>6) return -1;
+    char fn[32]; vsh_sprintf(fn,"hv_spe%d_mmio.bin",idx);
+    return dump_hv_region(fn, base[idx], 0x80000ULL);
+}
+
+//------------------------------------------------------------------------------
+// 3) Pervasive Memory (0x20000509000, sz=0x1000)
+//------------------------------------------------------------------------------
+int dump_pervasive_mem() {
+    return dump_hv_region("hv_pervasive_mem.bin",
+                          0x00000020000509000ULL, 0x1000ULL);
+}
+
+//------------------------------------------------------------------------------
+// 4) SPE1–6 Shadow Registers (each sz=0x1000 at given phys addrs)
+//------------------------------------------------------------------------------
+int dump_spe_shadow(int idx) {
+    static const uint64_t addr[7] = {
+        0ULL,
+        0x0000002000050C000ULL,  // SPE1 @ …0C000
+        0x00000020000514290ULL,  // SPE2 @ …4290
+        0x00000020000508A00ULL,  // SPE3 @ …8A00
+        0x0000002000050B0F0ULL,  // SPE4 @ …50F0
+        0x0000002000051FFC90ULL, // SPE5 @ …FC90
+        0x0000002000051AE5B0ULL  // SPE6 @ …E5B0
+    };
+    if (idx<1||idx>6) return -1;
+    char fn[32]; vsh_sprintf(fn,"hv_spe%d_shadow.bin",idx);
+    return dump_hv_region(fn, addr[idx], 0x1000ULL);
+}
+
+//------------------------------------------------------------------------------
+// 5) XDR Memory Channel Sizes & Type (each sz=4)
+//------------------------------------------------------------------------------
+int dump_xdr_ch1_size() {
+    return dump_hv_region("hv_xdr_ch1_sz.bin",
+                          0x0000002000050A0C8ULL, 4ULL);
+}
+int dump_xdr_ch0_size() {
+    return dump_hv_region("hv_xdr_ch0_sz.bin",
+                          0x0000002000050A188ULL, 4ULL);
+}
+int dump_xdr_type() {
+    return dump_hv_region("hv_xdr_type.bin",
+                          0x0000002000050A210ULL, 4ULL);
+}
+
+//------------------------------------------------------------------------------
+// 6) SB bus subsystem @0x24000000000 (no size → skip or set 0)
+//------------------------------------------------------------------------------
+int dump_sb_bus_base() {
+    return dump_hv_region("hv_sb_bus_base.bin",
+                          0x00000024000000000ULL, 0ULL);
+}
+
+// 6.a) SB devices @ offsets 0x2000…0x2C00 (sz=0x200)
+int dump_sata1_regs()  { return dump_hv_region("hv_sata1_regs.bin",0x24000002000ULL,0x200ULL); }
+int dump_sata2_regs()  { return dump_hv_region("hv_sata2_regs.bin",0x24000002200ULL,0x200ULL); }
+int dump_usb1_regs()   { return dump_hv_region("hv_usb1_regs.bin", 0x24000002400ULL,0x200ULL); }
+int dump_usb2_regs()   { return dump_hv_region("hv_usb2_regs.bin", 0x24000002600ULL,0x200ULL); }
+int dump_gelic_regs()  { return dump_hv_region("hv_gelic_regs.bin",0x24000002800ULL,0x200ULL); }
+int dump_encdec_regs() { return dump_hv_region("hv_encdec_regs.bin",0x24000002C00ULL,0x200ULL); }
+
+// 6.b) SB external interrupt ctrl @0x24000008000 sz=0x1000
+int dump_sb_ext_intc() { return dump_hv_region("hv_sb_ext_intc.bin",0x24000008000ULL,0x1000ULL); }
+
+// 6.c) SB bus interrupt handler @0x24000008100 & 0x24000008104 (sz=4)
+int dump_sb_int_hdl1() { return dump_hv_region("hv_sb_int_hdl1.bin",0x24000008100ULL,4ULL); }
+int dump_sb_int_hdl2() { return dump_hv_region("hv_sb_int_hdl2.bin",0x24000008104ULL,4ULL); }
+
+// 6.d) SB status/info @0x24000087000 (no size→0)
+int dump_sb_status() { return dump_hv_region("hv_sb_status.bin",0x24000087000ULL,0ULL); }
+
+//------------------------------------------------------------------------------
+// 7) SYSCON offsets (all sz=4 unless noted)
+//------------------------------------------------------------------------------
+int dump_syscon_pkt_hdr() { return dump_hv_region("hv_syscon_pkt_hdr.bin",0x2400008C000ULL,4ULL); }
+int dump_syscon_pkt_bdy() { return dump_hv_region("hv_syscon_pkt_bdy.bin",0x2400008C010ULL,4ULL); }
+int dump_syscon_recv1()   { return dump_hv_region("hv_syscon_recv1.bin", 0x2400008CFF0ULL,4ULL); }
+int dump_syscon_recv2()   { return dump_hv_region("hv_syscon_recv2.bin", 0x2400008CFF4ULL,4ULL); }
+int dump_syscon_send_hdr(){ return dump_hv_region("hv_syscon_snd_hdr.bin",0x2400008D000ULL,4ULL); }
+int dump_syscon_send_bdy(){ return dump_hv_region("hv_syscon_snd_bdy.bin",0x2400008D010ULL,4ULL); }
+int dump_syscon_send1()   { return dump_hv_region("hv_syscon_snd1.bin", 0x2400008DFF0ULL,4ULL); }
+int dump_syscon_send2()   { return dump_hv_region("hv_syscon_snd2.bin", 0x2400008DFF4ULL,4ULL); }
+int dump_syscon_rcv3()    { return dump_hv_region("hv_syscon_rcv3.bin", 0x2400008E000ULL,4ULL); }
+int dump_syscon_testbit() { return dump_hv_region("hv_syscon_testbit.bin",0x2400008E004ULL,4ULL); }
+int dump_syscon_notify()  { return dump_hv_region("hv_syscon_notify.bin",0x2400008E100ULL,4ULL); }
+
+//------------------------------------------------------------------------------
+// 8) BAR‑spaced SB devices @0x24003000000… each sz=0x1000 unless noted
+//------------------------------------------------------------------------------
+int dump_sata1_bar()     { return dump_hv_region("hv_sata1_bar.bin",    0x24003000000ULL,0x1000ULL); }
+int dump_sata2_bar()     { return dump_hv_region("hv_sata2_bar.bin",    0x24003001000ULL,0x1000ULL); }
+int dump_gelic_bar()     { return dump_hv_region("hv_gelic_bar.bin",    0x24003004000ULL,0x1000ULL); }
+int dump_encdec_bar()    { return dump_hv_region("hv_encdec_bar.bin",   0x24003005000ULL,0x1000ULL); }
+int dump_encdec_test()   { return dump_hv_region("hv_encdec_test.bin",  0x24003005200ULL,4ULL); }
+int dump_encdec_cmd()    { return dump_hv_region("hv_encdec_cmd.bin",   0x240030060A0ULL,4ULL); }
+
+// 8.a) USB bar @0x24003010000/20000 sz=0x10000
+int dump_usb1_bar()      { return dump_hv_region("hv_usb1_bar.bin",     0x24003010000ULL,0x10000ULL); }
+int dump_usb2_bar()      { return dump_hv_region("hv_usb2_bar.bin",     0x24003020000ULL,0x10000ULL); }
+
+//------------------------------------------------------------------------------
+// 9) SB SATA/USB repeats @0x24003800000… 
+//------------------------------------------------------------------------------
+int dump_sata1_bar2()    { return dump_hv_region("hv_sata1_bar2.bin",   0x24003800000ULL,0x1000ULL); }
+int dump_sata2_bar2()    { return dump_hv_region("hv_sata2_bar2.bin",   0x24003801000ULL,0x1000ULL); }
+int dump_sata1_bar3()    { return dump_hv_region("hv_sata1_bar3.bin",   0x24003802000ULL,0x1000ULL); }
+int dump_sata2_bar3()    { return dump_hv_region("hv_sata2_bar3.bin",   0x24003803000ULL,0x1000ULL); }
+int dump_usb1_bar2()     { return dump_hv_region("hv_usb1_bar2.bin",    0x24003810000ULL,0x10000ULL); }
+int dump_usb2_bar2()     { return dump_hv_region("hv_usb2_bar2.bin",    0x24003820000ULL,0x10000ULL); }
+
+//------------------------------------------------------------------------------
+// 10) NOR Flash @0x2401F000000 sz=0x1000000
+//------------------------------------------------------------------------------
+int dump_nor_flash()     { return dump_hv_region("hv_nor_flash.bin",   0x2401F000000ULL,0x1000000ULL); }
+// 10.a) SYS ROM @0x2401FC00000 sz=0x40000
+int dump_sys_rom()       { return dump_hv_region("hv_sys_rom.bin",     0x2401FC00000ULL,0x40000ULL); }
+
+//------------------------------------------------------------------------------
+// 11) AV Manager (/dev/ioif0) @0x28000000000 sz=0x2000
+//------------------------------------------------------------------------------
+int dump_avmngr_regs1()  { return dump_hv_region("hv_avmngr1.bin",    0x28000000000ULL,0x2000ULL); }
+// 11.a) AV Manager @0x28001800000 sz=0x1000
+int dump_avmngr_regs2()  { return dump_hv_region("hv_avmngr2.bin",    0x28001800000ULL,0x1000ULL); }
+// 11.b) AV OutCtrl @0x28000600000 sz=0x4000
+int dump_av_outctrl()    { return dump_hv_region("hv_av_outctrl.bin",  0x28000600000ULL,0x4000ULL); }
+// 11.c) AV PLL Ctrl @0x28000680000 sz=0x4000
+int dump_av_pllctrl()    { return dump_hv_region("hv_av_pllctrl.bin",  0x28000680000ULL,0x4000ULL); }
+// 11.d) AV other regs...
+int dump_av_misc1()      { return dump_hv_region("hv_av_misc1.bin",    0x28000080000ULL,0x8000ULL); }
+int dump_av_misc2()      { return dump_hv_region("hv_av_misc2.bin",    0x28000088000ULL,0x1000ULL); }
+int dump_av_misc3()      { return dump_hv_region("hv_av_misc3.bin",    0x2800000C000ULL,0x1000ULL); }
+int dump_av_misc4()      { return dump_hv_region("hv_av_misc4.bin",    0x2800008A000ULL,0x1000ULL); }
+int dump_av_misc5()      { return dump_hv_region("hv_av_misc5.bin",    0x2800008C000ULL,0x1000ULL); }
+
+//------------------------------------------------------------------------------
+// 12) GPU Device Memory Regions
+//------------------------------------------------------------------------------
+int dump_gpu_mem0()      { return dump_hv_region("hv_gpu_mem0.bin",   0x28080000000ULL,0xFE00000ULL); }
+int dump_gpu_mem1()      { return dump_hv_region("hv_gpu_mem1.bin",   0x00000000003C0000ULL,0xC000ULL); }
+int dump_gpu_mem2()      { return dump_hv_region("hv_gpu_mem2.bin",   0x2808FE00000ULL,0x40000ULL); }
+int dump_gpu_mem3()      { return dump_hv_region("hv_gpu_mem3.bin",   0x28000C00000ULL,0x20000ULL); }
+int dump_gpu_mem4()      { return dump_hv_region("hv_gpu_mem4.bin",   0x28000080100ULL,0x8000ULL); }
+
+//------------------------------------------------------------------------------
+// 13) RSX / RAMIN / GRAPH
+//------------------------------------------------------------------------------
+int dump_rsx_intstate()  { return dump_hv_region("hv_rsx_intst.bin",  0x2808FC00000ULL,0x400000ULL); }
+int dump_ramin_all()     { return dump_hv_region("hv_ramin_all.bin",  0x2808FF80000ULL,0x80000ULL); }
+int dump_ramin_hash()    { return dump_hv_region("hv_ramin_hash.bin", 0x2808FF90000ULL,0x4000ULL); }
+int dump_ramin_fifo()    { return dump_hv_region("hv_ramin_fifo.bin", 0x2808FFA0000ULL,0x1000ULL); }
+int dump_dma_objs()      { return dump_hv_region("hv_dma_objs.bin",   0x2808FFC0000ULL,0x10000ULL); }
+int dump_graph_objs()    { return dump_hv_region("hv_graph_objs.bin", 0x2808FFD0000ULL,0x10000ULL); }
+int dump_graph_ctx()     { return dump_hv_region("hv_graph_ctx.bin",  0x2808FFE0000ULL,0x10000ULL); }
+
+//------------------------------------------------------------------------------
+// 14) GameOS regions / HTAB
+//------------------------------------------------------------------------------
+int dump_gameos0()       { return dump_hv_region("hv_gameos0.bin",    0x0000000000000000ULL,0x1000000ULL); }
+int dump_gameos1()       { return dump_hv_region("hv_gameos1.bin",    0x700020000000ULL,   0xA0000ULL); }
+int dump_gameos2()       { return dump_hv_region("hv_gameos2.bin",    0x700020000000ULL,   0xE900000ULL); }
+int dump_gameos_htab()   { return dump_hv_region("hv_gameos_htab.bin",0x800000000F000000ULL,0x40000ULL); }
+
+//------------------------------------------------------------------------------
+// 15) All‑in‑one dumper
+//------------------------------------------------------------------------------
+int dump_all_regions() {
+    dump_lv0_code(); dump_lv1_code(); dump_lv2_region();
+    for(int i=0;i<=6;i++) dump_spe_mmio(i);
+    dump_pervasive_mem();
+    for(int i=1;i<=6;i++) dump_spe_shadow(i);
+    dump_xdr_ch1_size(); dump_xdr_ch0_size(); dump_xdr_type();
+    dump_sb_bus_base();
+    dump_sata1_regs(); dump_sata2_regs(); dump_usb1_regs(); dump_usb2_regs();
+    dump_gelic_regs(); dump_encdec_regs(); dump_sb_ext_intc();
+    dump_sb_int_hdl1(); dump_sb_int_hdl2(); dump_sb_status();
+    dump_syscon_pkt_hdr(); dump_syscon_pkt_bdy(); dump_syscon_recv1(); dump_syscon_recv2();
+    dump_syscon_send_hdr(); dump_syscon_send_bdy(); dump_syscon_send1(); dump_syscon_send2();
+    dump_syscon_rcv3(); dump_syscon_testbit(); dump_syscon_notify();
+    dump_sata1_bar(); dump_sata2_bar(); dump_gelic_bar(); dump_encdec_bar();
+    dump_encdec_test(); dump_encdec_cmd(); dump_usb1_bar(); dump_usb2_bar();
+    dump_sata1_bar2(); dump_sata2_bar2(); dump_sata1_bar3(); dump_sata2_bar3();
+    dump_usb1_bar2(); dump_usb2_bar2(); dump_nor_flash(); dump_sys_rom();
+    dump_avmngr_regs1(); dump_avmngr_regs2(); dump_av_outctrl(); dump_av_pllctrl();
+    dump_av_misc1(); dump_av_misc2(); dump_av_misc3(); dump_av_misc4(); dump_av_misc5();
+    dump_gpu_mem0(); dump_gpu_mem1(); dump_gpu_mem2(); dump_gpu_mem3(); dump_gpu_mem4();
+    dump_rsx_intstate(); dump_ramin_all(); dump_ramin_hash(); dump_ramin_fifo();
+    dump_dma_objs(); dump_graph_objs(); dump_graph_ctx();
+    dump_gameos0(); dump_gameos1(); dump_gameos2(); dump_gameos_htab();
+    return 0;
+}
+
+
+
+
+void OverclockGpuCoreTest()
+{
+	clock_s clock;
+	lv1_read(0x2800000402CULL, 4, &clock.value);
+	notify("gpu core clock = 0x%x\n", (uint32_t)clock.mul);
+
+	clock.mul = 0x02; // 100 MHz
+	lv1_write(0x2800000402CULL, 4, &clock.value);
+
+	lv1_read(0x2800000402CULL, 4, &clock.value);
+	notify("gpu core clock = 0x%x\n", (uint32_t)clock.mul);
+}
+
+void OverclockGpuMemTest()
+{
+	clock_s clock;
+	lv1_read(0x28000004014ULL, 4, &clock.value);
+	notify("gpu memory clock = 0x%x\n", (uint32_t)clock.mul);
+
+	clock.mul = 0x1A; // 650 MHz
+	lv1_write(0x28000004014ULL, 4, &clock.value);
+
+	lv1_read(0x28000004014ULL, 4, &clock.value);
+	notify("gpu memory clock = 0x%x\n", (uint32_t)clock.mul);
+}
+
+void SetRsxClockSpeed(uint32_t core_freq, uint32_t mem_freq) {
+    clock_s clock;
+
+    // Validate core frequency, it should be in 50 MHz steps between 100 MHz and 1 GHz
+    if (core_freq < 100 || core_freq > 1000 || core_freq % 50 != 0) {
+        notify("Invalid core frequency, must be between 100 MHz and 1 GHz in 50 MHz steps.");
+        return;
+    }
+
+    // Validate memory frequency, it should be in 25 MHz steps between 100 MHz and 1 GHz
+    if (mem_freq < 100 || mem_freq > 1000 || mem_freq % 25 != 0) {
+        notify("Invalid memory frequency, must be between 100 MHz and 1 GHz in 25 MHz steps.");
+        return;
+    }
+
+    // Core clock multiplier: 50 MHz steps
+    uint8_t core_mul = (core_freq / 50);
+
+    // Memory clock multiplier: 25 MHz steps
+    uint8_t mem_mul = (mem_freq / 25);
+
+    // Set the GPU core clock
+    lv1_read(0x2800000402CULL, 4, &clock.value);
+    clock.mul = core_mul;
+    lv1_write(0x2800000402CULL, 4, &clock.value);
+    lv1_read(0x2800000402CULL, 4, &clock.value);
+
+    // Set the GPU memory clock
+    lv1_read(0x28000004014ULL, 4, &clock.value);
+    clock.mul = mem_mul;
+    lv1_write(0x28000004014ULL, 4, &clock.value);
+    lv1_read(0x28000004014ULL, 4, &clock.value);
+    
+    notify("RSX Core Clock: %d MHz / 0x%x\nRSX Memory Clock: %d MHz/ 0x%x", core_freq, core_mul, mem_freq, mem_mul);
+}
+
+void TestRsxClockSettings() {
+    uint32_t core_freqs[] = {100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000}; // Core frequencies (50 MHz steps)
+    uint32_t mem_freqs[] = {100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000}; // Memory frequencies (25 MHz steps)
+
+    notify("Test RSX Clock Settings [100MHz - 1Ghz]");
+    sys_timer_usleep(3000000);
+
+    // Start at 100 MHz and 100 MHz, then 100 MHz and 125 MHz, and so on.
+    // This loop goes through core_freqs sequentially and pairs them with increasing memory_freqs
+    int core_idx = 0;
+    for (int i = 0; i < sizeof(mem_freqs) / sizeof(mem_freqs[0]); i++) {
+        for (int j = core_idx; j < sizeof(core_freqs) / sizeof(core_freqs[0]); j++) {
+            SetRsxClockSpeed(core_freqs[j], mem_freqs[i]);
+
+            notify("Setting RSX Core Clock to %d MHz and Memory Clock to %d MHz", core_freqs[j], mem_freqs[i]);
+
+            sys_timer_usleep(10000000);
+
+            // After setting, move to the next memory frequency for the current core
+            if (i == sizeof(mem_freqs) / sizeof(mem_freqs[0]) - 1) {
+                core_idx++; // Move to the next core frequency after we've cycled through all memory frequencies
+            }
+        }
+    }
+    notify("Test completed! All settings applied.");
+}
+
+void TestRsxClockSettingsSafe() {
+    uint32_t core_freqs[] = {550, 600, 650, 650, 650, 700, 700, 700, 750, 750, 750, 800, 800, 800, 850, 850, 850, 900, 900, 950};
+    uint32_t mem_freqs[] = {700, 750, 800, 850, 875, 850, 900, 925, 900, 950, 1000, 950, 975, 1000, 950, 975, 1000, 975, 1000, 1000};
+    
+    notify("Test RSX Clock Settings [SAFE VALUES]");
+    sys_timer_usleep(3000000);
+
+    for (int i = 0; i < sizeof(core_freqs) / sizeof(core_freqs[0]); i++) {
+        uint32_t core_freq = core_freqs[i];
+        uint32_t mem_freq = mem_freqs[i];
+
+        SetRsxClockSpeed(core_freq, mem_freq);
+
+        notify("Setting RSX Core Clock to %d MHz and Memory Clock to %d MHz", core_freq, mem_freq);
+
+        sys_timer_usleep(10000000);
+    }
+    notify("Test completed! All settings applied.");
 }
 
 void uninstall_hen()
@@ -2732,4 +3371,297 @@ void toggle_lv1_patch_test2()
 	//toggle_lv1_patch32("Patch #4", 0x3B18A0, 0x303A3137, 0x323A3131);
 	//toggle_lv1_patch32("Patch #5", 0x3B18A4, 0x3A323320, 0x3A313020);
 	//toggle_lv1_patch32("Patch #6", 0x3B18A8, 0x32303130, 0x32303235);
+}
+
+void set_rsx_clock_defaults()
+{
+	SetRsxClockSpeed(500, 650);// Default Speeds
+}
+
+// Matched Speeds
+void set_rsx_clock_100_100()
+{
+    SetRsxClockSpeed(100, 100);
+}
+
+void set_rsx_clock_150_150()
+{
+    SetRsxClockSpeed(150, 150);
+}
+
+void set_rsx_clock_200_200()
+{
+    SetRsxClockSpeed(200, 200);
+}
+
+void set_rsx_clock_250_250()
+{
+    SetRsxClockSpeed(250, 250);
+}
+
+void set_rsx_clock_300_300()
+{
+    SetRsxClockSpeed(300, 300);
+}
+
+void set_rsx_clock_350_350()
+{
+    SetRsxClockSpeed(350, 350);
+}
+
+void set_rsx_clock_400_400()
+{
+    SetRsxClockSpeed(400, 400);
+}
+
+void set_rsx_clock_450_450()
+{
+    SetRsxClockSpeed(450, 450);
+}
+
+void set_rsx_clock_500_500()
+{
+    SetRsxClockSpeed(500, 500);
+}
+
+void set_rsx_clock_550_550()
+{
+    SetRsxClockSpeed(550, 550);
+}
+
+void set_rsx_clock_600_600()
+{
+    SetRsxClockSpeed(600, 600);
+}
+
+void set_rsx_clock_650_650()
+{
+    SetRsxClockSpeed(650, 650);
+}
+
+void set_rsx_clock_700_700()
+{
+    SetRsxClockSpeed(700, 700);
+}
+
+void set_rsx_clock_750_750()
+{
+    SetRsxClockSpeed(750, 750);
+}
+
+void set_rsx_clock_800_800()
+{
+    SetRsxClockSpeed(800, 800);
+}
+
+void set_rsx_clock_850_850()
+{
+    SetRsxClockSpeed(850, 850);
+}
+
+void set_rsx_clock_900_900()
+{
+    SetRsxClockSpeed(900, 900);
+}
+
+void set_rsx_clock_950_950()
+{
+    SetRsxClockSpeed(950, 950);
+}
+
+void set_rsx_clock_1000_1000()
+{
+    SetRsxClockSpeed(1000, 1000);
+}
+
+// Core Only Speeds
+void set_rsx_clock_100_650()
+{
+    SetRsxClockSpeed(100, 650);
+}
+
+void set_rsx_clock_150_650()
+{
+    SetRsxClockSpeed(150, 650);
+}
+
+void set_rsx_clock_200_650()
+{
+    SetRsxClockSpeed(200, 650);
+}
+
+void set_rsx_clock_250_650()
+{
+    SetRsxClockSpeed(250, 650);
+}
+
+void set_rsx_clock_300_650()
+{
+    SetRsxClockSpeed(300, 650);
+}
+
+void set_rsx_clock_350_650()
+{
+    SetRsxClockSpeed(350, 650);
+}
+
+void set_rsx_clock_400_650()
+{
+    SetRsxClockSpeed(400, 650);
+}
+
+void set_rsx_clock_450_650()
+{
+    SetRsxClockSpeed(450, 650);
+}
+
+/*void set_rsx_clock_500_650()
+{
+    SetRsxClockSpeed(500, 650);// Duplicate
+}*/
+
+void set_rsx_clock_550_650()
+{
+    SetRsxClockSpeed(550, 650);
+}
+
+void set_rsx_clock_600_650()
+{
+    SetRsxClockSpeed(600, 650);
+}
+
+/*void set_rsx_clock_650_650()
+{
+    SetRsxClockSpeed(650, 650);// Duplicate
+}*/
+
+void set_rsx_clock_700_650()
+{
+    SetRsxClockSpeed(700, 650);
+}
+
+void set_rsx_clock_750_650()
+{
+    SetRsxClockSpeed(750, 650);
+}
+
+void set_rsx_clock_800_650()
+{
+    SetRsxClockSpeed(800, 650);
+}
+
+void set_rsx_clock_850_650()
+{
+    SetRsxClockSpeed(850, 650);
+}
+
+void set_rsx_clock_900_650()
+{
+    SetRsxClockSpeed(900, 650);
+}
+
+void set_rsx_clock_950_650()
+{
+    SetRsxClockSpeed(950, 650);
+}
+
+void set_rsx_clock_1000_650()
+{
+    SetRsxClockSpeed(1000, 650);
+}
+
+// Memory Only Speeds
+void set_rsx_clock_500_100()
+{
+    SetRsxClockSpeed(500, 100);
+}
+
+void set_rsx_clock_500_150()
+{
+    SetRsxClockSpeed(500, 150);
+}
+
+void set_rsx_clock_500_200()
+{
+    SetRsxClockSpeed(500, 200);
+}
+
+void set_rsx_clock_500_250()
+{
+    SetRsxClockSpeed(500, 250);
+}
+
+void set_rsx_clock_500_300()
+{
+    SetRsxClockSpeed(500, 300);
+}
+
+void set_rsx_clock_500_350()
+{
+    SetRsxClockSpeed(500, 350);
+}
+
+void set_rsx_clock_500_400()
+{
+    SetRsxClockSpeed(500, 400);
+}
+
+void set_rsx_clock_500_450()
+{
+    SetRsxClockSpeed(500, 450);
+}
+
+/*void set_rsx_clock_500_500()
+{
+    SetRsxClockSpeed(500, 500);// Duplicate
+}*/
+
+void set_rsx_clock_500_550()
+{
+    SetRsxClockSpeed(500, 550);
+}
+
+void set_rsx_clock_500_600()
+{
+    SetRsxClockSpeed(500, 600);
+}
+
+void set_rsx_clock_500_650()
+{
+    SetRsxClockSpeed(500, 650);
+}
+
+void set_rsx_clock_500_700()
+{
+    SetRsxClockSpeed(500, 700);
+}
+
+void set_rsx_clock_500_750()
+{
+    SetRsxClockSpeed(500, 750);
+}
+
+void set_rsx_clock_500_800()
+{
+    SetRsxClockSpeed(500, 800);
+}
+
+void set_rsx_clock_500_850()
+{
+    SetRsxClockSpeed(500, 850);
+}
+
+void set_rsx_clock_500_900()
+{
+    SetRsxClockSpeed(500, 900);
+}
+
+void set_rsx_clock_500_950()
+{
+    SetRsxClockSpeed(500, 950);
+}
+
+void set_rsx_clock_500_1000()
+{
+    SetRsxClockSpeed(500, 1000);
 }

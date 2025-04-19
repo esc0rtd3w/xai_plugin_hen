@@ -555,6 +555,444 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	{
 		toggle_lv1_patch_test2();
 	}
+
+
+
+	// Hypervisor dump actions
+	else if (strcmp(action, "dump_lv0_code") == 0) {
+		dump_lv0_code();
+	}
+	else if (strcmp(action, "dump_lv1_code") == 0) {
+		dump_lv1_code();
+	}
+	else if (strcmp(action, "dump_lv2_region") == 0) {
+		dump_lv2_region();
+	}
+	else if (strcmp(action, "dump_spe0_mmio") == 0) {
+		dump_spe_mmio(0);
+	}
+	else if (strcmp(action, "dump_spe1_mmio") == 0) {
+		dump_spe_mmio(1);
+	}
+	else if (strcmp(action, "dump_spe2_mmio") == 0) {
+		dump_spe_mmio(2);
+	}
+	else if (strcmp(action, "dump_spe3_mmio") == 0) {
+		dump_spe_mmio(3);
+	}
+	else if (strcmp(action, "dump_spe4_mmio") == 0) {
+		dump_spe_mmio(4);
+	}
+	else if (strcmp(action, "dump_spe5_mmio") == 0) {
+		dump_spe_mmio(5);
+	}
+	else if (strcmp(action, "dump_spe6_mmio") == 0) {
+		dump_spe_mmio(6);
+	}
+	else if (strcmp(action, "dump_pervasive_mem") == 0) {
+		dump_pervasive_mem();
+	}
+	else if (strcmp(action, "dump_spe1_shadow") == 0) {
+		dump_spe_shadow(1);
+	}
+	else if (strcmp(action, "dump_spe2_shadow") == 0) {
+		dump_spe_shadow(2);
+	}
+	else if (strcmp(action, "dump_spe3_shadow") == 0) {
+		dump_spe_shadow(3);
+	}
+	else if (strcmp(action, "dump_spe4_shadow") == 0) {
+		dump_spe_shadow(4);
+	}
+	else if (strcmp(action, "dump_spe5_shadow") == 0) {
+		dump_spe_shadow(5);
+	}
+	else if (strcmp(action, "dump_spe6_shadow") == 0) {
+		dump_spe_shadow(6);
+	}
+	else if (strcmp(action, "dump_xdr_ch1_size") == 0) {
+		dump_xdr_ch1_size();
+	}
+	else if (strcmp(action, "dump_xdr_ch0_size") == 0) {
+		dump_xdr_ch0_size();
+	}
+	else if (strcmp(action, "dump_xdr_type") == 0) {
+		dump_xdr_type();
+	}
+	else if (strcmp(action, "dump_sb_bus_base") == 0) {
+		dump_sb_bus_base();
+	}
+	else if (strcmp(action, "dump_sata1_regs") == 0) {
+		dump_sata1_regs();
+	}
+	else if (strcmp(action, "dump_sata2_regs") == 0) {
+		dump_sata2_regs();
+	}
+	else if (strcmp(action, "dump_usb1_regs") == 0) {
+		dump_usb1_regs();
+	}
+	else if (strcmp(action, "dump_usb2_regs") == 0) {
+		dump_usb2_regs();
+	}
+	else if (strcmp(action, "dump_gelic_regs") == 0) {
+		dump_gelic_regs();
+	}
+	else if (strcmp(action, "dump_encdec_regs") == 0) {
+		dump_encdec_regs();
+	}
+	else if (strcmp(action, "dump_sb_ext_intc") == 0) {
+		dump_sb_ext_intc();
+	}
+	else if (strcmp(action, "dump_sb_int_hdl1") == 0) {
+		dump_sb_int_hdl1();
+	}
+	else if (strcmp(action, "dump_sb_int_hdl2") == 0) {
+		dump_sb_int_hdl2();
+	}
+	else if (strcmp(action, "dump_sb_status") == 0) {
+		dump_sb_status();
+	}
+	else if (strcmp(action, "dump_syscon_pkt_hdr") == 0) {
+		dump_syscon_pkt_hdr();
+	}
+	else if (strcmp(action, "dump_syscon_pkt_bdy") == 0) {
+		dump_syscon_pkt_bdy();
+	}
+	else if (strcmp(action, "dump_syscon_recv1") == 0) {
+		dump_syscon_recv1();
+	}
+	else if (strcmp(action, "dump_syscon_recv2") == 0) {
+		dump_syscon_recv2();
+	}
+	else if (strcmp(action, "dump_syscon_send_hdr") == 0) {
+		dump_syscon_send_hdr();
+	}
+	else if (strcmp(action, "dump_syscon_send_bdy") == 0) {
+		dump_syscon_send_bdy();
+	}
+	else if (strcmp(action, "dump_syscon_send1") == 0) {
+		dump_syscon_send1();
+	}
+	else if (strcmp(action, "dump_syscon_send2") == 0) {
+		dump_syscon_send2();
+	}
+	else if (strcmp(action, "dump_syscon_rcv3") == 0) {
+		dump_syscon_rcv3();
+	}
+	else if (strcmp(action, "dump_syscon_testbit") == 0) {
+		dump_syscon_testbit();
+	}
+	else if (strcmp(action, "dump_syscon_notify") == 0) {
+		dump_syscon_notify();
+	}
+	else if (strcmp(action, "dump_sata1_bar") == 0) {
+		dump_sata1_bar();
+	}
+	else if (strcmp(action, "dump_sata2_bar") == 0) {
+		dump_sata2_bar();
+	}
+	else if (strcmp(action, "dump_gelic_bar") == 0) {
+		dump_gelic_bar();
+	}
+	else if (strcmp(action, "dump_encdec_bar") == 0) {
+		dump_encdec_bar();
+	}
+	else if (strcmp(action, "dump_encdec_test") == 0) {
+		dump_encdec_test();
+	}
+	else if (strcmp(action, "dump_encdec_cmd") == 0) {
+		dump_encdec_cmd();
+	}
+	else if (strcmp(action, "dump_usb1_bar") == 0) {
+		dump_usb1_bar();
+	}
+	else if (strcmp(action, "dump_usb2_bar") == 0) {
+		dump_usb2_bar();
+	}
+	else if (strcmp(action, "dump_sata1_bar2") == 0) {
+		dump_sata1_bar2();
+	}
+	else if (strcmp(action, "dump_sata2_bar2") == 0) {
+		dump_sata2_bar2();
+	}
+	else if (strcmp(action, "dump_sata1_bar3") == 0) {
+		dump_sata1_bar3();
+	}
+	else if (strcmp(action, "dump_sata2_bar3") == 0) {
+		dump_sata2_bar3();
+	}
+	else if (strcmp(action, "dump_usb1_bar2") == 0) {
+		dump_usb1_bar2();
+	}
+	else if (strcmp(action, "dump_usb2_bar2") == 0) {
+		dump_usb2_bar2();
+	}
+	else if (strcmp(action, "dump_nor_flash") == 0) {
+		dump_nor_flash();
+	}
+	else if (strcmp(action, "dump_sys_rom") == 0) {
+		dump_sys_rom();
+	}
+	else if (strcmp(action, "dump_avmngr_regs1") == 0) {
+		dump_avmngr_regs1();
+	}
+	else if (strcmp(action, "dump_avmngr_regs2") == 0) {
+		dump_avmngr_regs2();
+	}
+	else if (strcmp(action, "dump_av_outctrl") == 0) {
+		dump_av_outctrl();
+	}
+	else if (strcmp(action, "dump_av_pllctrl") == 0) {
+		dump_av_pllctrl();
+	}
+	else if (strcmp(action, "dump_av_misc1") == 0) {
+		dump_av_misc1();
+	}
+	else if (strcmp(action, "dump_av_misc2") == 0) {
+		dump_av_misc2();
+	}
+	else if (strcmp(action, "dump_av_misc3") == 0) {
+		dump_av_misc3();
+	}
+	else if (strcmp(action, "dump_av_misc4") == 0) {
+		dump_av_misc4();
+	}
+	else if (strcmp(action, "dump_av_misc5") == 0) {
+		dump_av_misc5();
+	}
+	else if (strcmp(action, "dump_gpu_mem0") == 0) {
+		dump_gpu_mem0();
+	}
+	else if (strcmp(action, "dump_gpu_mem1") == 0) {
+		dump_gpu_mem1();
+	}
+	else if (strcmp(action, "dump_gpu_mem2") == 0) {
+		dump_gpu_mem2();
+	}
+	else if (strcmp(action, "dump_gpu_mem3") == 0) {
+		dump_gpu_mem3();
+	}
+	else if (strcmp(action, "dump_gpu_mem4") == 0) {
+		dump_gpu_mem4();
+	}
+	else if (strcmp(action, "dump_rsx_intstate") == 0) {
+		dump_rsx_intstate();
+	}
+	else if (strcmp(action, "dump_ramin_all") == 0) {
+		dump_ramin_all();
+	}
+	else if (strcmp(action, "dump_ramin_hash") == 0) {
+		dump_ramin_hash();
+	}
+	else if (strcmp(action, "dump_ramin_fifo") == 0) {
+		dump_ramin_fifo();
+	}
+	else if (strcmp(action, "dump_dma_objs") == 0) {
+		dump_dma_objs();
+	}
+	else if (strcmp(action, "dump_graph_objs") == 0) {
+		dump_graph_objs();
+	}
+	else if (strcmp(action, "dump_graph_ctx") == 0) {
+		dump_graph_ctx();
+	}
+	else if (strcmp(action, "dump_gameos0") == 0) {
+		dump_gameos0();
+	}
+	else if (strcmp(action, "dump_gameos1") == 0) {
+		dump_gameos1();
+	}
+	else if (strcmp(action, "dump_gameos2") == 0) {
+		dump_gameos2();
+	}
+	else if (strcmp(action, "dump_gameos_htab") == 0) {
+		dump_gameos_htab();
+	}
+	else if (strcmp(action, "dump_all_regions") == 0) {
+		dump_all_regions();
+	}
+
+
+
+
+	else if (strcmp(action, "lv1_oc_test_core") == 0)
+	{
+		OverclockGpuCoreTest();
+	}
+	else if (strcmp(action, "lv1_oc_test_mem") == 0)
+	{
+		OverclockGpuMemTest();
+	}
+
+	// RSX Overclocking
+
+	
+	else if (strcmp(action, "lv1_oc_test_all_speeds") == 0)
+	{
+		TestRsxClockSettings();
+	}
+	else if (strcmp(action, "lv1_oc_test_safe_speeds") == 0)
+	{
+		TestRsxClockSettingsSafe();
+	}
+
+	// Matched Speeds
+	else if (strcmp(action, "set_rsx_clock_100_100") == 0)
+	{
+		set_rsx_clock_100_100();
+	}
+	else if (strcmp(action, "set_rsx_clock_150_150") == 0)
+	{
+		set_rsx_clock_150_150();
+	}
+	else if (strcmp(action, "set_rsx_clock_200_200") == 0)
+	{
+		set_rsx_clock_200_200();
+	}
+	else if (strcmp(action, "set_rsx_clock_250_250") == 0)
+	{
+		set_rsx_clock_250_250();
+	}
+	else if (strcmp(action, "set_rsx_clock_300_300") == 0)
+	{
+		set_rsx_clock_300_300();
+	}
+	else if (strcmp(action, "set_rsx_clock_350_350") == 0)
+	{
+		set_rsx_clock_350_350();
+	}
+	else if (strcmp(action, "set_rsx_clock_400_400") == 0)
+	{
+		set_rsx_clock_400_400();
+	}
+	else if (strcmp(action, "set_rsx_clock_450_450") == 0)
+	{
+		set_rsx_clock_450_450();
+	}
+	else if (strcmp(action, "set_rsx_clock_500_500") == 0)
+	{
+		set_rsx_clock_500_500();
+	}
+	else if (strcmp(action, "set_rsx_clock_550_550") == 0)
+	{
+		set_rsx_clock_550_550();
+	}
+	else if (strcmp(action, "set_rsx_clock_600_600") == 0)
+	{
+		set_rsx_clock_600_600();
+	}
+	else if (strcmp(action, "set_rsx_clock_650_650") == 0)
+	{
+		set_rsx_clock_650_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_700_700") == 0)
+	{
+		set_rsx_clock_700_700();
+	}
+	else if (strcmp(action, "set_rsx_clock_750_750") == 0)
+	{
+		set_rsx_clock_750_750();
+	}
+	else if (strcmp(action, "set_rsx_clock_800_800") == 0)
+	{
+		set_rsx_clock_800_800();
+	}
+	else if (strcmp(action, "set_rsx_clock_850_850") == 0)
+	{
+		set_rsx_clock_850_850();
+	}
+	else if (strcmp(action, "set_rsx_clock_900_900") == 0)
+	{
+		set_rsx_clock_900_900();
+	}
+	else if (strcmp(action, "set_rsx_clock_950_950") == 0)
+	{
+		set_rsx_clock_950_950();
+	}
+	else if (strcmp(action, "set_rsx_clock_1000_1000") == 0)
+	{
+		set_rsx_clock_1000_1000();
+	}
+
+	// Core-Only Speeds (Memory at 650 MHz)
+	else if (strcmp(action, "set_rsx_clock_100_650") == 0)
+	{
+		set_rsx_clock_100_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_150_650") == 0)
+	{
+		set_rsx_clock_150_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_200_650") == 0)
+	{
+		set_rsx_clock_200_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_250_650") == 0)
+	{
+		set_rsx_clock_250_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_300_650") == 0)
+	{
+		set_rsx_clock_300_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_350_650") == 0)
+	{
+		set_rsx_clock_350_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_400_650") == 0)
+	{
+		set_rsx_clock_400_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_450_650") == 0)
+	{
+		set_rsx_clock_450_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_500_650") == 0)
+	{
+		set_rsx_clock_500_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_550_650") == 0)
+	{
+		set_rsx_clock_550_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_600_650") == 0)
+	{
+		set_rsx_clock_600_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_650_650") == 0)
+	{
+		set_rsx_clock_650_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_700_650") == 0)
+	{
+		set_rsx_clock_700_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_750_650") == 0)
+	{
+		set_rsx_clock_750_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_800_650") == 0)
+	{
+		set_rsx_clock_800_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_850_650") == 0)
+	{
+		set_rsx_clock_850_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_900_650") == 0)
+	{
+		set_rsx_clock_900_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_950_650") == 0)
+	{
+		set_rsx_clock_950_650();
+	}
+	else if (strcmp(action, "set_rsx_clock_1000_650") == 0)
+	{
+		set_rsx_clock_1000_650();
+	}
+
+
 	
 	/*
 	// NoPSN Patches
