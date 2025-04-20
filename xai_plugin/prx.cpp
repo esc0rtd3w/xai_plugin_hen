@@ -1,4 +1,4 @@
-#include <cellstatus.h>
+﻿#include <cellstatus.h>
 #include <sys/prx.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -569,46 +569,46 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		dump_lv2_region();
 	}
 	else if (strcmp(action, "dump_spe0_mmio") == 0) {
-		dump_spe_mmio(0);
+		dump_spe0_mmio();
 	}
 	else if (strcmp(action, "dump_spe1_mmio") == 0) {
-		dump_spe_mmio(1);
+		dump_spe1_mmio();
 	}
 	else if (strcmp(action, "dump_spe2_mmio") == 0) {
-		dump_spe_mmio(2);
+		dump_spe2_mmio();
 	}
 	else if (strcmp(action, "dump_spe3_mmio") == 0) {
-		dump_spe_mmio(3);
+		dump_spe3_mmio();
 	}
 	else if (strcmp(action, "dump_spe4_mmio") == 0) {
-		dump_spe_mmio(4);
+		dump_spe4_mmio();
 	}
 	else if (strcmp(action, "dump_spe5_mmio") == 0) {
-		dump_spe_mmio(5);
+		dump_spe5_mmio();
 	}
 	else if (strcmp(action, "dump_spe6_mmio") == 0) {
-		dump_spe_mmio(6);
+		dump_spe6_mmio();
 	}
 	else if (strcmp(action, "dump_pervasive_mem") == 0) {
 		dump_pervasive_mem();
 	}
 	else if (strcmp(action, "dump_spe1_shadow") == 0) {
-		dump_spe_shadow(1);
+		dump_spe1_shadow();
 	}
 	else if (strcmp(action, "dump_spe2_shadow") == 0) {
-		dump_spe_shadow(2);
+		dump_spe2_shadow();
 	}
 	else if (strcmp(action, "dump_spe3_shadow") == 0) {
-		dump_spe_shadow(3);
+		dump_spe3_shadow();
 	}
 	else if (strcmp(action, "dump_spe4_shadow") == 0) {
-		dump_spe_shadow(4);
+		dump_spe4_shadow();
 	}
 	else if (strcmp(action, "dump_spe5_shadow") == 0) {
-		dump_spe_shadow(5);
+		dump_spe5_shadow();
 	}
 	else if (strcmp(action, "dump_spe6_shadow") == 0) {
-		dump_spe_shadow(6);
+		dump_spe6_shadow();
 	}
 	else if (strcmp(action, "dump_xdr_ch1_size") == 0) {
 		dump_xdr_ch1_size();
@@ -760,9 +760,6 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if (strcmp(action, "dump_av_misc5") == 0) {
 		dump_av_misc5();
 	}
-	else if (strcmp(action, "dump_gpu_mem0") == 0) {
-		dump_gpu_mem0();
-	}
 	else if (strcmp(action, "dump_gpu_mem1") == 0) {
 		dump_gpu_mem1();
 	}
@@ -774,6 +771,9 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 	else if (strcmp(action, "dump_gpu_mem4") == 0) {
 		dump_gpu_mem4();
+	}
+	else if (strcmp(action, "dump_gpu_mem5") == 0) {
+		dump_gpu_mem5();
 	}
 	else if (strcmp(action, "dump_rsx_intstate") == 0) {
 		dump_rsx_intstate();
@@ -914,85 +914,233 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		set_rsx_clock_1000_1000();
 	}
 
-	// Core-Only Speeds (Memory at 650 MHz)
-	else if (strcmp(action, "set_rsx_clock_100_650") == 0)
+	// RSX Core Clock handlers (100 MHz → 1000 MHz in 50 MHz steps)
+	if (strcmp(action, "set_rsx_core_clock_100") == 0)
 	{
-		set_rsx_clock_100_650();
+		set_rsx_core_clock_100();
 	}
-	else if (strcmp(action, "set_rsx_clock_150_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_150") == 0)
 	{
-		set_rsx_clock_150_650();
+		set_rsx_core_clock_150();
 	}
-	else if (strcmp(action, "set_rsx_clock_200_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_200") == 0)
 	{
-		set_rsx_clock_200_650();
+		set_rsx_core_clock_200();
 	}
-	else if (strcmp(action, "set_rsx_clock_250_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_250") == 0)
 	{
-		set_rsx_clock_250_650();
+		set_rsx_core_clock_250();
 	}
-	else if (strcmp(action, "set_rsx_clock_300_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_300") == 0)
 	{
-		set_rsx_clock_300_650();
+		set_rsx_core_clock_300();
 	}
-	else if (strcmp(action, "set_rsx_clock_350_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_350") == 0)
 	{
-		set_rsx_clock_350_650();
+		set_rsx_core_clock_350();
 	}
-	else if (strcmp(action, "set_rsx_clock_400_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_400") == 0)
 	{
-		set_rsx_clock_400_650();
+		set_rsx_core_clock_400();
 	}
-	else if (strcmp(action, "set_rsx_clock_450_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_450") == 0)
 	{
-		set_rsx_clock_450_650();
+		set_rsx_core_clock_450();
 	}
-	else if (strcmp(action, "set_rsx_clock_500_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_500") == 0)
 	{
-		set_rsx_clock_500_650();
+		set_rsx_core_clock_500();
 	}
-	else if (strcmp(action, "set_rsx_clock_550_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_550") == 0)
 	{
-		set_rsx_clock_550_650();
+		set_rsx_core_clock_550();
 	}
-	else if (strcmp(action, "set_rsx_clock_600_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_600") == 0)
 	{
-		set_rsx_clock_600_650();
+		set_rsx_core_clock_600();
 	}
-	else if (strcmp(action, "set_rsx_clock_650_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_650") == 0)
 	{
-		set_rsx_clock_650_650();
+		set_rsx_core_clock_650();
 	}
-	else if (strcmp(action, "set_rsx_clock_700_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_700") == 0)
 	{
-		set_rsx_clock_700_650();
+		set_rsx_core_clock_700();
 	}
-	else if (strcmp(action, "set_rsx_clock_750_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_750") == 0)
 	{
-		set_rsx_clock_750_650();
+		set_rsx_core_clock_750();
 	}
-	else if (strcmp(action, "set_rsx_clock_800_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_800") == 0)
 	{
-		set_rsx_clock_800_650();
+		set_rsx_core_clock_800();
 	}
-	else if (strcmp(action, "set_rsx_clock_850_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_850") == 0)
 	{
-		set_rsx_clock_850_650();
+		set_rsx_core_clock_850();
 	}
-	else if (strcmp(action, "set_rsx_clock_900_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_900") == 0)
 	{
-		set_rsx_clock_900_650();
+		set_rsx_core_clock_900();
 	}
-	else if (strcmp(action, "set_rsx_clock_950_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_950") == 0)
 	{
-		set_rsx_clock_950_650();
+		set_rsx_core_clock_950();
 	}
-	else if (strcmp(action, "set_rsx_clock_1000_650") == 0)
+	else if (strcmp(action, "set_rsx_core_clock_1000") == 0)
 	{
-		set_rsx_clock_1000_650();
+		set_rsx_core_clock_1000();
 	}
 
-
+	// RSX Memory Clock handlers (100 MHz → 1000 MHz in 25 MHz steps)
+	else if (strcmp(action, "set_rsx_mem_clock_100") == 0)
+	{
+		set_rsx_mem_clock_100();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_125") == 0)
+	{
+		set_rsx_mem_clock_125();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_150") == 0)
+	{
+		set_rsx_mem_clock_150();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_175") == 0)
+	{
+		set_rsx_mem_clock_175();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_200") == 0)
+	{
+		set_rsx_mem_clock_200();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_225") == 0)
+	{
+		set_rsx_mem_clock_225();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_250") == 0)
+	{
+		set_rsx_mem_clock_250();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_275") == 0)
+	{
+		set_rsx_mem_clock_275();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_300") == 0)
+	{
+		set_rsx_mem_clock_300();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_325") == 0)
+	{
+		set_rsx_mem_clock_325();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_350") == 0)
+	{
+		set_rsx_mem_clock_350();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_375") == 0)
+	{
+		set_rsx_mem_clock_375();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_400") == 0)
+	{
+		set_rsx_mem_clock_400();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_425") == 0)
+	{
+		set_rsx_mem_clock_425();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_450") == 0)
+	{
+		set_rsx_mem_clock_450();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_475") == 0)
+	{
+		set_rsx_mem_clock_475();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_500") == 0)
+	{
+		set_rsx_mem_clock_500();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_525") == 0)
+	{
+		set_rsx_mem_clock_525();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_550") == 0)
+	{
+		set_rsx_mem_clock_550();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_575") == 0)
+	{
+		set_rsx_mem_clock_575();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_600") == 0)
+	{
+		set_rsx_mem_clock_600();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_625") == 0)
+	{
+		set_rsx_mem_clock_625();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_650") == 0)
+	{
+		set_rsx_mem_clock_650();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_675") == 0)
+	{
+		set_rsx_mem_clock_675();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_700") == 0)
+	{
+		set_rsx_mem_clock_700();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_725") == 0)
+	{
+		set_rsx_mem_clock_725();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_750") == 0)
+	{
+		set_rsx_mem_clock_750();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_775") == 0)
+	{
+		set_rsx_mem_clock_775();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_800") == 0)
+	{
+		set_rsx_mem_clock_800();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_825") == 0)
+	{
+		set_rsx_mem_clock_825();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_850") == 0)
+	{
+		set_rsx_mem_clock_850();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_875") == 0)
+	{
+		set_rsx_mem_clock_875();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_900") == 0)
+	{
+		set_rsx_mem_clock_900();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_925") == 0)
+	{
+		set_rsx_mem_clock_925();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_950") == 0)
+	{
+		set_rsx_mem_clock_950();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_975") == 0)
+	{
+		set_rsx_mem_clock_975();
+	}
+	else if (strcmp(action, "set_rsx_mem_clock_1000") == 0)
+	{
+		set_rsx_mem_clock_1000();
+	}
 	
 	/*
 	// NoPSN Patches

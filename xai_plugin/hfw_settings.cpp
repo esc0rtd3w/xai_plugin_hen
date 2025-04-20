@@ -2724,7 +2724,36 @@ int dump_lv2_region() {
 //------------------------------------------------------------------------------
 // 2) SPE0–6 MMIO (base=0x20000000000 + idx*0x80000, size=0x80000)
 //------------------------------------------------------------------------------
-int dump_spe_mmio(int idx) {
+int dump_spe0_mmio() {
+    return dump_hv_region("hv_spe0_mmio.bin",
+                          0x00000020000000000ULL, 0x80000ULL);
+}
+int dump_spe1_mmio() {
+    return dump_hv_region("hv_spe1_mmio.bin",
+                          0x00000020000080000ULL, 0x80000ULL);
+}
+int dump_spe2_mmio() {
+    return dump_hv_region("hv_spe2_mmio.bin",
+                          0x00000020000100000ULL, 0x80000ULL);
+}
+int dump_spe3_mmio() {
+    return dump_hv_region("hv_spe3_mmio.bin",
+                          0x00000020000180000ULL, 0x80000ULL);
+}
+int dump_spe4_mmio() {
+    return dump_hv_region("hv_spe4_mmio.bin",
+                          0x00000020000200000ULL, 0x80000ULL);
+}
+int dump_spe5_mmio() {
+    return dump_hv_region("hv_spe5_mmio.bin",
+                          0x00000020000280000ULL, 0x80000ULL);
+}
+int dump_spe6_mmio() {
+    return dump_hv_region("hv_spe6_mmio.bin",
+                          0x00000020000300000ULL, 0x80000ULL);
+}
+
+/*int dump_spe_mmio(int idx) {
     static const uint64_t base[7] = {
         0x00000020000000000ULL,
         0x00000020000080000ULL,
@@ -2737,7 +2766,7 @@ int dump_spe_mmio(int idx) {
     if (idx<0||idx>6) return -1;
     char fn[32]; vsh_sprintf(fn,"hv_spe%d_mmio.bin",idx);
     return dump_hv_region(fn, base[idx], 0x80000ULL);
-}
+}*/
 
 //------------------------------------------------------------------------------
 // 3) Pervasive Memory (0x20000509000, sz=0x1000)
@@ -2750,7 +2779,32 @@ int dump_pervasive_mem() {
 //------------------------------------------------------------------------------
 // 4) SPE1–6 Shadow Registers (each sz=0x1000 at given phys addrs)
 //------------------------------------------------------------------------------
-int dump_spe_shadow(int idx) {
+int dump_spe1_shadow() {
+    return dump_hv_region("hv_spe1_shadow.bin",
+                          0x0000002000050C000ULL, 0x1000ULL);
+}
+int dump_spe2_shadow() {
+    return dump_hv_region("hv_spe2_shadow.bin",
+                          0x00000020000514290ULL, 0x1000ULL);
+}
+int dump_spe3_shadow() {
+    return dump_hv_region("hv_spe3_shadow.bin",
+                          0x00000020000508A00ULL, 0x1000ULL);
+}
+int dump_spe4_shadow() {
+    return dump_hv_region("hv_spe4_shadow.bin",
+                          0x0000002000050B0F0ULL, 0x1000ULL);
+}
+int dump_spe5_shadow() {
+    return dump_hv_region("hv_spe5_shadow.bin",
+                          0x0000002000051FFC90ULL, 0x1000ULL);
+}
+int dump_spe6_shadow() {
+    return dump_hv_region("hv_spe6_shadow.bin",
+                          0x0000002000051AE5B0ULL, 0x1000ULL);
+}
+
+/*int dump_spe_shadow(int idx) {
     static const uint64_t addr[7] = {
         0ULL,
         0x0000002000050C000ULL,  // SPE1 @ …0C000
@@ -2763,7 +2817,7 @@ int dump_spe_shadow(int idx) {
     if (idx<1||idx>6) return -1;
     char fn[32]; vsh_sprintf(fn,"hv_spe%d_shadow.bin",idx);
     return dump_hv_region(fn, addr[idx], 0x1000ULL);
-}
+}*/
 
 //------------------------------------------------------------------------------
 // 5) XDR Memory Channel Sizes & Type (each sz=4)
@@ -2873,11 +2927,11 @@ int dump_av_misc5()      { return dump_hv_region("hv_av_misc5.bin",    0x2800008
 //------------------------------------------------------------------------------
 // 12) GPU Device Memory Regions
 //------------------------------------------------------------------------------
-int dump_gpu_mem0()      { return dump_hv_region("hv_gpu_mem0.bin",   0x28080000000ULL,0xFE00000ULL); }
-int dump_gpu_mem1()      { return dump_hv_region("hv_gpu_mem1.bin",   0x00000000003C0000ULL,0xC000ULL); }
-int dump_gpu_mem2()      { return dump_hv_region("hv_gpu_mem2.bin",   0x2808FE00000ULL,0x40000ULL); }
-int dump_gpu_mem3()      { return dump_hv_region("hv_gpu_mem3.bin",   0x28000C00000ULL,0x20000ULL); }
-int dump_gpu_mem4()      { return dump_hv_region("hv_gpu_mem4.bin",   0x28000080100ULL,0x8000ULL); }
+int dump_gpu_mem1()      { return dump_hv_region("hv_gpu_mem1.bin",   0x28080000000ULL,0xFE00000ULL); }
+int dump_gpu_mem2()      { return dump_hv_region("hv_gpu_mem2.bin",   0x00000000003C0000ULL,0xC000ULL); }
+int dump_gpu_mem3()      { return dump_hv_region("hv_gpu_mem3.bin",   0x2808FE00000ULL,0x40000ULL); }
+int dump_gpu_mem4()      { return dump_hv_region("hv_gpu_mem4.bin",   0x28000C00000ULL,0x20000ULL); }
+int dump_gpu_mem5()      { return dump_hv_region("hv_gpu_mem5.bin",   0x28000080100ULL,0x8000ULL); }
 
 //------------------------------------------------------------------------------
 // 13) RSX / RAMIN / GRAPH
@@ -2902,28 +2956,91 @@ int dump_gameos_htab()   { return dump_hv_region("hv_gameos_htab.bin",0x80000000
 // 15) All‑in‑one dumper
 //------------------------------------------------------------------------------
 int dump_all_regions() {
-    dump_lv0_code(); dump_lv1_code(); dump_lv2_region();
-    for(int i=0;i<=6;i++) dump_spe_mmio(i);
+    dump_lv0_code();
+	dump_lv1_code();
+	dump_lv2_region();
+    //for(int i=0;i<=6;i++) dump_spe_mmio(i);
+	dump_spe0_mmio();
+	dump_spe1_mmio();
+	dump_spe2_mmio();
+	//dump_spe3_mmio();// crashes
+	dump_spe4_mmio();
+	dump_spe5_mmio();
+	dump_spe6_mmio();
     dump_pervasive_mem();
-    for(int i=1;i<=6;i++) dump_spe_shadow(i);
-    dump_xdr_ch1_size(); dump_xdr_ch0_size(); dump_xdr_type();
+    //for(int i=1;i<=6;i++) dump_spe_shadow(i);
+	dump_spe1_shadow();
+	dump_spe2_shadow();
+	dump_spe3_shadow();
+	dump_spe4_shadow();
+	dump_spe5_shadow();
+	dump_spe6_shadow();
+    dump_xdr_ch1_size();
+	dump_xdr_ch0_size();
+	dump_xdr_type();
     dump_sb_bus_base();
-    dump_sata1_regs(); dump_sata2_regs(); dump_usb1_regs(); dump_usb2_regs();
-    dump_gelic_regs(); dump_encdec_regs(); dump_sb_ext_intc();
-    dump_sb_int_hdl1(); dump_sb_int_hdl2(); dump_sb_status();
-    dump_syscon_pkt_hdr(); dump_syscon_pkt_bdy(); dump_syscon_recv1(); dump_syscon_recv2();
-    dump_syscon_send_hdr(); dump_syscon_send_bdy(); dump_syscon_send1(); dump_syscon_send2();
-    dump_syscon_rcv3(); dump_syscon_testbit(); dump_syscon_notify();
-    dump_sata1_bar(); dump_sata2_bar(); dump_gelic_bar(); dump_encdec_bar();
-    dump_encdec_test(); dump_encdec_cmd(); dump_usb1_bar(); dump_usb2_bar();
-    dump_sata1_bar2(); dump_sata2_bar2(); dump_sata1_bar3(); dump_sata2_bar3();
-    dump_usb1_bar2(); dump_usb2_bar2(); dump_nor_flash(); dump_sys_rom();
-    dump_avmngr_regs1(); dump_avmngr_regs2(); dump_av_outctrl(); dump_av_pllctrl();
-    dump_av_misc1(); dump_av_misc2(); dump_av_misc3(); dump_av_misc4(); dump_av_misc5();
-    dump_gpu_mem0(); dump_gpu_mem1(); dump_gpu_mem2(); dump_gpu_mem3(); dump_gpu_mem4();
-    dump_rsx_intstate(); dump_ramin_all(); dump_ramin_hash(); dump_ramin_fifo();
-    dump_dma_objs(); dump_graph_objs(); dump_graph_ctx();
-    dump_gameos0(); dump_gameos1(); dump_gameos2(); dump_gameos_htab();
+    dump_sata1_regs();
+	dump_sata2_regs();
+	dump_usb1_regs();
+	dump_usb2_regs();
+    dump_gelic_regs();
+	dump_encdec_regs();
+	dump_sb_ext_intc();
+    dump_sb_int_hdl1();
+	dump_sb_int_hdl2();
+	dump_sb_status();
+    dump_syscon_pkt_hdr();
+	dump_syscon_pkt_bdy();
+	dump_syscon_recv1();
+	dump_syscon_recv2();
+    dump_syscon_send_hdr();
+	dump_syscon_send_bdy();
+	dump_syscon_send1();
+	dump_syscon_send2();
+    dump_syscon_rcv3();
+	dump_syscon_testbit();
+	dump_syscon_notify();
+    dump_sata1_bar();
+	dump_sata2_bar();
+	dump_gelic_bar();
+	dump_encdec_bar();
+    dump_encdec_test();
+	dump_encdec_cmd();
+	dump_usb1_bar();
+	dump_usb2_bar();
+    dump_sata1_bar2();
+	dump_sata2_bar2();
+	dump_sata1_bar3();
+	dump_sata2_bar3();
+    dump_usb1_bar2();
+	dump_usb2_bar2();
+	//dump_nor_flash();// crashes
+	//dump_sys_rom();// crashes
+    dump_avmngr_regs1();
+	dump_avmngr_regs2();
+	dump_av_outctrl();
+	dump_av_pllctrl();
+    dump_av_misc1();
+	dump_av_misc2();
+	dump_av_misc3();
+	dump_av_misc4();
+	dump_av_misc5();
+    dump_gpu_mem1();
+	dump_gpu_mem2();
+	dump_gpu_mem3();
+	dump_gpu_mem4();
+	dump_gpu_mem5();
+    dump_rsx_intstate();
+	dump_ramin_all();
+	dump_ramin_hash();
+	dump_ramin_fifo();
+    dump_dma_objs();
+	dump_graph_objs();
+	dump_graph_ctx();
+    dump_gameos0();
+	//dump_gameos1();// crashes
+	dump_gameos2();
+	dump_gameos_htab();
     return 0;
 }
 
@@ -2978,18 +3095,60 @@ void SetRsxClockSpeed(uint32_t core_freq, uint32_t mem_freq) {
     uint8_t mem_mul = (mem_freq / 25);
 
     // Set the GPU core clock
-    lv1_read(0x2800000402CULL, 4, &clock.value);
+    //lv1_read(0x2800000402CULL, 4, &clock.value);
     clock.mul = core_mul;
     lv1_write(0x2800000402CULL, 4, &clock.value);
-    lv1_read(0x2800000402CULL, 4, &clock.value);
+    //lv1_read(0x2800000402CULL, 4, &clock.value);
 
     // Set the GPU memory clock
-    lv1_read(0x28000004014ULL, 4, &clock.value);
+    //lv1_read(0x28000004014ULL, 4, &clock.value);
     clock.mul = mem_mul;
     lv1_write(0x28000004014ULL, 4, &clock.value);
-    lv1_read(0x28000004014ULL, 4, &clock.value);
+    //lv1_read(0x28000004014ULL, 4, &clock.value);
     
     notify("RSX Core Clock: %d MHz / 0x%x\nRSX Memory Clock: %d MHz/ 0x%x", core_freq, core_mul, mem_freq, mem_mul);
+}
+
+void SetRsxCoreClockSpeed(uint32_t core_freq) {
+    clock_s clock;
+
+    // Validate core frequency, it should be in 50 MHz steps between 100 MHz and 1 GHz
+    if (core_freq < 100 || core_freq > 1000 || core_freq % 50 != 0) {
+        notify("Invalid core frequency, must be between 100 MHz and 1 GHz in 50 MHz steps.");
+        return;
+    }
+
+    // Core clock multiplier: 50 MHz steps
+    uint8_t core_mul = (core_freq / 50);
+
+    // Set the GPU core clock
+    //lv1_read(0x2800000402CULL, 4, &clock.value);
+    clock.mul = core_mul;
+    lv1_write(0x2800000402CULL, 4, &clock.value);
+    //lv1_read(0x2800000402CULL, 4, &clock.value);
+    
+    notify("RSX Core Clock: %d MHz / 0x%x", core_freq, core_mul);
+}
+
+void SetRsxMemoryClockSpeed(uint32_t mem_freq) {
+    clock_s clock;
+
+    // Validate memory frequency, it should be in 25 MHz steps between 100 MHz and 1 GHz
+    if (mem_freq < 100 || mem_freq > 1000 || mem_freq % 25 != 0) {
+        notify("Invalid memory frequency, must be between 100 MHz and 1 GHz in 25 MHz steps.");
+        return;
+    }
+
+    // Memory clock multiplier: 25 MHz steps
+    uint8_t mem_mul = (mem_freq / 25);
+
+    // Set the GPU memory clock
+    //lv1_read(0x28000004014ULL, 4, &clock.value);
+    clock.mul = mem_mul;
+    lv1_write(0x28000004014ULL, 4, &clock.value);
+    //lv1_read(0x28000004014ULL, 4, &clock.value);
+    
+    notify("RSX Memory Clock: %d MHz/ 0x%x", mem_freq, mem_mul);
 }
 
 void TestRsxClockSettings() {
@@ -3373,295 +3532,132 @@ void toggle_lv1_patch_test2()
 	//toggle_lv1_patch32("Patch #6", 0x3B18A8, 0x32303130, 0x32303235);
 }
 
-void set_rsx_clock_defaults()
-{
-	SetRsxClockSpeed(500, 650);// Default Speeds
-}
+// Default Speed
+void set_rsx_clock_defaults()   { SetRsxClockSpeed(500, 650); }
 
 // Matched Speeds
-void set_rsx_clock_100_100()
-{
-    SetRsxClockSpeed(100, 100);
-}
+void set_rsx_clock_100_100()    { SetRsxClockSpeed(100, 100); }
+void set_rsx_clock_150_150()    { SetRsxClockSpeed(150, 150); }
+void set_rsx_clock_200_200()    { SetRsxClockSpeed(200, 200); }
+void set_rsx_clock_250_250()    { SetRsxClockSpeed(250, 250); }
+void set_rsx_clock_300_300()    { SetRsxClockSpeed(300, 300); }
+void set_rsx_clock_350_350()    { SetRsxClockSpeed(350, 350); }
+void set_rsx_clock_400_400()    { SetRsxClockSpeed(400, 400); }
+void set_rsx_clock_450_450()    { SetRsxClockSpeed(450, 450); }
+void set_rsx_clock_500_500()    { SetRsxClockSpeed(500, 500); }
+void set_rsx_clock_550_550()    { SetRsxClockSpeed(550, 550); }
+void set_rsx_clock_600_600()    { SetRsxClockSpeed(600, 600); }
+void set_rsx_clock_650_650()    { SetRsxClockSpeed(650, 650); }
+void set_rsx_clock_700_700()    { SetRsxClockSpeed(700, 700); }
+void set_rsx_clock_750_750()    { SetRsxClockSpeed(750, 750); }
+void set_rsx_clock_800_800()    { SetRsxClockSpeed(800, 800); }
+void set_rsx_clock_850_850()    { SetRsxClockSpeed(850, 850); }
+void set_rsx_clock_900_900()    { SetRsxClockSpeed(900, 900); }
+void set_rsx_clock_950_950()    { SetRsxClockSpeed(950, 950); }
+void set_rsx_clock_1000_1000()  { SetRsxClockSpeed(1000, 1000); }
 
-void set_rsx_clock_150_150()
-{
-    SetRsxClockSpeed(150, 150);
-}
+// Core Only Speeds (mem fixed at 650)
+/*void set_rsx_clock_100_650()    { SetRsxClockSpeed(100, 650); }
+void set_rsx_clock_150_650()    { SetRsxClockSpeed(150, 650); }
+void set_rsx_clock_200_650()    { SetRsxClockSpeed(200, 650); }
+void set_rsx_clock_250_650()    { SetRsxClockSpeed(250, 650); }
+void set_rsx_clock_300_650()    { SetRsxClockSpeed(300, 650); }
+void set_rsx_clock_350_650()    { SetRsxClockSpeed(350, 650); }
+void set_rsx_clock_400_650()    { SetRsxClockSpeed(400, 650); }
+void set_rsx_clock_450_650()    { SetRsxClockSpeed(450, 650); }
+void set_rsx_clock_500_650()    { SetRsxClockSpeed(500, 650); }
+void set_rsx_clock_550_650()    { SetRsxClockSpeed(550, 650); }
+void set_rsx_clock_600_650()    { SetRsxClockSpeed(600, 650); }
+void set_rsx_clock_650_650()    { SetRsxClockSpeed(650, 650); }
+void set_rsx_clock_700_650()    { SetRsxClockSpeed(700, 650); }
+void set_rsx_clock_750_650()    { SetRsxClockSpeed(750, 650); }
+void set_rsx_clock_800_650()    { SetRsxClockSpeed(800, 650); }
+void set_rsx_clock_850_650()    { SetRsxClockSpeed(850, 650); }
+void set_rsx_clock_900_650()    { SetRsxClockSpeed(900, 650); }
+void set_rsx_clock_950_650()    { SetRsxClockSpeed(950, 650); }
+void set_rsx_clock_1000_650()   { SetRsxClockSpeed(1000, 650); }*/
 
-void set_rsx_clock_200_200()
-{
-    SetRsxClockSpeed(200, 200);
-}
+// Memory Only Speeds (core fixed at 500)
+/*void set_rsx_clock_500_100()    { SetRsxClockSpeed(500, 100); }
+void set_rsx_clock_500_150()    { SetRsxClockSpeed(500, 150); }
+void set_rsx_clock_500_200()    { SetRsxClockSpeed(500, 200); }
+void set_rsx_clock_500_250()    { SetRsxClockSpeed(500, 250); }
+void set_rsx_clock_500_300()    { SetRsxClockSpeed(500, 300); }
+void set_rsx_clock_500_350()    { SetRsxClockSpeed(500, 350); }
+void set_rsx_clock_500_400()    { SetRsxClockSpeed(500, 400); }
+void set_rsx_clock_500_450()    { SetRsxClockSpeed(500, 450); }
+void set_rsx_clock_500_500()    { SetRsxClockSpeed(500, 500); }
+void set_rsx_clock_500_550()    { SetRsxClockSpeed(500, 550); }
+void set_rsx_clock_500_600()    { SetRsxClockSpeed(500, 600); }
+void set_rsx_clock_500_650()    { SetRsxClockSpeed(500, 650); }
+void set_rsx_clock_500_700()    { SetRsxClockSpeed(500, 700); }
+void set_rsx_clock_500_750()    { SetRsxClockSpeed(500, 750); }
+void set_rsx_clock_500_800()    { SetRsxClockSpeed(500, 800); }
+void set_rsx_clock_500_850()    { SetRsxClockSpeed(500, 850); }
+void set_rsx_clock_500_900()    { SetRsxClockSpeed(500, 900); }
+void set_rsx_clock_500_950()    { SetRsxClockSpeed(500, 950); }
+void set_rsx_clock_500_1000()   { SetRsxClockSpeed(500, 1000); }*/
 
-void set_rsx_clock_250_250()
-{
-    SetRsxClockSpeed(250, 250);
-}
+//------------------------------------------------------------------------------
+// Core clock: 100 MHz → 1000 MHz in 50 MHz steps
+//------------------------------------------------------------------------------
+void set_rsx_core_clock_100()  { SetRsxCoreClockSpeed(100);  }
+void set_rsx_core_clock_150()  { SetRsxCoreClockSpeed(150);  }
+void set_rsx_core_clock_200()  { SetRsxCoreClockSpeed(200);  }
+void set_rsx_core_clock_250()  { SetRsxCoreClockSpeed(250);  }
+void set_rsx_core_clock_300()  { SetRsxCoreClockSpeed(300);  }
+void set_rsx_core_clock_350()  { SetRsxCoreClockSpeed(350);  }
+void set_rsx_core_clock_400()  { SetRsxCoreClockSpeed(400);  }
+void set_rsx_core_clock_450()  { SetRsxCoreClockSpeed(450);  }
+void set_rsx_core_clock_500()  { SetRsxCoreClockSpeed(500);  }
+void set_rsx_core_clock_550()  { SetRsxCoreClockSpeed(550);  }
+void set_rsx_core_clock_600()  { SetRsxCoreClockSpeed(600);  }
+void set_rsx_core_clock_650()  { SetRsxCoreClockSpeed(650);  }
+void set_rsx_core_clock_700()  { SetRsxCoreClockSpeed(700);  }
+void set_rsx_core_clock_750()  { SetRsxCoreClockSpeed(750);  }
+void set_rsx_core_clock_800()  { SetRsxCoreClockSpeed(800);  }
+void set_rsx_core_clock_850()  { SetRsxCoreClockSpeed(850);  }
+void set_rsx_core_clock_900()  { SetRsxCoreClockSpeed(900);  }
+void set_rsx_core_clock_950()  { SetRsxCoreClockSpeed(950);  }
+void set_rsx_core_clock_1000() { SetRsxCoreClockSpeed(1000); }
 
-void set_rsx_clock_300_300()
-{
-    SetRsxClockSpeed(300, 300);
-}
-
-void set_rsx_clock_350_350()
-{
-    SetRsxClockSpeed(350, 350);
-}
-
-void set_rsx_clock_400_400()
-{
-    SetRsxClockSpeed(400, 400);
-}
-
-void set_rsx_clock_450_450()
-{
-    SetRsxClockSpeed(450, 450);
-}
-
-void set_rsx_clock_500_500()
-{
-    SetRsxClockSpeed(500, 500);
-}
-
-void set_rsx_clock_550_550()
-{
-    SetRsxClockSpeed(550, 550);
-}
-
-void set_rsx_clock_600_600()
-{
-    SetRsxClockSpeed(600, 600);
-}
-
-void set_rsx_clock_650_650()
-{
-    SetRsxClockSpeed(650, 650);
-}
-
-void set_rsx_clock_700_700()
-{
-    SetRsxClockSpeed(700, 700);
-}
-
-void set_rsx_clock_750_750()
-{
-    SetRsxClockSpeed(750, 750);
-}
-
-void set_rsx_clock_800_800()
-{
-    SetRsxClockSpeed(800, 800);
-}
-
-void set_rsx_clock_850_850()
-{
-    SetRsxClockSpeed(850, 850);
-}
-
-void set_rsx_clock_900_900()
-{
-    SetRsxClockSpeed(900, 900);
-}
-
-void set_rsx_clock_950_950()
-{
-    SetRsxClockSpeed(950, 950);
-}
-
-void set_rsx_clock_1000_1000()
-{
-    SetRsxClockSpeed(1000, 1000);
-}
-
-// Core Only Speeds
-void set_rsx_clock_100_650()
-{
-    SetRsxClockSpeed(100, 650);
-}
-
-void set_rsx_clock_150_650()
-{
-    SetRsxClockSpeed(150, 650);
-}
-
-void set_rsx_clock_200_650()
-{
-    SetRsxClockSpeed(200, 650);
-}
-
-void set_rsx_clock_250_650()
-{
-    SetRsxClockSpeed(250, 650);
-}
-
-void set_rsx_clock_300_650()
-{
-    SetRsxClockSpeed(300, 650);
-}
-
-void set_rsx_clock_350_650()
-{
-    SetRsxClockSpeed(350, 650);
-}
-
-void set_rsx_clock_400_650()
-{
-    SetRsxClockSpeed(400, 650);
-}
-
-void set_rsx_clock_450_650()
-{
-    SetRsxClockSpeed(450, 650);
-}
-
-/*void set_rsx_clock_500_650()
-{
-    SetRsxClockSpeed(500, 650);// Duplicate
-}*/
-
-void set_rsx_clock_550_650()
-{
-    SetRsxClockSpeed(550, 650);
-}
-
-void set_rsx_clock_600_650()
-{
-    SetRsxClockSpeed(600, 650);
-}
-
-/*void set_rsx_clock_650_650()
-{
-    SetRsxClockSpeed(650, 650);// Duplicate
-}*/
-
-void set_rsx_clock_700_650()
-{
-    SetRsxClockSpeed(700, 650);
-}
-
-void set_rsx_clock_750_650()
-{
-    SetRsxClockSpeed(750, 650);
-}
-
-void set_rsx_clock_800_650()
-{
-    SetRsxClockSpeed(800, 650);
-}
-
-void set_rsx_clock_850_650()
-{
-    SetRsxClockSpeed(850, 650);
-}
-
-void set_rsx_clock_900_650()
-{
-    SetRsxClockSpeed(900, 650);
-}
-
-void set_rsx_clock_950_650()
-{
-    SetRsxClockSpeed(950, 650);
-}
-
-void set_rsx_clock_1000_650()
-{
-    SetRsxClockSpeed(1000, 650);
-}
-
-// Memory Only Speeds
-void set_rsx_clock_500_100()
-{
-    SetRsxClockSpeed(500, 100);
-}
-
-void set_rsx_clock_500_150()
-{
-    SetRsxClockSpeed(500, 150);
-}
-
-void set_rsx_clock_500_200()
-{
-    SetRsxClockSpeed(500, 200);
-}
-
-void set_rsx_clock_500_250()
-{
-    SetRsxClockSpeed(500, 250);
-}
-
-void set_rsx_clock_500_300()
-{
-    SetRsxClockSpeed(500, 300);
-}
-
-void set_rsx_clock_500_350()
-{
-    SetRsxClockSpeed(500, 350);
-}
-
-void set_rsx_clock_500_400()
-{
-    SetRsxClockSpeed(500, 400);
-}
-
-void set_rsx_clock_500_450()
-{
-    SetRsxClockSpeed(500, 450);
-}
-
-/*void set_rsx_clock_500_500()
-{
-    SetRsxClockSpeed(500, 500);// Duplicate
-}*/
-
-void set_rsx_clock_500_550()
-{
-    SetRsxClockSpeed(500, 550);
-}
-
-void set_rsx_clock_500_600()
-{
-    SetRsxClockSpeed(500, 600);
-}
-
-void set_rsx_clock_500_650()
-{
-    SetRsxClockSpeed(500, 650);
-}
-
-void set_rsx_clock_500_700()
-{
-    SetRsxClockSpeed(500, 700);
-}
-
-void set_rsx_clock_500_750()
-{
-    SetRsxClockSpeed(500, 750);
-}
-
-void set_rsx_clock_500_800()
-{
-    SetRsxClockSpeed(500, 800);
-}
-
-void set_rsx_clock_500_850()
-{
-    SetRsxClockSpeed(500, 850);
-}
-
-void set_rsx_clock_500_900()
-{
-    SetRsxClockSpeed(500, 900);
-}
-
-void set_rsx_clock_500_950()
-{
-    SetRsxClockSpeed(500, 950);
-}
-
-void set_rsx_clock_500_1000()
-{
-    SetRsxClockSpeed(500, 1000);
-}
+//------------------------------------------------------------------------------
+// Memory clock: 100 MHz → 1000 MHz in 25 MHz steps
+//------------------------------------------------------------------------------
+void set_rsx_mem_clock_100()  { SetRsxMemoryClockSpeed(100);  }
+void set_rsx_mem_clock_125()  { SetRsxMemoryClockSpeed(125);  }
+void set_rsx_mem_clock_150()  { SetRsxMemoryClockSpeed(150);  }
+void set_rsx_mem_clock_175()  { SetRsxMemoryClockSpeed(175);  }
+void set_rsx_mem_clock_200()  { SetRsxMemoryClockSpeed(200);  }
+void set_rsx_mem_clock_225()  { SetRsxMemoryClockSpeed(225);  }
+void set_rsx_mem_clock_250()  { SetRsxMemoryClockSpeed(250);  }
+void set_rsx_mem_clock_275()  { SetRsxMemoryClockSpeed(275);  }
+void set_rsx_mem_clock_300()  { SetRsxMemoryClockSpeed(300);  }
+void set_rsx_mem_clock_325()  { SetRsxMemoryClockSpeed(325);  }
+void set_rsx_mem_clock_350()  { SetRsxMemoryClockSpeed(350);  }
+void set_rsx_mem_clock_375()  { SetRsxMemoryClockSpeed(375);  }
+void set_rsx_mem_clock_400()  { SetRsxMemoryClockSpeed(400);  }
+void set_rsx_mem_clock_425()  { SetRsxMemoryClockSpeed(425);  }
+void set_rsx_mem_clock_450()  { SetRsxMemoryClockSpeed(450);  }
+void set_rsx_mem_clock_475()  { SetRsxMemoryClockSpeed(475);  }
+void set_rsx_mem_clock_500()  { SetRsxMemoryClockSpeed(500);  }
+void set_rsx_mem_clock_525()  { SetRsxMemoryClockSpeed(525);  }
+void set_rsx_mem_clock_550()  { SetRsxMemoryClockSpeed(550);  }
+void set_rsx_mem_clock_575()  { SetRsxMemoryClockSpeed(575);  }
+void set_rsx_mem_clock_600()  { SetRsxMemoryClockSpeed(600);  }
+void set_rsx_mem_clock_625()  { SetRsxMemoryClockSpeed(625);  }
+void set_rsx_mem_clock_650()  { SetRsxMemoryClockSpeed(650);  }
+void set_rsx_mem_clock_675()  { SetRsxMemoryClockSpeed(675);  }
+void set_rsx_mem_clock_700()  { SetRsxMemoryClockSpeed(700);  }
+void set_rsx_mem_clock_725()  { SetRsxMemoryClockSpeed(725);  }
+void set_rsx_mem_clock_750()  { SetRsxMemoryClockSpeed(750);  }
+void set_rsx_mem_clock_775()  { SetRsxMemoryClockSpeed(775);  }
+void set_rsx_mem_clock_800()  { SetRsxMemoryClockSpeed(800);  }
+void set_rsx_mem_clock_825()  { SetRsxMemoryClockSpeed(825);  }
+void set_rsx_mem_clock_850()  { SetRsxMemoryClockSpeed(850);  }
+void set_rsx_mem_clock_875()  { SetRsxMemoryClockSpeed(875);  }
+void set_rsx_mem_clock_900()  { SetRsxMemoryClockSpeed(900);  }
+void set_rsx_mem_clock_925()  { SetRsxMemoryClockSpeed(925);  }
+void set_rsx_mem_clock_950()  { SetRsxMemoryClockSpeed(950);  }
+void set_rsx_mem_clock_975()  { SetRsxMemoryClockSpeed(975);  }
+void set_rsx_mem_clock_1000() { SetRsxMemoryClockSpeed(1000); }
