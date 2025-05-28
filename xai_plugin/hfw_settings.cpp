@@ -29,6 +29,59 @@ int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag)
 	return_to_user_prog(int);
 }
 
+struct lv2_storage_device_info {
+	uint8_t res1[32];
+	uint32_t vendor_id;
+	uint32_t device_id;
+	uint64_t capacity;
+	uint32_t sector_size;
+	uint32_t media_count;
+	uint8_t res2[8];
+};
+
+bool check_flash_type()
+{
+	uint8_t flag;
+	lv2_ss_get_cache_of_flash_ext_flag(&flag);
+	return !(flag & 0x1);
+}
+
+int lv2_storage_get_device_info(uint64_t dev_id, struct storage_device_info *info)
+{
+	system_call_2(609, dev_id, (uint64_t) info);
+	return_to_user_prog(int);
+}
+
+int lv2_storage_open(uint64_t dev_id, uint32_t *dev_handle)
+{
+	system_call_4(600, dev_id, 0, (uint64_t) dev_handle, 0);
+	return_to_user_prog(int);
+}
+
+int lv2_storage_close(uint32_t dev_handle)
+{
+	system_call_1(601, dev_handle);
+	return_to_user_prog(int);
+}
+
+int lv2_storage_read(uint32_t dev_handle, uint64_t unknown1, uint64_t start_sector, uint64_t sector_count, const void *buf, uint32_t *unknown2, uint64_t flags)
+{
+	system_call_7(602, dev_handle, unknown1, start_sector, sector_count, (uint64_t ) buf, (uint64_t) unknown2, flags);
+	return_to_user_prog(int);
+}
+
+int lv2_storage_write(uint32_t dev_handle, uint64_t unknown1, uint64_t start_sector, uint64_t sector_count, const void *buf, uint32_t *unknown2, uint64_t flags)
+{
+	system_call_7(603, dev_handle, unknown1, start_sector, sector_count, (uint64_t ) buf, (uint64_t) unknown2, flags);
+	return_to_user_prog(int);
+}
+
+int lv2_dbg_get_console_type(uint64_t* out_type)
+{
+	system_call_1(985, (uint64_t)out_type);
+	return_to_user_prog(int);
+}
+
 int sys_storage_open(uint64_t dev_id, int *dev_handle)
 {
     system_call_4(600, dev_id, 0, (uint64_t) dev_handle, 0);

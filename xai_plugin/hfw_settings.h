@@ -76,6 +76,28 @@ int lv1_poke_keyboard();*/
 	}
 #define isync() asm volatile("isync")
 
+int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag);
+int lv2_storage_get_device_info(uint64_t dev_id, struct storage_device_info *info);
+int lv2_storage_open(uint64_t dev_id, uint32_t *dev_handle);
+int lv2_storage_close(uint32_t dev_handle);
+int lv2_storage_read(uint32_t dev_handle, uint64_t unknown1, uint64_t start_sector, uint64_t sector_count, const void *buf, uint32_t *unknown2, uint64_t flags);
+int lv2_storage_write(uint32_t dev_handle, uint64_t unknown1, uint64_t start_sector, uint64_t sector_count, const void *buf, uint32_t *unknown2, uint64_t flags);
+int lv2_dbg_get_console_type(uint64_t* out_type);
+bool check_flash_type();
+
+bool IsFileExist(const char* path);
+size_t GetFileSize(FILE* f);
+
+bool FlashIsNor();
+
+bool TargetIsCEX();
+bool TargetIsDEX();
+
+bool TargetIsDECR();
+
+void NorWrite(uint64_t offset, const void* data, uint64_t size);
+void NorRead(uint64_t offset, void* data, uint64_t size);
+
 // HV dump region functions
 int dump_lv0_code();
 int dump_lv1_code();
@@ -178,10 +200,20 @@ int dump_all_regions();
 
 
 // RSX Overclocking
+/*#define eieio()                \
+	{                          \
+		asm volatile("eieio"); \
+		asm volatile("sync");  \
+	}*/
 
 void log_to_usb(const char *message);
+
+// RSX Overclocking
 void TestRsxClockSettings();
 void TestRsxClockSettingsSafe();
+
+void apply_rsx_clock(uint64_t core, uint64_t mem);
+void apply_rsx_mem_clock(uint64_t mem_mhz);
 
 void OverclockGpuCoreTest();
 void OverclockGpuMemTest();
