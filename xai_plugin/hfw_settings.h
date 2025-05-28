@@ -69,7 +69,12 @@ int lv1_poke_keyboard();*/
 //void process_json_file(const char *filepath);
 //void scan_usb_for_json(void);
 
-
+#define eieio()                \
+	{                          \
+		asm volatile("eieio"); \
+		asm volatile("sync");  \
+	}
+#define isync() asm volatile("isync")
 
 // HV dump region functions
 int dump_lv0_code();
@@ -371,6 +376,15 @@ void badhtab_toggle_lv1_dump_240m();
 void badhtab_toggle_otheros();
 void badhtab_toggle_lv2_kernel_self();
 void badhtab_toggle_lv2_kernel_fself();
+
+// BadWDSD Testing
+void badwdsd_copy_log();
+void badwdsd_toggle_lv2_kernel_fself();
+void badwdsd_toggle_lv2_kernel_zfself();
+void badwdsd_toggle_otheros_fself();
+void badwdsd_toggle_otheros_zfself();
+void badwdsd_toggle_skip_ros_compare();
+void badwdsd_toggle_flash_ros1();
 
 // LV1 Patches
 int toggle_lv1_patch(const char* name, uint64_t addr, uint64_t ovalue, uint64_t pvalue);
