@@ -29,16 +29,6 @@ int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag)
 	return_to_user_prog(int);
 }
 
-struct lv2_storage_device_info {
-	uint8_t res1[32];
-	uint32_t vendor_id;
-	uint32_t device_id;
-	uint64_t capacity;
-	uint32_t sector_size;
-	uint32_t media_count;
-	uint8_t res2[8];
-};
-
 bool check_flash_type()
 {
 	uint8_t flag;
@@ -478,7 +468,7 @@ void NorWrite(uint64_t offset, const void* data, uint64_t size)
 		return;
 	}
 
-	char* buf = (char*)allocator_759E0635(burst_size);
+	char* buf = (char*)allocator_759E0635(burst_size);// malloc
 
 	if (buf == NULL)
 	{
@@ -598,7 +588,7 @@ void NorWrite(uint64_t offset, const void* data, uint64_t size)
 		return;
 	}
 
-	allocator_77A602DD(buf);
+	allocator_77A602DD(buf);// free
 
 	notify("NorWrite() done.\n");
 }
@@ -647,7 +637,7 @@ void NorRead(uint64_t offset, void* data, uint64_t size)
 		return;
 	}
 
-	char* buf = (char*)allocator_759E0635(burst_size);
+	char* buf = (char*)allocator_759E0635(burst_size);// malloc
 
 	if (buf == NULL)
 	{
@@ -757,7 +747,7 @@ void NorRead(uint64_t offset, void* data, uint64_t size)
 		return;
 	}
 
-	allocator_77A602DD(buf);
+	allocator_77A602DD(buf);// free
 
 	notify("NorRead() done.\n");
 }

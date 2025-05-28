@@ -76,6 +76,16 @@ int lv1_poke_keyboard();*/
 	}
 #define isync() asm volatile("isync")
 
+struct lv2_storage_device_info {
+	uint8_t res1[32];
+	uint32_t vendor_id;
+	uint32_t device_id;
+	uint64_t capacity;
+	uint32_t sector_size;
+	uint32_t media_count;
+	uint8_t res2[8];
+};
+
 int lv2_ss_get_cache_of_flash_ext_flag(uint8_t *flag);
 int lv2_storage_get_device_info(uint64_t dev_id, struct storage_device_info *info);
 int lv2_storage_open(uint64_t dev_id, uint32_t *dev_handle);
