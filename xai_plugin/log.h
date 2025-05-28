@@ -53,9 +53,11 @@ void notify(const char * format, int param1, int param2, bool logging);
 void notify(const char * format, int param1, int param2, int param3, int param4, bool logging);
 void notify(const char * format, int param1, char * param2, int param3, int param4, bool logging);
 void notify(const char * format, int param1, int param2, int param3, int param4, int param5, int param6, bool logging);
+
 void notify64(const char * format, uint64_t param1, uint64_t param2);
 void notify64(const char * format, uint64_t param1, uint64_t param2, uint64_t param3);
 void notify64(const char * format, char* param1, uint64_t param2, uint64_t param3);
 void notify64(const char * format, char* param1, uint64_t param2, uint64_t param3, uint64_t param4);
+void notify64(const char * format, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4, uint64_t param5, uint64_t param6, uint64_t param7, uint64_t param8);
 
 void dump_file(const char * path, void * buffer, int size);

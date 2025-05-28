@@ -298,6 +298,15 @@ void notify64(const char * format, char* param1, uint64_t param2, uint64_t param
 	vshtask_A02D46E7(0, tmp);
 }
 
+void notify64(const char * format, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4, uint64_t param5, uint64_t param6, uint64_t param7, uint64_t param8)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, (char*)format, param1, param2, param3, param4, param5, param6, param7, param8);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
+}
+
 
 void dump_file(const char * path, void * buffer, int size)
 {
