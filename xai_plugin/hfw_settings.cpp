@@ -307,6 +307,461 @@ uint32_t celsius_to_fahrenheit(uint32_t *temp)
 	return f_temp;
 }
 
+/*bool IsFileExist(const char* path)
+{
+	FILE* f = fopen(path, "rb");
+
+	if (f == NULL)
+		return false;
+
+	fclose(f);
+	return true;
+}
+
+size_t GetFileSize(FILE* f)
+{
+	size_t old = ftell(f);
+
+	fseek(f, 0, SEEK_END);
+	size_t size = ftell(f);
+
+	fseek(f, old, SEEK_SET);
+	return size;
+}*/
+
+bool IsFileExist(const char* path)
+{
+    CellFsStat stat;
+    int rc = cellFsStat(path, &stat);
+    return (rc == CELL_OK);
+}
+
+size_t GetFileSize(const char* path)
+{
+    CellFsStat stat;
+    int rc = cellFsStat(path, &stat);
+    if (rc != CELL_OK)
+        return 0;
+    return stat.st_size;
+}
+
+/*
+// Already has open file descriptor
+size_t GetFileSize(int fd)
+{
+    CellFsStat stat;
+    if (cellFsFstat(fd, &stat) != CELL_OK)
+        return 0;
+    return stat.st_size;
+}*/
+
+/*
+// Seek to the end and back
+size_t GetFileSize(int fd)
+{
+    uint64_t oldPos, newPos;
+    cellFsLseek(fd, 0, CELL_FS_SEEK_CUR, &oldPos);
+    cellFsLseek(fd, 0, CELL_FS_SEEK_END, &newPos);
+    cellFsLseek(fd, oldPos, CELL_FS_SEEK_SET, nullptr);
+    return (size_t)newPos;
+}*/
+
+bool FlashIsNor()
+{
+	uint8_t flag;
+
+	int32_t res = lv2_ss_get_cache_of_flash_ext_flag(&flag);
+
+	if (res != 0)
+	{
+		notify("lv2_storage_get_cache_of_flash_ext_flag failed!, res = %d\n", res);
+
+		//abort();
+		return false;
+	}
+
+	return !(flag & 0x1);
+}
+
+bool TargetIsCEX()
+{
+	uint64_t type;
+
+	int32_t res = lv2_dbg_get_console_type(&type);
+
+	if (res != 0)
+	{
+		notify("lv2_dbg_get_console_type failed!, res = %d\n", res);
+
+		//abort();
+		return false;
+	}
+
+	return (type == 1);
+}
+
+bool TargetIsDEX()
+{
+	uint64_t type;
+
+	int32_t res = lv2_dbg_get_console_type(&type);
+
+	if (res != 0)
+	{
+		notify("lv2_dbg_get_console_type failed!, res = %d\n", res);
+
+		//abort();
+		return false;
+	}
+
+	return (type == 2);
+}
+
+bool TargetIsDECR()
+{
+	uint64_t type;
+
+	int32_t res = lv2_dbg_get_console_type(&type);
+
+	if (res != 0)
+	{
+		notify("lv2_dbg_get_console_type failed!, res = %d\n", res);
+
+		//abort();
+		return false;
+	}
+
+	return (type == 3);
+}
+
+void NorWrite(uint64_t offset, const void* data, uint64_t size)
+{
+	const uint8_t* dataa = (const uint8_t*)data;
+
+	notify64("NorWrite() offset = 0x%lx, data = 0x%lx, size = %lu\n", offset, (uint64_t)data, size);
+
+	if (data == NULL)
+		return;
+
+	if (size == 0)
+		return;
+
+	if (!FlashIsNor())
+	{
+		notify("Flash is not nor!\n");
+
+		//abort();
+		return;
+	}
+
+	int32_t res;
+
+	uint32_t unknown2;
+
+	uint64_t dev_id = 0x100000000000004ull;
+	uint64_t dev_flags = 0x22ull;
+
+	static const uint64_t sector_size = 512;
+	uint64_t burst_size = (512 * sector_size);
+
+	notify("burst_size = %lu\n", burst_size);
+
+	uint32_t dev_handle;
+
+	res = lv2_storage_open(dev_id, &dev_handle);
+
+	if (res != 0)
+	{
+		notify("lv2_storage_open failed!, res = %d\n", res);
+
+		//abort();
+		return;
+	}
+
+	char* buf = (char*)allocator_759E0635(burst_size);
+
+	if (buf == NULL)
+	{
+		notify("malloc failed!\n");
+
+		//abort();
+		return;
+	}
+
+	uint64_t curOffset = offset;
+	uint64_t curDataOffset = 0;
+
+	uint64_t left = size;
+
+	while (left > 0)
+	{
+		uint64_t processSize = (left > sector_size) ? sector_size : left;
+		uint64_t zzz = (curOffset % sector_size);
+		uint64_t yyy = (sector_size - zzz);
+		uint64_t xxx = (yyy > processSize) ? processSize : yyy;
+
+		uint64_t sector_idx = (curOffset / sector_size);
+
+		notify64("curOffset = 0x%lx, curDataOffset = 0x%lx, processSize = %lu, zzz = %lu, yyy = %lu, xxx = %lu, sector_idx = %lu, left = %lu\n",
+			curOffset, curDataOffset, processSize, zzz, yyy, xxx, sector_idx, left);
+
+		if (burst_size > left)
+		{
+			while (burst_size > left)
+				burst_size -= sector_size;
+
+			notify("burst_size = %lu\n", burst_size);
+		}
+
+		if ((zzz != 0) || (processSize != sector_size))
+		{
+			notify("1\n");
+
+			res = lv2_storage_read(dev_handle, 0, sector_idx, 1, buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_read failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			memcpy(&buf[zzz], &dataa[curDataOffset], xxx);
+
+			res = lv2_storage_write(dev_handle, 0, sector_idx, 1, buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_write failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			curOffset += xxx;
+			curDataOffset += xxx;
+
+			left -= xxx;
+		}
+		else if ((burst_size > 0) && (left >= burst_size) && ((burst_size % sector_size) == 0))
+		{
+			notify("2\n");
+
+			memcpy(&buf[0], &dataa[curDataOffset], burst_size);
+
+			res = lv2_storage_write(dev_handle, 0, sector_idx, (burst_size / sector_size), buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_write failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			curOffset += burst_size;
+			curDataOffset += burst_size;
+
+			left -= burst_size;
+		}
+		else
+		{
+			notify("3\n");
+
+			memcpy(&buf[0], &dataa[curDataOffset], processSize);
+
+			res = lv2_storage_write(dev_handle, 0, sector_idx, 1, buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_write failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			curOffset += processSize;
+			curDataOffset += processSize;
+
+			left -= processSize;
+		}
+	}
+
+	res = lv2_storage_close(dev_handle);
+
+	if (res != 0)
+	{
+		notify("lv2_storage_close failed!, res = %d\n", res);
+
+		//abort();
+		return;
+	}
+
+	allocator_77A602DD(buf);
+
+	notify("NorWrite() done.\n");
+}
+
+void NorRead(uint64_t offset, void* data, uint64_t size)
+{
+	uint8_t* dataa = (uint8_t*)data;
+
+	notify("NorRead() offset = 0x%lx, data = 0x%lx, size = %lu\n", offset, (uint64_t)data, size);
+
+	if (data == NULL)
+		return;
+
+	if (size == 0)
+		return;
+
+	if (!FlashIsNor())
+	{
+		notify("Flash is not nor!\n");
+
+		//abort();
+		return;
+	}
+
+	int32_t res;
+
+	uint32_t unknown2;
+
+	uint64_t dev_id = 0x100000000000004ull;
+	uint64_t dev_flags = 0x22ull;
+
+	static const uint64_t sector_size = 512;
+	uint64_t burst_size = (512 * sector_size);
+
+	notify("burst_size = %lu\n", burst_size);
+
+	uint32_t dev_handle;
+
+	res = lv2_storage_open(dev_id, &dev_handle);
+
+	if (res != 0)
+	{
+		notify("lv2_storage_open failed!, res = %d\n", res);
+
+		//abort();
+		return;
+	}
+
+	char* buf = (char*)allocator_759E0635(burst_size);
+
+	if (buf == NULL)
+	{
+		notify("malloc failed!\n");
+
+		//abort();
+		return;
+	}
+
+	uint64_t curOffset = offset;
+	uint64_t curDataOffset = 0;
+
+	uint64_t left = size;
+
+	while (left > 0)
+	{
+		uint64_t processSize = (left > sector_size) ? sector_size : left;
+		uint64_t zzz = (curOffset % sector_size);
+		uint64_t yyy = (sector_size - zzz);
+		uint64_t xxx = (yyy > processSize) ? processSize : yyy;
+
+		uint64_t sector_idx = (curOffset / sector_size);
+
+		notify64("curOffset = 0x%lx, curDataOffset = 0x%lx, processSize = %lu, zzz = %lu, yyy = %lu, xxx = %lu, sector_idx = %lu, left = %lu\n",
+			curOffset, curDataOffset, processSize, zzz, yyy, xxx, sector_idx, left);
+
+		if (burst_size > left)
+		{
+			while (burst_size > left)
+				burst_size -= sector_size;
+
+			notify("burst_size = %lu\n", burst_size);
+		}
+
+		if ((zzz != 0) || (processSize != sector_size))
+		{
+			notify("1\n");
+
+			res = lv2_storage_read(dev_handle, 0, sector_idx, 1, buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_read failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			memcpy(&dataa[curDataOffset], &buf[zzz], xxx);
+
+			curOffset += xxx;
+			curDataOffset += xxx;
+
+			left -= xxx;
+		}
+		else if ((burst_size > 0) && (left >= burst_size) && ((burst_size % sector_size) == 0))
+		{
+			notify("2\n");
+
+			res = lv2_storage_read(dev_handle, 0, sector_idx, (burst_size / sector_size), buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_read failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			memcpy(&dataa[curDataOffset], &buf[0], burst_size);
+
+			curOffset += burst_size;
+			curDataOffset += burst_size;
+
+			left -= burst_size;
+		}
+		else
+		{
+			notify("3\n");
+
+			res = lv2_storage_read(dev_handle, 0, sector_idx, 1, buf, &unknown2, dev_flags);
+
+			if (res != 0)
+			{
+				notify("lv2_storage_read failed! res = %d\n", res);
+
+				//abort();
+				return;
+			}
+
+			memcpy(&dataa[curDataOffset], &buf[0], processSize);
+
+			curOffset += processSize;
+			curDataOffset += processSize;
+
+			left -= processSize;
+		}
+	}
+
+	res = lv2_storage_close(dev_handle);
+
+	if (res != 0)
+	{
+		notify("lv2_storage_close failed!, res = %d\n", res);
+
+		//abort();
+		return;
+	}
+
+	allocator_77A602DD(buf);
+
+	notify("NorRead() done.\n");
+}
+
 process_id_t vsh_pid = 0;
 
 int poke_vsh(uint64_t address, char *buf, int size)
@@ -468,8 +923,8 @@ void load_cfw_functions()
 	
 	(void*&)(xsetting_D0261D72) = (void*)((int)getNIDfunc("xsetting",0xD0261D72));
 
-	(void*&)(allocator_759E0635) = (void*)((int)getNIDfunc("allocator", 0x759E0635));
-	(void*&)(allocator_77A602DD) = (void*)((int)getNIDfunc("allocator", 0x77A602DD));
+	(void*&)(allocator_759E0635) = (void*)((int)getNIDfunc("allocator", 0x759E0635));// malloc
+	(void*&)(allocator_77A602DD) = (void*)((int)getNIDfunc("allocator", 0x77A602DD));// free
 
 	(void*&)(vsh_sprintf) = (void*)((int)getNIDfunc("stdc", 0x273B9711));
 }
