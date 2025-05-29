@@ -95,6 +95,10 @@ int lv2_storage_write(uint32_t dev_handle, uint64_t unknown1, uint64_t start_sec
 int lv2_dbg_get_console_type(uint64_t* out_type);
 bool check_flash_type();
 
+uint32_t lv2_ss_update_mgr_if(uint32_t packet_id, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6);
+uint32_t lv2_um_read_eeprom(uint32_t offset, uint8_t* outValue);
+uint32_t lv2_um_write_eeprom(uint32_t offset, uint8_t inValue);
+
 bool IsFileExist(const char* path);
 size_t GetFileSize(FILE* f);
 
@@ -103,14 +107,19 @@ bool FlashIsNor();
 
 bool TargetIsCEX();
 bool TargetIsDEX();
-
 bool TargetIsDECR();
+
+uint8_t get_bank_indicator();
+void set_bank_indicator(uint8_t value);
 
 void NorWrite(uint64_t offset, const void* data, uint64_t size);
 void NorRead(uint64_t offset, void* data, uint64_t size);
 
 void BadWDSD_Write_Stagex();
 void BadWDSD_Write_ros(bool compare, bool doFlashRos1);
+
+bool IsExploited();
+int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1);
 
 // HV dump region functions
 int dump_lv0_code();

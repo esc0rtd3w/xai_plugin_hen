@@ -297,6 +297,24 @@ uint32_t celsius_to_fahrenheit(uint32_t *temp)
 	return f_temp;
 }
 
+uint32_t lv2_ss_update_mgr_if(uint32_t packet_id, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6)
+{
+	system_call_7(863, packet_id, arg1, arg2, arg3, arg4, arg5, arg6);
+	return_to_user_prog(uint32_t);
+}
+
+uint32_t lv2_um_read_eeprom(uint32_t offset, uint8_t* outValue)
+{
+	system_call_3(863, 0x600B, (uint64_t)offset, (uint64_t)outValue);
+	return_to_user_prog(uint32_t);
+}
+
+uint32_t lv2_um_write_eeprom(uint32_t offset, uint8_t inValue)
+{
+	system_call_3(863, 0x600C, (uint64_t)offset, (uint64_t)inValue);
+	return_to_user_prog(uint32_t);
+}
+
 /*bool IsFileExist(const char* path)
 {
 	FILE* f = fopen(path, "rb");
@@ -355,6 +373,36 @@ size_t GetFileSize(int fd)
     cellFsLseek(fd, oldPos, CELL_FS_SEEK_SET, nullptr);
     return (size_t)newPos;
 }*/
+
+uint8_t get_bank_indicator()
+{
+	uint8_t value = 0x99;
+
+	int32_t res = lv2_um_read_eeprom(0x48c24, &value);
+
+	if (res != 0)
+	{
+		notify("lv2_um_read_eeprom failed!, res = %d\n", res);
+
+		//abort();
+		return 0x99;
+	}
+
+	return value;
+}
+
+void set_bank_indicator(uint8_t value)
+{
+	int32_t res = lv2_um_write_eeprom(0x48c24, value);
+
+	if (res != 0)
+	{
+		notify("lv2_um_write_eeprom failed!, res = %d\n", res);
+
+		//abort();
+		return;
+	}
+}
 
 bool FlashIsNor()
 {
@@ -1108,8 +1156,8 @@ void BadWDSD_Write_ros(bool compare, bool doFlashRos1)
     NorWrite(doFlashRos1 ? 0x7C0000 : 0x0C0000, code, size);
 
     {
-        //notify64("0x%lx\n", lv1_peek(0x2401F0002000ULL));
-        //notify64("0x%lx\n", lv1_peek(0x2401F0310000ULL));
+        notify64("0x%lx\n", lv1_peek(0x2401F0002000ULL));
+        notify64("0x%lx\n", lv1_peek(0x2401F0310000ULL));
     }
 
     allocator_77A602DD(code);// free
@@ -2859,6 +2907,115 @@ void downloadPKG(wchar_t * url)
 {	
 	url_path = url;
 	LoadPlugin("download_plugin",(void*)download_thread);			
+}
+
+// TODO: Get exploited state
+/*bool IsExploited()
+{
+	uint64_t lpar_addr;
+
+	int32_t res;
+
+	res = lv1_map_physical_address_region(0, EXP_4KB, SIZE_4KB, &lpar_addr);
+
+	if (res != 0)
+		return false;
+
+	res = lv1_unmap_physical_address_region(lpar_addr);
+
+	if (res != 0)
+	{
+		notify("lv1_unmap_physical_address_region failed!, res = %d\n", res);
+
+		//abort();
+		return false;
+	}
+
+	return true;
+}*/
+
+// BadWDSD/qCFW Installer
+int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
+{
+	//notify("Flash is %s\n", FlashIsNor() ? "NOR" : "NAND");
+
+	sys_timer_sleep(3);
+
+	if (TargetIsCEX())
+	{
+		notify("Target is CEX\n");
+	}
+	else if (TargetIsDEX())
+	{
+		notify("Target is DEX\n");
+	}
+	else if (TargetIsDECR())
+	{
+		notify("Target is DECR\n");
+	}
+	else
+	{
+		notify("Unknown target!!!\n");
+		return 0;
+	}
+
+	notify("DEBUG: Writing Stagex will begin in 30 seconds\n");
+	sys_timer_sleep(30);// DEBUG sleep
+
+    if (!doLegacy)
+    {
+        notify("Installing Stagex.bin...\n");
+        BadWDSD_Write_Stagex();
+		sys_timer_sleep(30);// DEBUG sleep
+        notify("Stagex.bin installed.\n");
+
+        notify("Installing CoreOS.bin...\n");
+
+        //if (!IsExploited())
+        //{
+        //    notify("Should exploited at this point!\n");
+        //    notify("Install modchip first!\n");
+        //    // abort();
+        //    return 0;
+        //}
+
+        uint8_t bank_indicator = get_bank_indicator();
+        notify("bank_indicator = 0x%x\n", (uint32_t)bank_indicator);
+
+        if (bank_indicator != 0x00)
+        {
+            notify("Please reinstall firmware ONCE again then try again.\n");
+            // abort();
+            return 0;
+        }
+		
+		notify("DEBUG: Writing CoreOS will begin in 30 seconds\n");
+		sys_timer_sleep(30);// DEBUG sleep
+
+        BadWDSD_Write_ros(false, false);
+
+        set_bank_indicator(0xff);
+        bank_indicator = get_bank_indicator();
+        notify("bank_indicator = 0x%x\n", (uint32_t)bank_indicator);
+
+        if (bank_indicator != 0xff)
+        {
+            notify("Bank switch failed!\n");
+            // abort();
+            return 0;
+        }
+
+        notify("CoreOS.bin installed.\n");
+    }
+    else
+    {
+        // legacy install
+        notify("Legacy install\n");
+        BadWDSD_Write_Stagex();
+        BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+    }
+
+    return 1;
 }
 
 void write_toggle(char* path_to_file, char* message)
