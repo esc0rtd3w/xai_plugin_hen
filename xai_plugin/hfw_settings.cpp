@@ -752,6 +752,370 @@ void NorRead(uint64_t offset, void* data, uint64_t size)
 	notify("NorRead() done.\n");
 }
 
+/*
+void BadWDSD_Write_Stagex()
+{
+	notify("BadWDSD_Write_Stagex()\n");
+
+	if (!FlashIsNor())
+	{
+		notify("Flash is not nor!!!\n");
+
+		//abort();
+		return;
+	}
+
+	FILE *f = NULL;
+
+	if (f == NULL)
+	{
+		notify("Loading /app_home/Stagex.bin\n");
+
+		f = fopen("/app_home/Stagex.bin", "rb");
+
+		if (f == NULL)
+			notify("Not found\n");
+	}
+
+	if (f == NULL)
+	{
+		notify("Loading /dev_hdd0/Stagex.bin\n");
+
+		f = fopen("/dev_hdd0/Stagex.bin", "rb");
+
+		if (f == NULL)
+			notify("Not found\n");
+	}
+
+	if (f == NULL)
+	{
+		notify("Stagex.bin not found!\n");
+
+		//abort();
+		return;
+	}
+
+	size_t size = GetFileSize(f);
+	notify("size = %lu\n", size);
+
+	void *code = allocator_759E0635(size);// malloc
+	fread(code, 1, size, f);
+
+	fclose(f);
+
+	notify("code = 0x%lx\n", (uint64_t)code);
+
+	if (size > (48 * 1024))
+	{
+		notify("size is too big!!!\n");
+
+		//abort();
+		return;
+	}
+
+	notify("Writing to flash...\n");
+	// lv1_write(0x2401F031000, size, code);
+	NorWrite(0x31000, code, size);
+
+	{
+		notify("0x%lx\n", lv1_peek(0x2401F000200));
+		notify("0x%lx\n", lv1_peek(0x2401F031000));
+	}
+
+	allocator_77A602DD(code);// free
+	notify("BadWDSD_Write_Stagex() done,\n");
+}
+
+void BadWDSD_Write_ros(bool compare, bool doFlashRos1)
+{
+	notify("BadWDSD_Write_ros()\n");
+
+	if (!FlashIsNor())
+	{
+		notify("Flash is not nor!!!\n");
+
+		//abort();
+		return;
+	}
+
+	FILE *f = NULL;
+
+	if (f == NULL)
+	{
+		notify("Loading /app_home/CoreOS.bin\n");
+
+		f = fopen("/app_home/CoreOS.bin", "rb");
+
+		if (f == NULL)
+			notify("Not found\n");
+	}
+
+	if (f == NULL)
+	{
+		notify("Loading /dev_hdd0/CoreOS.bin\n");
+
+		f = fopen("/dev_hdd0/CoreOS.bin", "rb");
+
+		if (f == NULL)
+			notify("Not found\n");
+	}
+
+	if (f == NULL)
+	{
+		notify("CoreOS.bin not found!\n");
+
+		//abort();
+		return;
+	}
+
+	size_t size = GetFileSize(f);
+	notify("size = %lu\n", size);
+
+	void *code = allocator_759E0635(size);// malloc
+	fread(code, 1, size, f);
+
+	fclose(f);
+
+	notify("code = 0x%lx\n", (uint64_t)code);
+
+	if (size > 0x700000)
+	{
+		notify("size is too big!!!\n");
+
+		//abort();
+		return;
+	}
+
+	if (compare)
+	{
+		notify("Comparing ros...\n");
+
+		void *ros0 = allocator_759E0635(0x700000);// malloc
+		void *ros1 = allocator_759E0635(0x700000);// malloc
+
+		if (ros0 == NULL || ros1 == NULL)
+		{
+			notify("malloc fail!\n");
+
+			//abort();
+
+			return;
+		}
+
+		NorRead(0x0C0000, ros0, 0x700000);
+		NorRead(0x7C0000, ros1, 0x700000);
+
+		if (memcmp(ros0, ros1, 0x700000))
+		{
+			notify("ros compare fail!, please reinstall same firmware twice!\n");
+
+			//abort();
+			return;
+		}
+
+		allocator_77A602DD(ros1);// free
+		allocator_77A602DD(ros0);// free
+	}
+
+	notify("Writing to flash (%s)...\n", doFlashRos1 ? "ros1" : "ros0");
+	NorWrite(doFlashRos1 ? 0x7C0000 : 0x0C0000, code, size);
+
+	{
+		notify("0x%lx\n", lv1_peek(0x2401F000200));
+		notify("0x%lx\n", lv1_peek(0x2401F031000));
+	}
+
+	allocator_77A602DD(code);// free
+	notify("BadWDSD_Write_ros() done.\n");
+}
+*/
+
+void BadWDSD_Write_Stagex()
+{
+    notify("BadWDSD_Write_Stagex()\n");
+
+    if (!FlashIsNor())
+    {
+        notify("Flash is not nor!!!\n");
+
+        //abort();
+        return;
+    }
+
+    int fd = -1;
+    int rc;
+
+    if (fd < 0)
+    {
+        notify("Loading /app_home/Stagex.bin\n");
+
+        rc = cellFsOpen("/app_home/Stagex.bin", CELL_FS_O_RDONLY, &fd, NULL, 0);
+
+        if (rc != CELL_OK)
+            notify("Not found\n");
+    }
+
+    if (fd < 0)
+    {
+        notify("Loading /dev_hdd0/Stagex.bin\n");
+
+        rc = cellFsOpen("/dev_hdd0/Stagex.bin", CELL_FS_O_RDONLY, &fd, NULL, 0);
+
+        if (rc != CELL_OK)
+            notify("Not found\n");
+    }
+
+    if (fd < 0)
+    {
+        notify("Stagex.bin not found!\n");
+
+        //abort();
+        return;
+    }
+
+    CellFsStat stat;
+    rc = cellFsFstat(fd, &stat);
+    size_t size = (rc == CELL_OK) ? stat.st_size : 0;
+    notify("size = %lu\n", size);
+
+    void* code = allocator_759E0635(size);// malloc
+    uint64_t bytesRead;
+    cellFsRead(fd, code, size, &bytesRead);
+
+    cellFsClose(fd);
+
+    notify("code = 0x%lx\n", (uint64_t)code);
+
+    if (size > (48 * 1024))
+    {
+        notify("size is too big!!!\n");
+
+        //abort();
+        return;
+    }
+
+    notify("Writing to flash...\n");
+    // lv1_write(0x2401F031000, size, code);
+    NorWrite(0x31000, code, size);
+
+    {
+        notify64("0x%lx\n", lv1_peek(0x2401F0002000ULL));
+        notify64("0x%lx\n", lv1_peek(0x2401F0310000ULL));
+    }
+
+    allocator_77A602DD(code);// free
+    notify("BadWDSD_Write_Stagex() done,\n");
+}
+
+void BadWDSD_Write_ros(bool compare, bool doFlashRos1)
+{
+    notify("BadWDSD_Write_ros()\n");
+
+    if (!FlashIsNor())
+    {
+        notify("Flash is not nor!!!\n");
+
+        //abort();
+        return;
+    }
+
+    int fd = -1;
+    int rc;
+
+    if (fd < 0)
+    {
+        notify("Loading /app_home/CoreOS.bin\n");
+
+        rc = cellFsOpen("/app_home/CoreOS.bin", CELL_FS_O_RDONLY, &fd, NULL, 0);
+
+        if (rc != CELL_OK)
+            notify("Not found\n");
+    }
+
+    if (fd < 0)
+    {
+        notify("Loading /dev_hdd0/CoreOS.bin\n");
+
+        rc = cellFsOpen("/dev_hdd0/CoreOS.bin", CELL_FS_O_RDONLY, &fd, NULL, 0);
+
+        if (rc != CELL_OK)
+            notify("Not found\n");
+    }
+
+    if (fd < 0)
+    {
+        notify("CoreOS.bin not found!\n");
+
+        //abort();
+        return;
+    }
+
+    CellFsStat stat;
+    rc = cellFsFstat(fd, &stat);
+    size_t size = (rc == CELL_OK) ? stat.st_size : 0;
+    notify("size = %lu\n", size);
+
+    void* code = allocator_759E0635(size);// malloc
+    uint64_t bytesRead;
+    cellFsRead(fd, code, size, &bytesRead);
+
+    cellFsClose(fd);
+
+    notify("code = 0x%lx\n", (uint64_t)code);
+
+    if (size > 0x700000)
+    {
+        notify("size is too big!!!\n");
+
+        //abort();
+        return;
+    }
+
+    if (compare)
+    {
+        notify("Comparing ros...\n");
+
+        void* ros0 = allocator_759E0635(0x700000);// malloc
+        void* ros1 = allocator_759E0635(0x700000);// malloc
+
+        if (ros0 == NULL || ros1 == NULL)
+        {
+            notify("malloc fail!\n");
+
+            //abort();
+
+            return;
+        }
+
+        NorRead(0x0C0000, ros0, 0x700000);
+        NorRead(0x7C0000, ros1, 0x700000);
+
+        if (memcmp(ros0, ros1, 0x700000))
+        {
+            notify("ros compare fail!, please reinstall same firmware twice!\n");
+
+            //abort();
+            return;
+        }
+
+        allocator_77A602DD(ros1);// free
+        allocator_77A602DD(ros0);// free
+    }
+	
+    //notify("Writing to flash (%s)...\n", doFlashRos1 ? "ros1" : "ros0");
+	const char* banksel = doFlashRos1 ? "ros1" : "ros0";
+    notify("Writing to flash (%s)...\n", (char*)banksel);
+    NorWrite(doFlashRos1 ? 0x7C0000 : 0x0C0000, code, size);
+
+    {
+        //notify64("0x%lx\n", lv1_peek(0x2401F0002000ULL));
+        //notify64("0x%lx\n", lv1_peek(0x2401F0310000ULL));
+    }
+
+    allocator_77A602DD(code);// free
+    notify("BadWDSD_Write_ros() done.\n");
+}
+
 process_id_t vsh_pid = 0;
 
 int poke_vsh(uint64_t address, char *buf, int size)

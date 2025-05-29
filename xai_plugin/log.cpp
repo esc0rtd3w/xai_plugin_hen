@@ -60,6 +60,13 @@ void log(const char * format, int param1, const char* param2)
 	log(tmp);
 }
 
+/*void log(const char format, const char* param1)
+{
+	char tmp[0x250];
+	vsh_sprintf(tmp, (char*)format, param1);
+	log(tmp);
+}*/
+
 void log(const char * format, int param1, const char* param2, const char* param3)
 {
 	char tmp[0x250];
@@ -166,6 +173,15 @@ void notify(const char * format, int param1)
 	vshtask_A02D46E7(0, tmp);
 }
 
+/*void notify(const char* format, const char* param1)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
+	vshtask_A02D46E7(0, tmp);
+}*/
+
 void notify(const char * format, int param1, int param2)
 {
 	char tmp[0x100];
@@ -260,6 +276,15 @@ void notify(char * param)
 	log(param);	log("\n");
 	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7)); // notification message func
 	vshtask_A02D46E7(0, param);
+}
+
+void notify64(const char* format, uint64_t param1)
+{
+	char tmp[0x100];
+	vsh_sprintf(tmp, format, param1, param1);
+	log(tmp); log("\n");
+	(void*&)(vshtask_A02D46E7) = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7));
+	vshtask_A02D46E7(0, tmp);
 }
 
 void notify64(const char * format, uint64_t param1, uint64_t param2)

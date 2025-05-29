@@ -98,6 +98,7 @@ bool check_flash_type();
 bool IsFileExist(const char* path);
 size_t GetFileSize(FILE* f);
 
+//const char* banksel;
 bool FlashIsNor();
 
 bool TargetIsCEX();
@@ -107,6 +108,9 @@ bool TargetIsDECR();
 
 void NorWrite(uint64_t offset, const void* data, uint64_t size);
 void NorRead(uint64_t offset, void* data, uint64_t size);
+
+void BadWDSD_Write_Stagex();
+void BadWDSD_Write_ros(bool compare, bool doFlashRos1);
 
 // HV dump region functions
 int dump_lv0_code();

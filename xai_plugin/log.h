@@ -29,6 +29,7 @@ void log(char * format, const char * param1);
 void log(char * format, const wchar_t * param1);
 void log(char * format, char param1);
 void log(char * format, int param1);
+//void log(const char format, const char* param2);
 void log(const char * format, int param1, const char* param2);
 void log(const char * format, int param1, const char* param2, const char* param3);
 void log(char * format, float param1);
@@ -43,6 +44,7 @@ void log_function(char * pluginname,char * view, const char * function, char * f
 void notify(char * param);
 void notify(char * format, char * param1);
 void notify(const char * format, int param1);
+//void notify(const char* format, const char* param1);
 void notify(const char * format, int param1, int param2);
 void notify(const char * format, int param1, int param2, int param3, int param4);
 void notify(const char* format, const char* param1, uint64_t param2, uint32_t param3, uint32_t param4);
@@ -54,6 +56,7 @@ void notify(const char * format, int param1, int param2, int param3, int param4,
 void notify(const char * format, int param1, char * param2, int param3, int param4, bool logging);
 void notify(const char * format, int param1, int param2, int param3, int param4, int param5, int param6, bool logging);
 
+void notify64(const char * format, uint64_t param1);
 void notify64(const char * format, uint64_t param1, uint64_t param2);
 void notify64(const char * format, uint64_t param1, uint64_t param2, uint64_t param3);
 void notify64(const char * format, char* param1, uint64_t param2, uint64_t param3);
