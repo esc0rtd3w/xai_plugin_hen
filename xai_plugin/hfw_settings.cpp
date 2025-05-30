@@ -5,6 +5,7 @@
 #include "gccpch.h"
 #include <cell/fs/cell_fs_file_api.h>
 #include <sys/timer.h>
+#include <math.h>
 #include "log.h"
 #include "hfw_settings.h"
 #include "x3.h"
@@ -2938,15 +2939,95 @@ bool IsExploited()
 	return true;
 }
 
+
+// Reads “/dev_flash/vsh/etc/version.txt”, which looks like release:04.9200:
+// and returns the version as a double, rounded to two decimal places
+// (e.g. 4.92). Returns 0.0 on any error.
+/*double GetFWVersion()
+{
+    double fwVersion = 0.0;
+    int32_t fd;
+    int32_t rc = cellFsOpen("/dev_flash/vsh/etc/version.txt", CELL_FS_O_RDONLY, &fd, NULL, 0);
+    if (rc != CELL_OK)
+	{
+        return 0.0;
+	}
+
+    char bufs[64];
+    uint64_t bytesRead = 0;
+    rc = cellFsRead(fd, bufs, sizeof(bufs)-1, &bytesRead);
+    cellFsClose(fd);
+    if (rc != CELL_OK || bytesRead == 0)
+	{
+        return 0.0;
+	}
+
+    bufs[bytesRead] = '\0';
+
+    // parse the numeric substring after "release:"
+    // offset 8 skips "release:"
+    double raw = strtod(bufs + 8, NULL);
+
+    // round to two decimal places
+    fwVersion = round(raw * 100.0) / 100.0;
+
+	char msg[64];
+    vsh_sprintf(msg, "Firmware version: %.2f\n", fwVersion);
+    notify("%s", msg);
+
+    return fwVersion;
+}*/
+
+double GetFWVersion()
+{
+    int32_t fd, rc = cellFsOpen("/dev_flash/vsh/etc/version.txt", CELL_FS_O_RDONLY, &fd, NULL, 0);
+    if (rc != CELL_OK)
+	{
+        return 0.0;
+	}
+
+    char bufs[64];
+    uint64_t len = 0;
+    rc = cellFsRead(fd, bufs, sizeof(bufs) - 1, &len);
+    cellFsClose(fd);
+    if (rc != CELL_OK || len < 14)  // need at least "release:0X.XX00:"
+	{
+        return 0.0;
+	}
+
+    bufs[len] = '\0';
+
+    // buf layout: "release:0X.XX00:"
+    char* p = bufs + 8;  // points at '0'
+    int ip = (p[0] - '0') * 10 + (p[1] - '0');
+    int fp = (p[3] - '0') * 10 + (p[4] - '0');
+
+	double version = (double)ip + ((double)fp / 100.0);
+
+    char msg[64];
+    vsh_sprintf(msg, "Firmware Version: %.2f\n", version);
+    notify("%s", msg);
+
+    return version;
+}
+
 // BadWDSD/qCFW Installer
 // returns 1 on success, 0 on failure
 int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
 {
-	// TODO: Add firmware version detect
+	if (GetFWVersion() < 4.70)
+	{
+		notify("firmware not supported!\n");
+
+		//abort();
+		return 0;
+	}
+
+	sys_timer_sleep(3);// DEBUG sleep
 
 	//notify("Flash is %s\n", FlashIsNor() ? "NOR" : "NAND");
-	//const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
-    //notify("Flash is %s\n", (char*)flashtype);
+	const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
+    notify("Flash is %s\n", (char*)flashtype);
 
 	sys_timer_sleep(3);
 
@@ -3038,7 +3119,15 @@ int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
 // returns 1 on success, 0 on failure
 int InstallStagexOnly()
 {
-    sys_timer_sleep(3);
+	if (GetFWVersion() < 4.70)
+	{
+		notify("firmware not supported!\n");
+
+		//abort();
+		return 0;
+	}
+
+	sys_timer_sleep(3);// DEBUG sleep
 
     notify("DEBUG: Writing Stagex will begin in 30 seconds\n");
     sys_timer_sleep(30);
@@ -3060,7 +3149,15 @@ int InstallStagexOnly()
 // returns 1 on success, 0 on failure
 int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1)
 {
-    sys_timer_sleep(3);
+	if (GetFWVersion() < 4.70)
+	{
+		notify("firmware not supported!\n");
+
+		//abort();
+		return 0;
+	}
+	
+	sys_timer_sleep(3);// DEBUG sleep
 
     notify("Installing CoreOS.bin...\n");
     if (!IsExploited())
@@ -3100,17 +3197,17 @@ int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1)
     return 1;
 }
 
-int VerifyQCFW()
+void VerifyQCFW(void)
 {
 	notify("VerifyQCFW: Not Yet Implemented");
 }
 
-int VerifyStagexOnly()
+void VerifyStagexOnly(void)
 {
 	notify("VerifyStagexOnly: Not Yet Implemented");
 }
 
-int VerifyCoreOSOnly()
+void VerifyCoreOSOnly(void)
 {
 	notify("VerifyCoreOSOnly: Not Yet Implemented");
 }

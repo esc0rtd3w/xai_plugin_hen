@@ -469,7 +469,7 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	}
 	
 	// BadWDSD/qCFW
-	else if(strcmp(action, "badwdsd_install_qcfw") == 0)	
+	/*else if(strcmp(action, "badwdsd_install_qcfw") == 0)	
 	{
 		InstallQCFW(false, false, false);// Default FALSE (doLegacy, doSkipRosCompare, doFlashRos1)
 	}
@@ -480,7 +480,33 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if(strcmp(action, "badwdsd_install_coreos_only") == 0)	
 	{
 		InstallCoreOSOnly(false, false);// Default FALSE doSkipRosCompare, doFlashRos1)
+	}*/
+
+	else if (strcmp(action, "badwdsd_install_qcfw") == 0)
+	{
+		if (!InstallQCFW(false, false, false))
+		{
+			notify("QCFW install failed, exiting.\n");
+			return;
+		}
 	}
+	else if (strcmp(action, "badwdsd_install_stagex_only") == 0)
+	{
+		if (!InstallStagexOnly())
+		{
+			notify("Stagex install failed, exiting.\n");
+			return;
+		}
+	}
+	else if (strcmp(action, "badwdsd_install_coreos_only") == 0)
+	{
+		if (!InstallCoreOSOnly(false, false))
+		{
+			notify("CoreOS install failed, exiting.\n");
+			return;
+		}
+	}
+
 	else if(strcmp(action, "badwdsd_verify_qcfw") == 0)	
 	{
 		VerifyQCFW();

@@ -102,6 +102,8 @@ uint32_t lv2_um_write_eeprom(uint32_t offset, uint8_t inValue);
 bool IsFileExist(const char* path);
 size_t GetFileSize(FILE* f);
 
+double GetFWVersion();
+
 //const char* flashtype;
 //const char* banksel;
 bool FlashIsNor();
@@ -123,9 +125,9 @@ bool IsExploited();
 int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1);
 int InstallStagexOnly();
 int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1);
-int VerifyQCFW();
-int VerifyStagexOnly();
-int VerifyCoreOSOnly();
+void VerifyQCFW(void);
+void VerifyStagexOnly(void);
+void VerifyCoreOSOnly(void);
 
 // HV dump region functions
 int dump_lv0_code();
