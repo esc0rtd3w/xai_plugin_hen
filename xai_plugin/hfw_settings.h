@@ -102,6 +102,7 @@ uint32_t lv2_um_write_eeprom(uint32_t offset, uint8_t inValue);
 bool IsFileExist(const char* path);
 size_t GetFileSize(FILE* f);
 
+//const char* flashtype;
 //const char* banksel;
 bool FlashIsNor();
 
@@ -120,6 +121,11 @@ void BadWDSD_Write_ros(bool compare, bool doFlashRos1);
 
 bool IsExploited();
 int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1);
+int InstallStagexOnly();
+int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1);
+int VerifyQCFW();
+int VerifyStagexOnly();
+int VerifyCoreOSOnly();
 
 // HV dump region functions
 int dump_lv0_code();

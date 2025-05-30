@@ -2910,18 +2910,22 @@ void downloadPKG(wchar_t * url)
 }
 
 // TODO: Get exploited state
-/*bool IsExploited()
+bool IsExploited()
 {
-	uint64_t lpar_addr;
+	//uint64_t lpar_addr;
+	
+	//int32_t res;
+	//res = lv1_map_physical_address_region(0, EXP_4KB, SIZE_4KB, &lpar_addr);
 
-	int32_t res;
+	uint64_t addr = 0x323740;// 0000000000323740  53 6F 6E 79 20 43 65 6C  Sony Cel
+	uint64_t verify = lv1_peek(addr);
 
-	res = lv1_map_physical_address_region(0, EXP_4KB, SIZE_4KB, &lpar_addr);
-
-	if (res != 0)
+	if (verify != 0x536F6E792043656CULL)
+	{
 		return false;
+	}
 
-	res = lv1_unmap_physical_address_region(lpar_addr);
+	/*res = lv1_unmap_physical_address_region(lpar_addr);
 
 	if (res != 0)
 	{
@@ -2929,15 +2933,18 @@ void downloadPKG(wchar_t * url)
 
 		//abort();
 		return false;
-	}
+	}*/
 
 	return true;
-}*/
+}
 
 // BadWDSD/qCFW Installer
+// returns 1 on success, 0 on failure
 int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
 {
 	//notify("Flash is %s\n", FlashIsNor() ? "NOR" : "NAND");
+	const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
+    notify("Flash is %s\n", (char*)flashtype);
 
 	sys_timer_sleep(3);
 
@@ -2965,19 +2972,18 @@ int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
     if (!doLegacy)
     {
         notify("Installing Stagex.bin...\n");
-        BadWDSD_Write_Stagex();
-		sys_timer_sleep(30);// DEBUG sleep
+        //BadWDSD_Write_Stagex();
+		notify("DEBUG: BadWDSD_Write_Stagex() is disabled for testing\n");
         notify("Stagex.bin installed.\n");
 
         notify("Installing CoreOS.bin...\n");
 
-        //if (!IsExploited())
-        //{
-        //    notify("Should exploited at this point!\n");
-        //    notify("Install modchip first!\n");
-        //    // abort();
-        //    return 0;
-        //}
+        if (!IsExploited())
+        {
+            notify("You MUST be exploited at this point!\nInstall modchip first!\n");
+            // abort();
+            return 0;
+        }
 
         uint8_t bank_indicator = get_bank_indicator();
         notify("bank_indicator = 0x%x\n", (uint32_t)bank_indicator);
@@ -2992,7 +2998,8 @@ int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
 		notify("DEBUG: Writing CoreOS will begin in 30 seconds\n");
 		sys_timer_sleep(30);// DEBUG sleep
 
-        BadWDSD_Write_ros(false, false);
+        //BadWDSD_Write_ros(false, false);
+		notify("DEBUG: BadWDSD_Write_ros() is disabled for testing\n");
 
         set_bank_indicator(0xff);
         bank_indicator = get_bank_indicator();
@@ -3011,11 +3018,97 @@ int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
     {
         // legacy install
         notify("Legacy install\n");
-        BadWDSD_Write_Stagex();
-        BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+        //BadWDSD_Write_Stagex();
+        //BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+		notify("DEBUG: BadWDSD_Write_Stagex() is disabled for testing\n");
+		notify("DEBUG: BadWDSD_Write_ros() is disabled for testing\n");
     }
 
+	notify("DEBUG: return 1\n");
+	
+    sys_timer_sleep(5);
+	VerifyQCFW();
+
     return 1;
+}
+
+// writes only the Stagex.bin payload
+// returns 1 on success, 0 on failure
+int InstallStagexOnly()
+{
+    sys_timer_sleep(3);
+
+    notify("DEBUG: Writing Stagex will begin in 30 seconds\n");
+    sys_timer_sleep(30);
+
+    notify("Installing Stagex.bin...\n");
+    BadWDSD_Write_Stagex();
+    notify("Stagex.bin installed.\n");
+
+    sys_timer_sleep(5);
+	VerifyStagexOnly();
+
+    return 1;
+}
+
+// writes only the CoreOS.bin payload
+// doSkipRosCompare  if true, skips the ROS‐region compare step
+// doFlashRos1       if true, writes into bank1 (ros1) instead of bank0
+// returns 1 on success, 0 on failure
+int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1)
+{
+    sys_timer_sleep(3);
+
+    notify("Installing CoreOS.bin...\n");
+    if (!IsExploited())
+    {
+        notify("You MUST be exploited at this point!\nInstall modchip first!\n");
+        return 0;
+    }
+
+    uint8_t bank_indicator = get_bank_indicator();
+    notify("bank_indicator = 0x%x\n", (uint32_t)bank_indicator);
+    if (bank_indicator != 0x00)
+    {
+        notify("Please reinstall firmware ONCE again then try again.\n");
+        return 0;
+    }
+
+    notify("DEBUG: Writing CoreOS will begin in 30 seconds\n");
+    sys_timer_sleep(30);
+
+    BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+
+    set_bank_indicator(0xff);
+    bank_indicator = get_bank_indicator();
+    notify("bank_indicator = 0x%x\n", (uint32_t)bank_indicator);
+    if (bank_indicator != 0xff)
+    {
+        notify("Bank switch failed!\n");
+        return 0;
+    }
+
+    notify("CoreOS.bin installed.\n");
+	
+    sys_timer_sleep(5);
+	VerifyCoreOSOnly();
+
+    return 1;
+}
+
+int VerifyQCFW()
+{
+	notify("VerifyQCFW: Not Yet Implemented");
+}
+
+int VerifyStagexOnly()
+{
+	notify("VerifyStagexOnly: Not Yet Implemented");
+}
+
+int VerifyCoreOSOnly()
+{
+	notify("VerifyCoreOSOnly: Not Yet Implemented");
 }
 
 void write_toggle(char* path_to_file, char* message)
