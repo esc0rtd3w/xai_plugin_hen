@@ -2942,9 +2942,11 @@ bool IsExploited()
 // returns 1 on success, 0 on failure
 int InstallQCFW(bool doLegacy, bool doSkipRosCompare, bool doFlashRos1)
 {
+	// TODO: Add firmware version detect
+
 	//notify("Flash is %s\n", FlashIsNor() ? "NOR" : "NAND");
-	const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
-    notify("Flash is %s\n", (char*)flashtype);
+	//const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
+    //notify("Flash is %s\n", (char*)flashtype);
 
 	sys_timer_sleep(3);
 
@@ -3042,7 +3044,8 @@ int InstallStagexOnly()
     sys_timer_sleep(30);
 
     notify("Installing Stagex.bin...\n");
-    BadWDSD_Write_Stagex();
+    //BadWDSD_Write_Stagex();
+	notify("DEBUG: BadWDSD_Write_Stagex() is disabled for testing\n");
     notify("Stagex.bin installed.\n");
 
     sys_timer_sleep(5);
@@ -3077,7 +3080,8 @@ int InstallCoreOSOnly(bool doSkipRosCompare, bool doFlashRos1)
     notify("DEBUG: Writing CoreOS will begin in 30 seconds\n");
     sys_timer_sleep(30);
 
-    BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+    //BadWDSD_Write_ros(!doSkipRosCompare, doFlashRos1);
+	notify("DEBUG: BadWDSD_Write_ros() is disabled for testing\n");
 
     set_bank_indicator(0xff);
     bank_indicator = get_bank_indicator();
