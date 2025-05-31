@@ -558,6 +558,10 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 		const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
 		notify("Flash is %s\n", (char*)flashtype);
 	}
+	else if(strcmp(action, "badwdsd_nor_read_compare_ros_banks") == 0)	
+	{
+		CompareROSBanks();
+	}
 	
 	// BadHTAB Testing
 	else if(strcmp(action, "dump_lv1") == 0)	

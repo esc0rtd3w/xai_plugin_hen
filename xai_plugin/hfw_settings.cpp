@@ -419,6 +419,8 @@ bool FlashIsNor()
 		return false;
 	}
 
+	// bit 0 set means NAND; cleared means NOR
+	notify("lv2_storage_get_cache_of_flash_ext_flag, res = %d, flag = 0x%02x\n", res, (uint32_t)flag);
 	return !(flag & 0x1);
 }
 
@@ -436,6 +438,7 @@ bool TargetIsCEX()
 		return false;
 	}
 
+	notify("lv2_dbg_get_console_type = 1, res = %d\n", res);
 	return (type == 1);
 }
 
@@ -452,7 +455,8 @@ bool TargetIsDEX()
 		//abort();
 		return false;
 	}
-
+	
+	notify("lv2_dbg_get_console_type = 2, res = %d\n", res);
 	return (type == 2);
 }
 
@@ -469,7 +473,8 @@ bool TargetIsDECR()
 		//abort();
 		return false;
 	}
-
+	
+	notify("lv2_dbg_get_console_type = 3, res = %d\n", res);
 	return (type == 3);
 }
 
@@ -3212,6 +3217,39 @@ void VerifyStagexOnly(void)
 void VerifyCoreOSOnly(void)
 {
 	notify("VerifyCoreOSOnly: Not Yet Implemented");
+}
+
+void CompareROSBanks(void)
+{
+    notify("Comparing ros...\n");
+
+    void* ros0 = allocator_759E0635(0x700000);// malloc
+    void* ros1 = allocator_759E0635(0x700000);// malloc
+
+    if (ros0 == NULL || ros1 == NULL)
+    {
+        notify("malloc fail!\n");
+
+        //abort();
+
+        return;
+    }
+
+	notify("Reading ROS0");
+    NorRead(0x0C0000, ros0, 0x700000);
+	notify("Reading ROS1");
+    NorRead(0x7C0000, ros1, 0x700000);
+
+    if (memcmp(ros0, ros1, 0x700000))
+    {
+        notify("ros compare fail!, please reinstall same firmware twice!\n");
+
+        //abort();
+        return;
+    }
+
+    allocator_77A602DD(ros1);// free
+    allocator_77A602DD(ros0);// free
 }
 
 void write_toggle(char* path_to_file, char* message)

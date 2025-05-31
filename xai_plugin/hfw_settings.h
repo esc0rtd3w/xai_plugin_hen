@@ -115,6 +115,8 @@ bool TargetIsDECR();
 uint8_t get_bank_indicator();
 void set_bank_indicator(uint8_t value);
 
+void CompareROSBanks(void);
+
 void NorWrite(uint64_t offset, const void* data, uint64_t size);
 void NorRead(uint64_t offset, void* data, uint64_t size);
 
