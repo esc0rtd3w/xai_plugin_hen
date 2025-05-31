@@ -2923,6 +2923,7 @@ bool IsExploited()
 
 	if (verify != 0x536F6E792043656CULL)
 	{
+		notify("IsExploited: false");
 		return false;
 	}
 
@@ -2936,6 +2937,7 @@ bool IsExploited()
 		return false;
 	}*/
 
+	notify("IsExploited: true");
 	return true;
 }
 

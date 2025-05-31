@@ -506,7 +506,7 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 			return;
 		}
 	}
-
+	
 	else if(strcmp(action, "badwdsd_verify_qcfw") == 0)	
 	{
 		VerifyQCFW();
@@ -518,6 +518,45 @@ void xai_plugin_interface_action::xai_plugin_action(const char * action)
 	else if(strcmp(action, "badwdsd_verify_coreos_only") == 0)	
 	{
 		VerifyCoreOSOnly();
+	}
+	
+	// Test indivdual functions
+	else if(strcmp(action, "badwdsd_get_fw_version") == 0)	
+	{
+		GetFWVersion();
+	}
+	else if(strcmp(action, "badwdsd_target_is_cex") == 0)	
+	{
+		TargetIsCEX();
+	}
+	else if(strcmp(action, "badwdsd_target_is_dex") == 0)	
+	{
+		TargetIsDEX();
+	}
+	else if(strcmp(action, "badwdsd_target_is_decr") == 0)	
+	{
+		TargetIsDECR();
+	}
+	else if(strcmp(action, "badwdsd_is_exploited") == 0)	
+	{
+		IsExploited();
+	}
+	else if(strcmp(action, "badwdsd_get_bank_indicator") == 0)	
+	{
+		get_bank_indicator();
+	}
+	else if(strcmp(action, "badwdsd_set_bank_indicator_00") == 0)	
+	{
+		set_bank_indicator(0x00);
+	}
+	else if(strcmp(action, "badwdsd_set_bank_indicator_ff") == 0)	
+	{
+		set_bank_indicator(0xff);
+	}
+	else if(strcmp(action, "badwdsd_get_flash_type") == 0)	
+	{
+		const char* flashtype = (FlashIsNor() ? "NOR" : "NAND");
+		notify("Flash is %s\n", (char*)flashtype);
 	}
 	
 	// BadHTAB Testing
